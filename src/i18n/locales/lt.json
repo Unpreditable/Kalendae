@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Pasirinkti datą"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Iškvietimas",
+      "description": "Kaip parinkiklis pasirodo ties data jūsų užraše.",
+      "options": {
+        "hover-icon": "Piktograma užvedus pelę",
+        "double-click": "Dvigubas spustelėjimas ant datos",
+        "both": "Abu"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Datos parinkiklis dar nesukurtas."
+  }
+}

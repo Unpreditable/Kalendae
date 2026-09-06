@@ -1,0 +1,11 @@
+{
+  "id": "kalendae",
+  "name": "Kalendae Date Picker",
+  "version": "0.0.1",
+  "minAppVersion": "1.13.0",
+  "description": "Change a date or time already written in your note by picking it from a calendar, instead of retyping it.",
+  "author": "Vitaly Ditman",
+  "authorUrl": "https://github.com/Unpreditable",
+  "fundingUrl": "",
+  "isDesktopOnly": false
+}

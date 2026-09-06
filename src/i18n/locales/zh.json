@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "选择日期"
+  },
+  "settings": {
+    "trigger": {
+      "name": "触发方式",
+      "description": "选择器在笔记中的日期上如何出现。",
+      "options": {
+        "hover-icon": "悬停时显示图标",
+        "double-click": "双击日期",
+        "both": "两者都用"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "日期选择器尚未完成。"
+  }
+}

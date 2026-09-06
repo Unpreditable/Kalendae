@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "日付を選択"
+  },
+  "settings": {
+    "trigger": {
+      "name": "表示のきっかけ",
+      "description": "ノート内の日付で選択ツールをどのように表示するか。",
+      "options": {
+        "hover-icon": "ホバーでアイコンを表示",
+        "double-click": "日付をダブルクリック",
+        "both": "両方"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "日付ピッカーはまだできていません。"
+  }
+}

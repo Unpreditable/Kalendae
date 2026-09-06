@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "날짜 선택"
+  },
+  "settings": {
+    "trigger": {
+      "name": "실행 방식",
+      "description": "노트의 날짜에서 선택기가 나타나는 방식입니다.",
+      "options": {
+        "hover-icon": "마우스를 올리면 아이콘 표시",
+        "double-click": "날짜 더블 클릭",
+        "both": "둘 다"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "날짜 선택기가 아직 만들어지지 않았습니다."
+  }
+}

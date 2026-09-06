@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Escolher uma data"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Ativação",
+      "description": "Como o seletor aparece numa data da sua nota.",
+      "options": {
+        "hover-icon": "Ícone ao passar o cursor",
+        "double-click": "Duplo clique na data",
+        "both": "Ambos"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "O seletor de datas ainda não foi criado."
+  }
+}

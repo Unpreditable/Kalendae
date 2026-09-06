@@ -1,0 +1,26 @@
+{
+  "commands": {
+    "pickDate_comment": "Command palette entry. Opens the picker for the date at the cursor.",
+    "pickDate": "Pick a date"
+  },
+  "settings": {
+    "trigger": {
+      "name_comment": "Settings row label for the dropdown controlling how the picker offers itself on a recognised date.",
+      "name": "Trigger",
+      "description_comment": "Settings row description under the Trigger label.",
+      "description": "How the picker appears on a date in your note.",
+      "options": {
+        "hover-icon_comment": "Dropdown option: a small icon appears beside the date only while the pointer is over it.",
+        "hover-icon": "Icon on hover",
+        "double-click_comment": "Dropdown option: double-clicking the date opens the picker, so a single click still just places the cursor.",
+        "double-click": "Double-click the date",
+        "both_comment": "Dropdown option: both the hover icon and the double-click gesture are active.",
+        "both": "Both"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented_comment": "Placeholder notice shown by the stub command while the picker itself is unbuilt.",
+    "notImplemented": "The date picker isn't built yet."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Datum auswählen"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Auslöser",
+      "description": "Wie die Auswahl bei einem Datum in deiner Notiz erscheint.",
+      "options": {
+        "hover-icon": "Symbol beim Daraufzeigen",
+        "double-click": "Doppelklick auf das Datum",
+        "both": "Beides"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Die Datumsauswahl ist noch nicht fertig."
+  }
+}

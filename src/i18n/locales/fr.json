@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Choisir une date"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Déclencheur",
+      "description": "Comment le sélecteur apparaît sur une date de votre note.",
+      "options": {
+        "hover-icon": "Icône au survol",
+        "double-click": "Double-clic sur la date",
+        "both": "Les deux"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Le sélecteur de date n'est pas encore créé."
+  }
+}

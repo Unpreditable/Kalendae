@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Izvēlēties datumu"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Izsaukšana",
+      "description": "Kā atlasītājs parādās pie datuma jūsu piezīmē.",
+      "options": {
+        "hover-icon": "Ikona, novietojot kursoru",
+        "double-click": "Dubultklikšķis uz datuma",
+        "both": "Abi"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Datuma atlasītājs vēl nav izveidots."
+  }
+}

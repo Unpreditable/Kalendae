@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Elegir una fecha"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Activación",
+      "description": "Cómo aparece el selector en una fecha de tu nota.",
+      "options": {
+        "hover-icon": "Icono al pasar el cursor",
+        "double-click": "Doble clic en la fecha",
+        "both": "Ambos"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "El selector de fechas aún no está creado."
+  }
+}

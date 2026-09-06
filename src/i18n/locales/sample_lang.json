@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": ""
+  },
+  "settings": {
+    "trigger": {
+      "name": "",
+      "description": "",
+      "options": {
+        "hover-icon": "",
+        "double-click": "",
+        "both": ""
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": ""
+  }
+}

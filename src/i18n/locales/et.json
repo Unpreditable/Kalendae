@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Vali kuupäev"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Käivitaja",
+      "description": "Kuidas valija ilmub märkmes oleval kuupäeval.",
+      "options": {
+        "hover-icon": "Ikoon hiirega peale liikudes",
+        "double-click": "Topeltklõps kuupäeval",
+        "both": "Mõlemad"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Kuupäevavalija pole veel valmis."
+  }
+}

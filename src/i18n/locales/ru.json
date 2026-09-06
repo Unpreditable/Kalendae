@@ -1,0 +1,19 @@
+{
+  "commands": {
+    "pickDate": "Выбрать дату"
+  },
+  "settings": {
+    "trigger": {
+      "name": "Способ вызова",
+      "description": "Как выбор даты появляется на дате в заметке.",
+      "options": {
+        "hover-icon": "Значок при наведении",
+        "double-click": "Двойной щелчок по дате",
+        "both": "Оба"
+      }
+    }
+  },
+  "notices": {
+    "notImplemented": "Выбор даты ещё не готов."
+  }
+}
