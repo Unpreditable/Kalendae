@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "选择日期"
+    "pickDate": "选择日期",
+    "reportDetections": "列出本笔记中检测到的日期"
   },
   "settings": {
     "trigger": {
@@ -9,11 +10,93 @@
       "options": {
         "hover-icon": "悬停时显示图标",
         "double-click": "双击日期",
-        "both": "两者都用"
+        "both": "两者"
+      }
+    },
+    "formats": {
+      "heading": "日期格式",
+      "description": "Kalendae 在你的笔记中识别的日期格式，自上而下依次应用。",
+      "add": "添加格式",
+      "addCustom": "自定义…",
+      "builtIn": "内置",
+      "custom": "自定义",
+      "newFormat": "新格式",
+      "unfinished": "未完成",
+      "edit": "编辑格式",
+      "delete": "移除格式",
+      "reorder": "拖动以重新排序",
+      "shadow": {
+        "move": "从不使用：上方的 {{by}} 会先占用这些日期。请把它移到上面。",
+        "remove": "从不使用：上方的 {{by}} 读取相同的日期。请删除其中一个。",
+        "shared": "与 {{by}} 共享日期。两者都匹配时，上面的优先。"
+      },
+      "modal": {
+        "title": "自定义格式",
+        "pattern": "格式",
+        "required": "（必填）",
+        "optional": "（可选）",
+        "columns": {
+          "tokens": "标记",
+          "meaning": "含义",
+          "used": "已使用"
+        },
+        "groups": {
+          "year": "年",
+          "month": "月",
+          "day": "日",
+          "weekday": "星期",
+          "literal": "原样保留"
+        },
+        "warning": "该格式会匹配任意 {{digits}} 位数字。建议加入分隔符。",
+        "hint": "使用上面的标记编写格式。",
+        "problem": {
+          "adjacent": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符。",
+          "adjacentWiden": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符，或把 {{from}} 写成 {{to}}。",
+          "adjacentWidenBoth": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符，或写成 {{firstFixed}} 与 {{secondFixed}}。",
+          "missing": {
+            "year": "格式需要年份：请加入 YY 或 YYYY。",
+            "month": "格式需要月份：请加入 M、MM、MMM 或 MMMM。",
+            "day": "格式需要日期：请加入 D、DD 或 Do。"
+          },
+          "unknownTokens": "未知标记：{{chars}}"
+        },
+        "cancel": "取消",
+        "save": "保存"
+      }
+    },
+    "scopes": {
+      "heading": "扫描范围",
+      "text": {
+        "name": "正文"
+      },
+      "headings": {
+        "name": "标题"
+      },
+      "frontmatter": {
+        "name": "前置元数据"
+      },
+      "inlineCode": {
+        "name": "行内代码"
+      },
+      "codeBlocks": {
+        "name": "代码块"
+      },
+      "wikilinks": {
+        "name": "Wiki 链接"
+      },
+      "sample": {
+        "heading": "预览",
+        "description": "这是用于演示的示例笔记。Kalendae 不会在你的笔记中高亮日期。",
+        "detected": "已检测",
+        "skipped": "未检测"
       }
     }
   },
   "notices": {
-    "notImplemented": "日期选择器尚未完成。"
+    "notImplemented": "日期选择器尚未构建。",
+    "noEditor": "请先在编辑视图中打开笔记。",
+    "reportEmpty": "本笔记中未找到形似日期的内容。",
+    "reportSummary": "已识别 {{accepted}} 个，排除 {{rejected}} 个。请查看开发者控制台。",
+    "reportPartialContext": "笔记过长，无法完整解析。末尾附近的范围可能不准确。"
   }
 }

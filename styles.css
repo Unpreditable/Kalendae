@@ -5,3 +5,317 @@
  * supported CSS properties, and colours/fonts/spacing come from Obsidian's
  * own CSS variables so themes stay in control.
  */
+
+.kalendae-hidden {
+  display: none;
+}
+
+.kalendae-link {
+  color: var(--text-accent);
+  text-decoration: underline;
+}
+
+/* Format list */
+
+/* Rendered by hand rather than by the framework: see format-list.ts. The grid
+   is what puts the drag handle first and keeps the pattern and its example on
+   one line instead of stacked. */
+/* Matched against `.setting-group .setting-item:not(.setting-item-heading)`,
+   which is what Obsidian pads these rows with and outranks any two-class
+   selector. The :not() is carried here only to win, not because a heading
+   could ever be a format row. */
+.setting-group .setting-item.kalendae-format-row:not(.setting-item-heading) {
+  align-items: center;
+  display: grid;
+  gap: var(--size-4-3);
+  grid-template-columns: auto auto 1fr auto auto auto;
+  padding-block: var(--size-2-3);
+  padding-inline-start: var(--size-4-8);
+}
+
+/* Rows sit in from the heading they belong to, so a section reads as one thing
+   rather than as a title with a list beside it.
+ *
+ * Written as a descendant of our own group class, never compounded onto
+ * `.setting-group`: the class we ask for may land on the group's inner list
+ * rather than on the element Obsidian marks, and requiring both on one element
+ * matched nothing at all. Long enough to outrank Obsidian's own
+ * `.setting-group .setting-item:not(.setting-item-heading)`, which pads these
+ * rows and beats any shorter selector. */
+.kalendae-scope-group .setting-item:not(.setting-item-heading) {
+  padding-inline-start: var(--size-4-8);
+}
+
+.setting-group .setting-item.kalendae-format-intro:not(.setting-item-heading) {
+  padding-inline-start: var(--size-4-8);
+}
+
+/* Which kind of format the row holds. Muted, because it is there to be checked
+   rather than read — the pattern is what the eye should land on first. */
+.kalendae-format-kind {
+  color: var(--text-faint);
+  display: flex;
+}
+
+.kalendae-format-handle {
+  color: var(--text-faint);
+  cursor: grab;
+  display: flex;
+}
+
+/* Nothing to reorder with a single format, so the handle stops inviting it. */
+.kalendae-format-handle-idle {
+  cursor: default;
+  opacity: 0.35;
+}
+
+/* A format the list never reaches. Drawn on every row and hidden where there
+   is nothing to report, so the examples stay in one column either way. */
+.kalendae-format-warn {
+  color: var(--text-warning, var(--text-accent));
+  display: flex;
+}
+
+.kalendae-format-warn-empty {
+  visibility: hidden;
+}
+
+/* A pair splitting the dates between them is information, not a fault. */
+.kalendae-format-warn-quiet {
+  color: var(--text-faint);
+}
+
+.kalendae-format-pattern {
+  font-family: var(--font-monospace);
+}
+
+.kalendae-format-example {
+  color: var(--text-muted);
+}
+
+.kalendae-format-buttons {
+  display: flex;
+  gap: var(--size-4-1);
+}
+
+.kalendae-format-button {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  padding: var(--size-4-1);
+}
+
+.kalendae-format-button:hover {
+  color: var(--text-normal);
+}
+
+/* Holds the pencil's place on a row that has no pencil, so the delete buttons
+   line up down the whole list. Hidden rather than removed: it is sized by the
+   same rules as the button it stands in for. */
+.kalendae-format-button-empty {
+  cursor: default;
+  visibility: hidden;
+}
+
+/* Sortable's two states. The row you are carrying keeps its own look and rides
+   with the pointer; the placeholder is the space it will drop into, drawn as a
+   flat band so the list plainly has a hole in it at that spot. */
+.setting-item.kalendae-format-row-moving {
+  opacity: 0.9;
+}
+
+.setting-item.kalendae-format-row-placeholder {
+  background-color: var(--background-modifier-hover);
+  opacity: 1;
+}
+
+.setting-item.kalendae-format-row-placeholder > * {
+  visibility: hidden;
+}
+
+/* Settings sub-pages */
+
+/* Obsidian sizes a settings row for a page with a handful of them. These pages
+   have five or more, and the empty space between them makes the set harder to
+   read as a set, not easier. */
+.kalendae-settings-page .setting-item {
+  padding-block: var(--size-4-2);
+}
+
+/* The placeholder must read as a hint, not as a value. Some themes give it the
+   same colour as real input text, which makes an empty field look filled in. */
+.kalendae-settings-page input[type="text"]::placeholder {
+  color: var(--text-faint);
+}
+
+/* The format field and its result on one line. The label takes only the width
+   of its own text and the field sits straight after it, so the space the row
+   has goes to the result rather than to a gap in the middle of it. */
+.setting-item.kalendae-format-field {
+  align-items: center;
+}
+
+.kalendae-format-field .setting-item-info {
+  flex: 0 0 auto;
+}
+
+/* A settings row sets its label a size smaller than the modal's own text, which
+   reads as a caption beside a field it is the equal of. Matched to the rest of
+   the dialog through Obsidian's own scale rather than a fixed size. */
+.kalendae-format-field .setting-item-name {
+  font-size: var(--font-ui-medium);
+}
+
+/* The row carries no description, but the element for one is rendered anyway
+   and keeps its margin, which lifts the label off the middle of the row while
+   the field and its result beside it stay centred. */
+.kalendae-format-field .setting-item-description {
+  display: none;
+}
+
+.kalendae-format-field .setting-item-control {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: var(--size-4-2);
+  justify-content: flex-start;
+}
+
+/* The line on the row's left, with the buttons on its right. Ordinary text
+   while it is telling you where to start, the error colour once it is telling
+   you what is wrong. */
+.kalendae-format-problem {
+  color: var(--text-muted);
+}
+
+.kalendae-format-problem-error {
+  color: var(--text-error);
+}
+
+/* Advice, not a fault: the format saves either way. Falls back to the accent
+   colour where a theme leaves the warning colour undefined. */
+.kalendae-format-problem-warning {
+  color: var(--text-warning, var(--text-accent));
+}
+
+.kalendae-format-arrow {
+  color: var(--text-faint);
+}
+
+.kalendae-format-result {
+  font-family: var(--font-monospace);
+}
+
+/* The token table: tokens, what they spell, and whether the pattern has one.
+   Three columns that line up, and none of the rules or row padding a settings
+   row would have brought — four rows of reference material should not push the
+   preview off the screen. */
+/* The token grid: tokens, what they write, and whether the format uses one.
+   Laid out here rather than as a <table>, because Obsidian and themes both
+   style tables and their rules could not be reliably overridden. Nothing
+   styles a plain div, so there is nothing to remove. */
+.kalendae-format-tokens {
+  align-items: center;
+  column-gap: var(--size-4-4);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  margin-block-end: var(--size-4-3);
+  row-gap: var(--size-2-1);
+}
+
+/* The row is there for screen readers; its cells belong to the grid. */
+.kalendae-format-token-row {
+  display: contents;
+}
+
+.kalendae-format-token-head {
+  color: var(--text-faint);
+}
+
+.kalendae-format-token-list {
+  font-family: var(--font-monospace);
+  white-space: nowrap;
+}
+
+.kalendae-format-token-name {
+  color: var(--text-muted);
+}
+
+/* Whether the row is a part a date cannot do without. Fainter than the name it
+   follows, so the column still reads as a list of names. */
+.kalendae-format-token-need {
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  padding-inline-start: var(--size-4-2);
+}
+
+.kalendae-format-mark {
+  color: var(--text-muted);
+  display: flex;
+}
+
+.kalendae-format-mark-missing {
+  color: var(--text-error);
+}
+
+/* The one line under the "Date formats" heading. It explains the list, so it
+   reads as description text rather than as another setting's title. The class
+   sits on the row itself — it is the list's first item, not a wrapper. */
+.setting-item.kalendae-format-intro {
+  border-top: none;
+  padding-block-start: 0;
+}
+
+.kalendae-format-intro .setting-item-name {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  font-weight: normal;
+}
+
+.kalendae-format-warning {
+  border-top: none;
+}
+
+.kalendae-format-warning .setting-item-description {
+  color: var(--text-error);
+}
+
+/* Sections page: the worked example */
+
+.kalendae-sample-block {
+  display: block;
+}
+
+.kalendae-sample-legend {
+  display: flex;
+  gap: var(--size-4-4);
+  font-size: var(--font-ui-smaller);
+  padding-block: var(--size-4-2);
+}
+
+.kalendae-sample {
+  background-color: var(--background-secondary);
+  border-radius: var(--radius-s);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  margin: 0;
+  overflow-x: auto;
+  padding: var(--size-4-3);
+  white-space: pre-wrap;
+}
+
+/* Two states, because "what it skipped" is as much the answer as "what it
+   found" — a date that simply vanishes tells the reader nothing about why. */
+.kalendae-sample-detected {
+  background-color: var(--text-selection);
+  border-radius: var(--radius-s);
+  color: var(--text-accent);
+}
+
+.kalendae-sample-skipped {
+  border-bottom: 1px dashed var(--text-faint);
+  color: var(--text-faint);
+}

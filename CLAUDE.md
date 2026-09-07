@@ -50,9 +50,13 @@ mean a separate write path through the vault API. It is a reading surface; this 
 
 ### CodeMirror dependencies
 
-`@codemirror/state`, `@codemirror/view` and `@codemirror/language` are devDependencies for types
-only. Obsidian ships its own copy of each at runtime, and `esbuild.config.mjs` externalises them.
-Bundling any of them gives the editor a second, unrelated state — decorations silently never
+`@codemirror/state`, `@codemirror/view` and `@codemirror/language` are devDependencies because
+Obsidian ships its own copy of each at runtime and `esbuild.config.mjs` externalises them — not
+because they are types only. `@codemirror/language` is called at runtime: `detect.ts` and
+`context.ts` use `syntaxTree()` and `ensureSyntaxTree()` as values, so neither import can become
+an `import type`.
+
+Bundling any of the three gives the editor a second, unrelated state — decorations silently never
 appear, with nothing failing loudly. Never remove them from the `external` list.
 
 `@codemirror/state` and `@codemirror/view` are pinned to **exact** versions, not ranges, because
@@ -67,7 +71,7 @@ npm view obsidian@<version> peerDependencies --json
 To confirm a build kept them external:
 
 ```bash
-grep -o 'require("@codemirror/[a-z]*")' main.js | sort -u   # should list them
+grep -o 'require("@codemirror/[a-z]*")' main.js | sort -u   # language and view, today
 grep -c "class EditorView" main.js                          # must be 0
 ```
 
@@ -76,12 +80,53 @@ grep -c "class EditorView" main.js                          # must be 0
 | File | Role |
 |---|---|
 | [src/main.ts](src/main.ts) | Plugin entry point; settings load/save, command and editor-extension registration |
-| [src/editor/DatePickerExtension.ts](src/editor/DatePickerExtension.ts) | CM6 `ViewPlugin` — the seam where date detection and the picker affordance go |
-| [src/settings.ts](src/settings.ts) | `KalendaeSettings`, `TriggerMode` and defaults |
-| [src/settings-tab.ts](src/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
+| [src/editor/DatePickerExtension.ts](src/editor/DatePickerExtension.ts) | CM6 `ViewPlugin` — no decorations yet; owns the live-`EditorView` registry that `editorViewIn()` reads |
+| [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `BUILT_IN_FORMATS` |
+| [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
+| [src/detect/context.ts](src/detect/context.ts) | `classifyContext()` — where in the note a candidate sits, via `syntaxTree()` |
+| [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` — joins the two, applies the scope settings |
+| [src/detect/report.ts](src/detect/report.ts) | Rows for the report command, rejections included |
+| [src/detect/shadow.ts](src/detect/shadow.ts) | `shadowedFormats()` — which formats an earlier one always beats to its dates |
+| [src/settings.ts](src/settings.ts) | `KalendaeSettings`, `TriggerMode`, defaults, `normaliseStoredFormats()`, `reorderById()` |
+| [src/settings/settings-tab.ts](src/settings/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
+| [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand; the Sortable binding |
+| [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern |
+| [src/settings/sections-page.ts](src/settings/sections-page.ts) | The scope toggles and their worked example |
 | [src/i18n/i18n.ts](src/i18n/i18n.ts) | i18next init; every user-visible string goes through `t()` |
 
-Detection, the calendar UI, and write-back do not exist yet. This section grows as they land.
+The calendar UI and write-back do not exist yet. This section grows as they land.
+
+### Detection
+
+Split on testability, and keep it that way. `scan.ts` is pure — no Obsidian, no editor — so every
+rule about what counts as a date is unit-testable. `context.ts` needs a live syntax tree and
+cannot be unit-tested at all: Obsidian parses markdown with its own stream parser, so the node
+names in `NODE_HINTS` are Obsidian's, undocumented, and were read off a running vault (1.13). The
+`nodes` column in the report command exists to correct them; don't guess at them from a grammar.
+
+`syntaxTree(state)` is **not** enough. CodeMirror parses lazily, roughly as far as the rendered
+viewport needs, and past that horizon every lookup comes back empty — which reads as "prose" and
+silently lets code blocks through the scope filter partway down a long note. `detect.ts` uses
+`ensureSyntaxTree()` up to the last candidate's offset and reports `contextComplete: false` when
+the parser runs out of budget. The document itself is never partial: CodeMirror virtualises
+rendering, not content, so `state.doc` always holds the whole note.
+
+A candidate must pass three gates, in order:
+
+1. the compiled regex for an enabled format,
+2. the boundary rule — a letter or digit on either side disqualifies it; a dot does so only with a
+   digit beyond it (`2026-09-06.` ending a sentence versus `12.11.2026.5`), and an underscore only
+   with a letter or digit beyond it (`_2026-09-06_` in italics versus `backup_2026-09-06_final`),
+3. `moment.utc(text, pattern, true).isValid()`, which has the final say.
+
+Gate 3 being the authority is why gate 1 only has to be non-lossy. Use `moment.utc(...)`, not a
+bare `moment(...)`: the namespace stays callable under `esModuleInterop`, which the Jest tsconfig
+sets and the build tsconfig does not.
+
+Formats are an **ordered** list and the first enabled match claims a range — that is the whole
+answer to `03/09/2026` being both a March and a September date, and reordering the list in
+settings is how a user states which. Write-back reuses the format that matched, so editing a date
+never restyles the note; see the normalise item in TODO.md for the opt-in that isn't built.
 
 ### Settings API
 
@@ -93,9 +138,34 @@ first.
 
 Prefer a declarative `control` over the `render` escape hatch. With a `control`, the inherited
 `getControlValue`/`setControlValue` read and persist `plugin.settings[key]` themselves, so there is
-no save wiring to forget — which is why `main.ts` has no `saveSettings()`. Note the field is
-`desc`, not `description`. Typing the return as
-`SettingDefinitionItem<keyof KalendaeSettings>[]` turns a mistyped `key` into a compile error.
+no save wiring to forget. Note the field is `desc`, not `description`.
+
+**The format list is the exception.** Its rows address entries in an array rather than properties
+of the settings object, so no `control` can bind them and they are `render` definitions instead.
+`renderFormatRow()` draws each row itself and mutates `settings.formats` directly, which is why
+`main.ts` has a `saveSettings()` at all: a `render` row gets no persistence for free. The
+declarative row types were tried and cannot carry this — a `page` row gets no delete or drag
+affordance and a plain row gets no buttons, so a custom format could be edited or removed but
+never both.
+
+The key type stays bare `keyof KalendaeSettings`, so a typo in a plain setting is still a compile
+error. Nothing routes synthetic keys, because nothing needs to.
+
+`SettingDefinitionList` (`type: "list"`) renders the collection and supplies the add affordance
+via `addItem` — a + in the list header on desktop, a tappable row beneath on mobile. Deleting and
+reordering are ours: the trash button on each row, and Sortable bound to the list element. After
+adding, deleting or reordering, call `update()`, not `refreshDomState()` — the definitions
+themselves changed.
+
+Two things follow from how `update()` behaves, and both have already been bugs:
+
+- Obsidian reuses a group across `update()` but builds a fresh list element when the tab is
+  reopened, so `Sortable.get()` is not enough to prevent a leak. `format-list.ts` destroys the
+  previous instance on rebind, and `KalendaeSettingTab.hide()` releases it.
+- A sub-page mutating settings must ask the tab to `update()`, or the summary row behind it keeps
+  the value it was drawn with. `SectionsPage` takes a callback and fires it from `hide()`, on
+  leaving, rather than per toggle — updating the tab under an open page redraws it while the user
+  is still working on top of it.
 
 ### i18n
 

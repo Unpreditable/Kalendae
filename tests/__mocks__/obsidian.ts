@@ -85,3 +85,9 @@ export class Setting {
     return this;
   }
 }
+
+// The real moment, not a stub. Obsidian re-exports moment at runtime, and the
+// scanner leans on its strict parser as the final say on whether a candidate
+// is a real calendar date — mocking that away would mock away the thing under
+// test. Pinned to the same version the obsidian package pulls in.
+export { default as moment } from "moment";

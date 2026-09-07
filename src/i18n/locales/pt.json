@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Escolher uma data"
+    "pickDate": "Escolher data",
+    "reportDetections": "Listar as datas detectadas nesta nota"
   },
   "settings": {
     "trigger": {
-      "name": "Ativação",
-      "description": "Como o seletor aparece numa data da sua nota.",
+      "name": "Gatilho",
+      "description": "Como o seletor aparece em uma data na sua nota.",
       "options": {
-        "hover-icon": "Ícone ao passar o cursor",
-        "double-click": "Duplo clique na data",
+        "hover-icon": "Ícone ao passar o mouse",
+        "double-click": "Clique duplo na data",
         "both": "Ambos"
+      }
+    },
+    "formats": {
+      "heading": "Formatos de data",
+      "description": "Os formatos de data que o Kalendae reconhece nas suas notas, aplicados de cima para baixo.",
+      "add": "Adicionar formato",
+      "addCustom": "Personalizado…",
+      "builtIn": "Integrado",
+      "custom": "Personalizado",
+      "newFormat": "Novo formato",
+      "unfinished": "Incompleto",
+      "edit": "Editar formato",
+      "delete": "Remover formato",
+      "reorder": "Arraste para reordenar",
+      "shadow": {
+        "move": "Nunca usado: {{by}} acima fica com essas datas primeiro. Mova este para cima dele.",
+        "remove": "Nunca usado: {{by}} acima lê as mesmas datas. Remova um deles.",
+        "shared": "Compartilha datas com {{by}}. Quando ambos servem, vence o de cima."
+      },
+      "modal": {
+        "title": "Formato personalizado",
+        "pattern": "Formato",
+        "required": "(Obrigatório)",
+        "optional": "(Opcional)",
+        "columns": {
+          "tokens": "Marcadores",
+          "meaning": "Significado",
+          "used": "Usado"
+        },
+        "groups": {
+          "year": "Ano",
+          "month": "Mês",
+          "day": "Dia",
+          "weekday": "Dia da semana",
+          "literal": "Mantido como digitado"
+        },
+        "warning": "Seu formato corresponde a qualquer número de {{digits}} dígitos. Considere adicionar separadores.",
+        "hint": "Escreva um formato usando os marcadores acima.",
+        "problem": {
+          "adjacent": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador.",
+          "adjacentWiden": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador ou escreva {{from}} como {{to}}.",
+          "adjacentWidenBoth": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador ou escreva-os como {{firstFixed}} e {{secondFixed}}.",
+          "missing": {
+            "year": "Um formato precisa de um ano: adicione YY ou YYYY.",
+            "month": "Um formato precisa de um mês: adicione M, MM, MMM ou MMMM.",
+            "day": "Um formato precisa de um dia: adicione D, DD ou Do."
+          },
+          "unknownTokens": "Marcador desconhecido: {{chars}}"
+        },
+        "cancel": "Cancelar",
+        "save": "Salvar"
+      }
+    },
+    "scopes": {
+      "heading": "Seções a analisar",
+      "text": {
+        "name": "Texto do corpo"
+      },
+      "headings": {
+        "name": "Títulos"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Código embutido"
+      },
+      "codeBlocks": {
+        "name": "Blocos de código"
+      },
+      "wikilinks": {
+        "name": "Wikilinks"
+      },
+      "sample": {
+        "heading": "Pré-visualização",
+        "description": "Uma nota de exemplo, apenas para demonstração. O Kalendae não destaca datas nas suas notas.",
+        "detected": "Detectada",
+        "skipped": "Não detectada"
       }
     }
   },
   "notices": {
-    "notImplemented": "O seletor de datas ainda não foi criado."
+    "notImplemented": "O seletor de datas ainda não foi criado.",
+    "noEditor": "Abra uma nota no modo de edição primeiro.",
+    "reportEmpty": "Nada com forma de data foi encontrado nesta nota.",
+    "reportSummary": "{{accepted}} reconhecidas, {{rejected}} descartadas. Veja o console de desenvolvimento.",
+    "reportPartialContext": "A nota era longa demais para ser analisada por completo. As seções perto do fim podem estar erradas."
   }
 }

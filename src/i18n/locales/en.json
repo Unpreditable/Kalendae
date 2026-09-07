@@ -1,7 +1,9 @@
 {
   "commands": {
     "pickDate_comment": "Command palette entry. Opens the picker for the date at the cursor.",
-    "pickDate": "Pick a date"
+    "pickDate": "Pick a date",
+    "reportDetections_comment": "Command palette entry. Prints every date the plugin found in the current note to the developer console, including the ones it rejected and why.",
+    "reportDetections": "Report detected dates in this note"
   },
   "settings": {
     "trigger": {
@@ -17,10 +19,140 @@
         "both_comment": "Dropdown option: both the hover icon and the double-click gesture are active.",
         "both": "Both"
       }
+    },
+    "formats": {
+      "heading_comment": "Heading above the list of date formats the plugin looks for.",
+      "heading": "Date formats",
+      "description_comment": "The single line of explanation under the Date formats heading. 'Applied top to bottom' means that when two formats could both read the same text, the one higher in the list wins.",
+      "description": "The date formats Kalendae recognises in your notes, applied top to bottom.",
+      "add_comment": "Tooltip on the + button beside the Date formats heading, which opens a menu of formats to add.",
+      "add": "Add format",
+      "addCustom_comment": "Last entry in the add menu, below the built-in formats. Opens a page for writing a format of your own.",
+      "addCustom": "Custom…",
+      "builtIn_comment": "Hover label on the icon at the start of a format row that came with Kalendae. These formats cannot be edited, only removed or reordered.",
+      "builtIn": "Built-in",
+      "custom_comment": "Hover label on the icon at the start of a format row the user wrote themselves. Contrasts with the built-in formats; these are the only ones with an edit button.",
+      "custom": "Custom",
+      "newFormat_comment": "Row label for a custom format that has been added but not yet given a pattern.",
+      "newFormat": "New format",
+      "unfinished_comment": "Shown in place of the example on a format row whose pattern is incomplete or uses tokens Kalendae cannot read.",
+      "unfinished": "Not finished",
+      "edit_comment": "Accessible label on the pencil button of a custom format row.",
+      "edit": "Edit format",
+      "delete_comment": "Accessible label on the delete button of a format row.",
+      "delete": "Remove format",
+      "reorder_comment": "Accessible label on the drag handle at the start of a format row.",
+      "reorder": "Drag to reorder",
+      "shadow_comment": "Hover labels on the icon of a format row that an earlier format in the list beats to its dates. {{by}} is that earlier format's pattern, not translated. Three cases with three different answers: move the row up, remove one of the pair, or nothing at all.",
+      "shadow": {
+        "move": "Never used: {{by}} above it claims these dates first. Move this above it.",
+        "remove": "Never used: {{by}} above it reads the same dates. Remove one.",
+        "shared": "Shares dates with {{by}}. Where both fit, the one above wins."
+      },
+      "modal": {
+        "title_comment": "Title of the dialog for writing or editing a custom date format.",
+        "title": "Custom format",
+        "pattern_comment": "Label for the text field holding the format pattern.",
+        "pattern": "Format",
+        "required_comment": "Shown after the name of a part a format cannot do without — year, month and day. Keep the brackets if they read naturally in your language.",
+        "required": "(Required)",
+        "optional_comment": "Shown after the name of a part a format may leave out, currently only the day of the week.",
+        "optional": "(Optional)",
+        "columns_comment": "Headings of the three columns in the token table: the tokens themselves, what each one writes, and whether the format being edited uses one.",
+        "columns": {
+          "tokens": "Tokens",
+          "meaning": "Meaning",
+          "used": "Used"
+        },
+        "groups": {
+          "year_comment": "Checklist row in the custom format dialog. The tokens beside it (YY, YYYY) are not translated. A tick appears when the format includes one of them.",
+          "year": "Year",
+          "month_comment": "Checklist row for the month tokens M, MM, MMM, MMMM.",
+          "month": "Month",
+          "day_comment": "Checklist row for the day-of-month tokens D, DD, Do.",
+          "day": "Day",
+          "weekday_comment": "Row for the weekday tokens d, dd, ddd, dddd. The only optional part, and the only row with no tick or cross beside it — there is nothing to satisfy.",
+          "weekday": "Day of the week",
+          "literal_comment": "Last row of the token table, describing the punctuation between tokens rather than a part of a date. Everything that is not a letter is written into the note exactly as typed, so this row has no tick.",
+          "literal": "Kept as typed"
+        },
+        "warning_comment": "Shown when a format holds nothing but numbers, as in YYYYMMDD, so a plain number in a note would match it. {{digits}} is how many digits it matches. A format with anything else in it — a separator, a month name — never shows this. Not an error, the format saves, so it is worded as advice.",
+        "warning": "Your format matches any {{digits}}-digit number. Consider adding separators.",
+        "hint_comment": "Shown where the error message goes while the format field is still empty. Not an error — nothing is wrong yet — so it is worded as a next step and shown in ordinary text rather than the error colour.",
+        "hint": "Write a format using the tokens above.",
+        "problem": {
+          "adjacent_comment": "Shown when a one-or-two-digit token touches another number and neither can be given a fixed width. {{first}} and {{second}} are the two tokens, not translated. Such a format cannot be read back reliably, so it cannot be saved.",
+          "adjacent": "Your format is ambiguous: {{first}} and {{second}} run together. Add a separator.",
+          "adjacentWiden_comment": "The same problem where one of the two tokens has a fixed-width form, as YYMDD does: {{from}} is M or D and {{to}} is MM or DD. Two ways out, and widening the token keeps the format's shape.",
+          "adjacentWiden": "Your format is ambiguous: {{first}} and {{second}} run together. Add a separator, or write {{from}} as {{to}}.",
+          "adjacentWidenBoth_comment": "The same problem where both tokens have a fixed-width form, as MDYYYY does. {{firstFixed}} and {{secondFixed}} are the widened tokens, in the same order as {{first}} and {{second}}.",
+          "adjacentWidenBoth": "Your format is ambiguous: {{first}} and {{second}} run together. Add a separator, or write them as {{firstFixed}} and {{secondFixed}}.",
+          "missing": {
+            "year_comment": "Shown beside the buttons when the format has no year. The tokens are not translated.",
+            "year": "A format needs a year: add YY or YYYY.",
+            "month_comment": "Shown beside the buttons when the format has no month. The tokens are not translated.",
+            "month": "A format needs a month: add M, MM, MMM or MMMM.",
+            "day_comment": "Shown beside the buttons when the format has no day of the month. The tokens are not translated.",
+            "day": "A format needs a day: add D, DD or Do."
+          },
+          "unknownTokens_comment": "Shown beside the buttons when the format contains letters Kalendae has no token for. {{chars}} is those letters as typed, and may be more than one run of them separated by commas.",
+          "unknownTokens": "Unknown token: {{chars}}"
+        },
+        "cancel_comment": "Button that closes the custom format dialog without keeping the format.",
+        "cancel": "Cancel",
+        "save_comment": "Button that keeps the custom format and closes the dialog. Unavailable while a required part is missing.",
+        "save": "Save"
+      }
+    },
+    "scopes": {
+      "heading_comment": "Label of the row that opens the page controlling which parts of a note are searched, and the title of that page.",
+      "heading": "Sections to scan",
+      "text": {
+        "name_comment": "The first section on the Sections to scan page: the prose body of a note, as opposed to its headings, frontmatter, code or links. Always scanned, shown with a toggle that is on and cannot be moved.",
+        "name": "Body text"
+      },
+      "headings": {
+        "name_comment": "Toggle label: markdown headings, the lines starting with #. On by default, unlike the other optional sections.",
+        "name": "Headings"
+      },
+      "frontmatter": {
+        "name_comment": "Toggle label: the YAML properties block at the top of a note.",
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name_comment": "Toggle label: short code spans written between single backticks.",
+        "name": "Inline code"
+      },
+      "codeBlocks": {
+        "name_comment": "Toggle label: fenced code blocks written between triple backticks.",
+        "name": "Code blocks"
+      },
+      "wikilinks": {
+        "name_comment": "Toggle label: Obsidian's internal links, written between double square brackets.",
+        "name": "Wikilinks"
+      },
+      "sample": {
+        "heading_comment": "Heading above the worked example at the bottom of the Sections to scan page.",
+        "heading": "Preview",
+        "description_comment": "Explains the example block on the Sections to scan page. Must make clear that the plugin never highlights dates in the user's own notes at all — not that it highlights them differently.",
+        "description": "An example note, shown for demonstration only. Kalendae does not highlight dates in your notes.",
+        "detected_comment": "Legend label for the colour marking dates the plugin would pick up.",
+        "detected": "Detected",
+        "skipped_comment": "Legend label for the colour marking dates the plugin would leave alone because their section is switched off.",
+        "skipped": "Not detected"
+      }
     }
   },
   "notices": {
     "notImplemented_comment": "Placeholder notice shown by the stub command while the picker itself is unbuilt.",
-    "notImplemented": "The date picker isn't built yet."
+    "notImplemented": "The date picker isn't built yet.",
+    "noEditor_comment": "Notice shown when the report command runs somewhere there is no editor to read.",
+    "noEditor": "Open a note in editing view first.",
+    "reportEmpty_comment": "Notice shown when the report command found nothing in the note that even looked like a date.",
+    "reportEmpty": "No date-shaped text found in this note.",
+    "reportSummary_comment": "Notice shown after the report command writes its table to the developer console. {{accepted}} is how many dates were recognised, {{rejected}} how many were ruled out.",
+    "reportSummary": "{{accepted}} recognised, {{rejected}} ruled out. See the developer console.",
+    "reportPartialContext_comment": "Notice shown when the parser could not reach the end of a long note in time, so the 'scope' column in the table may be wrong for the dates near the end.",
+    "reportPartialContext": "The note was too long to parse in full. Scopes near the end may be wrong."
   }
 }

@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Choisir une date"
+    "pickDate": "Choisir une date",
+    "reportDetections": "Lister les dates détectées dans cette note"
   },
   "settings": {
     "trigger": {
       "name": "Déclencheur",
-      "description": "Comment le sélecteur apparaît sur une date de votre note.",
+      "description": "Comment le sélecteur apparaît sur une date dans votre note.",
       "options": {
         "hover-icon": "Icône au survol",
         "double-click": "Double-clic sur la date",
         "both": "Les deux"
       }
+    },
+    "formats": {
+      "heading": "Formats de date",
+      "description": "Les formats de date que Kalendae reconnaît dans vos notes, appliqués de haut en bas.",
+      "add": "Ajouter un format",
+      "addCustom": "Personnalisé…",
+      "builtIn": "Intégré",
+      "custom": "Personnalisé",
+      "newFormat": "Nouveau format",
+      "unfinished": "Inachevé",
+      "edit": "Modifier le format",
+      "delete": "Supprimer le format",
+      "reorder": "Glisser pour réordonner",
+      "shadow": {
+        "move": "Jamais utilisé : {{by}} au-dessus prend ces dates en premier. Placez celui-ci au-dessus.",
+        "remove": "Jamais utilisé : {{by}} au-dessus lit les mêmes dates. Supprimez-en un.",
+        "shared": "Partage des dates avec {{by}}. Quand les deux conviennent, celui du dessus l'emporte."
+      },
+      "modal": {
+        "title": "Format personnalisé",
+        "pattern": "Format",
+        "required": "(Obligatoire)",
+        "optional": "(Facultatif)",
+        "columns": {
+          "tokens": "Symboles",
+          "meaning": "Signification",
+          "used": "Utilisé"
+        },
+        "groups": {
+          "year": "Année",
+          "month": "Mois",
+          "day": "Jour",
+          "weekday": "Jour de la semaine",
+          "literal": "Conservé tel quel"
+        },
+        "warning": "Votre format correspond à n'importe quel nombre de {{digits}} chiffres. Envisagez d'ajouter des séparateurs.",
+        "hint": "Écrivez un format avec les symboles ci-dessus.",
+        "problem": {
+          "adjacent": "Votre format est ambigu : {{first}} et {{second}} se suivent sans séparation. Ajoutez un séparateur.",
+          "adjacentWiden": "Votre format est ambigu : {{first}} et {{second}} se suivent sans séparation. Ajoutez un séparateur, ou écrivez {{from}} comme {{to}}.",
+          "adjacentWidenBoth": "Votre format est ambigu : {{first}} et {{second}} se suivent sans séparation. Ajoutez un séparateur, ou écrivez-les {{firstFixed}} et {{secondFixed}}.",
+          "missing": {
+            "year": "Un format a besoin d'une année : ajoutez YY ou YYYY.",
+            "month": "Un format a besoin d'un mois : ajoutez M, MM, MMM ou MMMM.",
+            "day": "Un format a besoin d'un jour : ajoutez D, DD ou Do."
+          },
+          "unknownTokens": "Symbole inconnu : {{chars}}"
+        },
+        "cancel": "Annuler",
+        "save": "Enregistrer"
+      }
+    },
+    "scopes": {
+      "heading": "Sections à analyser",
+      "text": {
+        "name": "Corps du texte"
+      },
+      "headings": {
+        "name": "Titres"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Code en ligne"
+      },
+      "codeBlocks": {
+        "name": "Blocs de code"
+      },
+      "wikilinks": {
+        "name": "Wikilinks"
+      },
+      "sample": {
+        "heading": "Aperçu",
+        "description": "Une note d'exemple, à titre de démonstration. Kalendae ne met pas les dates en évidence dans vos notes.",
+        "detected": "Détectée",
+        "skipped": "Non détectée"
+      }
     }
   },
   "notices": {
-    "notImplemented": "Le sélecteur de date n'est pas encore créé."
+    "notImplemented": "Le sélecteur de dates n'existe pas encore.",
+    "noEditor": "Ouvrez d'abord une note en mode édition.",
+    "reportEmpty": "Rien qui ressemble à une date n'a été trouvé dans cette note.",
+    "reportSummary": "{{accepted}} reconnues, {{rejected}} écartées. Voir la console de développement.",
+    "reportPartialContext": "La note était trop longue pour être analysée en entier. Les sections de la fin peuvent être erronées."
   }
 }

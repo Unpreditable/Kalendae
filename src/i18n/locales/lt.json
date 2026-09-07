@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Pasirinkti datą"
+    "pickDate": "Pasirinkti datą",
+    "reportDetections": "Parodyti šioje pastaboje rastas datas"
   },
   "settings": {
     "trigger": {
       "name": "Iškvietimas",
-      "description": "Kaip parinkiklis pasirodo ties data jūsų užraše.",
+      "description": "Kaip datos pasirinkimas pasirodo prie datos jūsų pastaboje.",
       "options": {
         "hover-icon": "Piktograma užvedus pelę",
         "double-click": "Dvigubas spustelėjimas ant datos",
         "both": "Abu"
       }
+    },
+    "formats": {
+      "heading": "Datų formatai",
+      "description": "Datų formatai, kuriuos Kalendae atpažįsta jūsų pastabose, taikomi iš viršaus į apačią.",
+      "add": "Pridėti formatą",
+      "addCustom": "Savas…",
+      "builtIn": "Įtaisytasis",
+      "custom": "Savas",
+      "newFormat": "Naujas formatas",
+      "unfinished": "Nebaigtas",
+      "edit": "Redaguoti formatą",
+      "delete": "Pašalinti formatą",
+      "reorder": "Vilkite, kad pertvarkytumėte",
+      "shadow": {
+        "move": "Niekada nenaudojamas: {{by}} viršuje pasiima šias datas pirmas. Perkelkite šį virš jo.",
+        "remove": "Niekada nenaudojamas: {{by}} viršuje skaito tas pačias datas. Pašalinkite vieną iš jų.",
+        "shared": "Dalijasi datomis su {{by}}. Kur tinka abu, laimi viršutinis."
+      },
+      "modal": {
+        "title": "Savas formatas",
+        "pattern": "Formatas",
+        "required": "(Būtina)",
+        "optional": "(Nebūtina)",
+        "columns": {
+          "tokens": "Žymenys",
+          "meaning": "Reikšmė",
+          "used": "Naudojama"
+        },
+        "groups": {
+          "year": "Metai",
+          "month": "Mėnuo",
+          "day": "Diena",
+          "weekday": "Savaitės diena",
+          "literal": "Paliekama kaip įvesta"
+        },
+        "warning": "Jūsų formatas atitinka bet kokį {{digits}} skaitmenų skaičių. Apsvarstykite skirtukus.",
+        "hint": "Sudarykite formatą iš aukščiau esančių žymenų.",
+        "problem": {
+          "adjacent": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką.",
+          "adjacentWiden": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką arba rašykite {{from}} kaip {{to}}.",
+          "adjacentWidenBoth": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką arba rašykite juos kaip {{firstFixed}} ir {{secondFixed}}.",
+          "missing": {
+            "year": "Formatui reikia metų: pridėkite YY arba YYYY.",
+            "month": "Formatui reikia mėnesio: pridėkite M, MM, MMM arba MMMM.",
+            "day": "Formatui reikia dienos: pridėkite D, DD arba Do."
+          },
+          "unknownTokens": "Nežinomas žymuo: {{chars}}"
+        },
+        "cancel": "Atšaukti",
+        "save": "Įrašyti"
+      }
+    },
+    "scopes": {
+      "heading": "Kur ieškoti",
+      "text": {
+        "name": "Pagrindinis tekstas"
+      },
+      "headings": {
+        "name": "Antraštės"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Kodas eilutėje"
+      },
+      "codeBlocks": {
+        "name": "Kodo blokai"
+      },
+      "wikilinks": {
+        "name": "Wiki nuorodos"
+      },
+      "sample": {
+        "heading": "Peržiūra",
+        "description": "Pavyzdinė pastaba, tik parodymui. Kalendae neišryškina datų jūsų pastabose.",
+        "detected": "Atpažinta",
+        "skipped": "Neatpažinta"
+      }
     }
   },
   "notices": {
-    "notImplemented": "Datos parinkiklis dar nesukurtas."
+    "notImplemented": "Datos pasirinkimas dar nesukurtas.",
+    "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
+    "reportEmpty": "Šioje pastaboje nerasta nieko panašaus į datą.",
+    "reportSummary": "{{accepted}} atpažinta, {{rejected}} atmesta. Žiūrėkite kūrėjo konsolę.",
+    "reportPartialContext": "Pastaba per ilga, kad būtų išanalizuota visa. Skiltys pabaigoje gali būti nustatytos klaidingai."
   }
 }

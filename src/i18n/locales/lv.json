@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Izvēlēties datumu"
+    "pickDate": "Izvēlēties datumu",
+    "reportDetections": "Parādīt šajā piezīmē atrastos datumus"
   },
   "settings": {
     "trigger": {
       "name": "Izsaukšana",
-      "description": "Kā atlasītājs parādās pie datuma jūsu piezīmē.",
+      "description": "Kā datuma izvēle parādās pie datuma tavā piezīmē.",
       "options": {
-        "hover-icon": "Ikona, novietojot kursoru",
+        "hover-icon": "Ikona, uzejot ar peli",
         "double-click": "Dubultklikšķis uz datuma",
         "both": "Abi"
+      }
+    },
+    "formats": {
+      "heading": "Datumu formāti",
+      "description": "Datumu formāti, ko Kalendae atpazīst tavās piezīmēs, tiek lietoti no augšas uz leju.",
+      "add": "Pievienot formātu",
+      "addCustom": "Pielāgots…",
+      "builtIn": "Iebūvēts",
+      "custom": "Pielāgots",
+      "newFormat": "Jauns formāts",
+      "unfinished": "Nepabeigts",
+      "edit": "Rediģēt formātu",
+      "delete": "Noņemt formātu",
+      "reorder": "Velc, lai pārkārtotu",
+      "shadow": {
+        "move": "Nekad netiek lietots: {{by}} augstāk paņem šos datumus pirmais. Pārvieto šo virs tā.",
+        "remove": "Nekad netiek lietots: {{by}} augstāk lasa tos pašus datumus. Noņem vienu no tiem.",
+        "shared": "Dala datumus ar {{by}}. Kur der abi, uzvar augstākais."
+      },
+      "modal": {
+        "title": "Pielāgots formāts",
+        "pattern": "Formāts",
+        "required": "(Obligāts)",
+        "optional": "(Neobligāts)",
+        "columns": {
+          "tokens": "Apzīmējumi",
+          "meaning": "Nozīme",
+          "used": "Lietots"
+        },
+        "groups": {
+          "year": "Gads",
+          "month": "Mēnesis",
+          "day": "Diena",
+          "weekday": "Nedēļas diena",
+          "literal": "Paliek, kā ierakstīts"
+        },
+        "warning": "Tavs formāts atbilst jebkuram {{digits}} ciparu skaitlim. Apsver atdalītāju pievienošanu.",
+        "hint": "Uzraksti formātu, izmantojot augstāk esošos apzīmējumus.",
+        "problem": {
+          "adjacent": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju.",
+          "adjacentWiden": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju vai raksti {{from}} kā {{to}}.",
+          "adjacentWidenBoth": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju vai raksti tos kā {{firstFixed}} un {{secondFixed}}.",
+          "missing": {
+            "year": "Formātam vajag gadu: pievieno YY vai YYYY.",
+            "month": "Formātam vajag mēnesi: pievieno M, MM, MMM vai MMMM.",
+            "day": "Formātam vajag dienu: pievieno D, DD vai Do."
+          },
+          "unknownTokens": "Nezināms apzīmējums: {{chars}}"
+        },
+        "cancel": "Atcelt",
+        "save": "Saglabāt"
+      }
+    },
+    "scopes": {
+      "heading": "Pārmeklējamās daļas",
+      "text": {
+        "name": "Pamatteksts"
+      },
+      "headings": {
+        "name": "Virsraksti"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Kods rindā"
+      },
+      "codeBlocks": {
+        "name": "Koda bloki"
+      },
+      "wikilinks": {
+        "name": "Wiki saites"
+      },
+      "sample": {
+        "heading": "Priekšskatījums",
+        "description": "Piemēra piezīme, tikai parādīšanai. Kalendae neizceļ datumus tavās piezīmēs.",
+        "detected": "Atpazīts",
+        "skipped": "Nav atpazīts"
       }
     }
   },
   "notices": {
-    "notImplemented": "Datuma atlasītājs vēl nav izveidots."
+    "notImplemented": "Datuma izvēle vēl nav izveidota.",
+    "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
+    "reportEmpty": "Šajā piezīmē nekas datumam līdzīgs nav atrasts.",
+    "reportSummary": "{{accepted}} atpazīti, {{rejected}} noraidīti. Skaties izstrādātāja konsoli.",
+    "reportPartialContext": "Piezīme bija par garu, lai to izanalizētu pilnībā. Daļas beigās var būt noteiktas nepareizi."
   }
 }

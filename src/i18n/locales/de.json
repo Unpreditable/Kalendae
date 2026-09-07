@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Datum auswählen"
+    "pickDate": "Datum auswählen",
+    "reportDetections": "Erkannte Datumsangaben in dieser Notiz auflisten"
   },
   "settings": {
     "trigger": {
@@ -11,9 +12,91 @@
         "double-click": "Doppelklick auf das Datum",
         "both": "Beides"
       }
+    },
+    "formats": {
+      "heading": "Datumsformate",
+      "description": "Die Datumsformate, die Kalendae in deinen Notizen erkennt, von oben nach unten angewandt.",
+      "add": "Format hinzufügen",
+      "addCustom": "Eigenes Format …",
+      "builtIn": "Mitgeliefert",
+      "custom": "Eigenes",
+      "newFormat": "Neues Format",
+      "unfinished": "Unvollständig",
+      "edit": "Format bearbeiten",
+      "delete": "Format entfernen",
+      "reorder": "Zum Umsortieren ziehen",
+      "shadow": {
+        "move": "Nie verwendet: {{by}} darüber liest diese Datumsangaben zuerst. Verschiebe dieses Format darüber.",
+        "remove": "Nie verwendet: {{by}} darüber liest dieselben Datumsangaben. Entferne eines davon.",
+        "shared": "Teilt sich Datumsangaben mit {{by}}. Wo beide passen, gewinnt das obere."
+      },
+      "modal": {
+        "title": "Eigenes Format",
+        "pattern": "Format",
+        "required": "(Erforderlich)",
+        "optional": "(Optional)",
+        "columns": {
+          "tokens": "Platzhalter",
+          "meaning": "Bedeutung",
+          "used": "Verwendet"
+        },
+        "groups": {
+          "year": "Jahr",
+          "month": "Monat",
+          "day": "Tag",
+          "weekday": "Wochentag",
+          "literal": "Wird übernommen"
+        },
+        "warning": "Dein Format passt auf jede {{digits}}-stellige Zahl. Erwäge Trennzeichen.",
+        "hint": "Schreibe ein Format mit den Platzhaltern oben.",
+        "problem": {
+          "adjacent": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein.",
+          "adjacentWiden": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein oder schreibe {{from}} als {{to}}.",
+          "adjacentWidenBoth": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein oder schreibe sie als {{firstFixed}} und {{secondFixed}}.",
+          "missing": {
+            "year": "Ein Format braucht ein Jahr: füge YY oder YYYY hinzu.",
+            "month": "Ein Format braucht einen Monat: füge M, MM, MMM oder MMMM hinzu.",
+            "day": "Ein Format braucht einen Tag: füge D, DD oder Do hinzu."
+          },
+          "unknownTokens": "Unbekannter Platzhalter: {{chars}}"
+        },
+        "cancel": "Abbrechen",
+        "save": "Speichern"
+      }
+    },
+    "scopes": {
+      "heading": "Zu durchsuchende Bereiche",
+      "text": {
+        "name": "Fließtext"
+      },
+      "headings": {
+        "name": "Überschriften"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Inline-Code"
+      },
+      "codeBlocks": {
+        "name": "Codeblöcke"
+      },
+      "wikilinks": {
+        "name": "Wikilinks"
+      },
+      "sample": {
+        "heading": "Vorschau",
+        "description": "Eine Beispielnotiz, nur zur Veranschaulichung. Kalendae hebt in deinen Notizen keine Datumsangaben hervor.",
+        "detected": "Erkannt",
+        "skipped": "Nicht erkannt"
+      }
     }
   },
   "notices": {
-    "notImplemented": "Die Datumsauswahl ist noch nicht fertig."
+    "notImplemented": "Die Datumsauswahl ist noch nicht gebaut.",
+    "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
+    "reportEmpty": "In dieser Notiz wurde nichts gefunden, das wie ein Datum aussieht.",
+    "reportSummary": "{{accepted}} erkannt, {{rejected}} ausgeschlossen. Siehe Entwicklerkonsole.",
+    "reportPartialContext": "Die Notiz war zu lang, um sie vollständig zu analysieren. Bereiche am Ende können falsch sein."
   }
 }

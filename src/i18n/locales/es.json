@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Elegir una fecha"
+    "pickDate": "Elegir fecha",
+    "reportDetections": "Listar las fechas detectadas en esta nota"
   },
   "settings": {
     "trigger": {
       "name": "Activación",
-      "description": "Cómo aparece el selector en una fecha de tu nota.",
+      "description": "Cómo aparece el selector sobre una fecha en tu nota.",
       "options": {
-        "hover-icon": "Icono al pasar el cursor",
+        "hover-icon": "Icono al pasar el ratón",
         "double-click": "Doble clic en la fecha",
         "both": "Ambos"
+      }
+    },
+    "formats": {
+      "heading": "Formatos de fecha",
+      "description": "Los formatos de fecha que Kalendae reconoce en tus notas, aplicados de arriba abajo.",
+      "add": "Añadir formato",
+      "addCustom": "Personalizado…",
+      "builtIn": "Incluido",
+      "custom": "Personalizado",
+      "newFormat": "Formato nuevo",
+      "unfinished": "Sin terminar",
+      "edit": "Editar formato",
+      "delete": "Quitar formato",
+      "reorder": "Arrastra para reordenar",
+      "shadow": {
+        "move": "Nunca se usa: {{by}}, encima, reclama estas fechas primero. Mueve este por encima.",
+        "remove": "Nunca se usa: {{by}}, encima, lee las mismas fechas. Quita uno de los dos.",
+        "shared": "Comparte fechas con {{by}}. Donde ambos encajan, gana el de arriba."
+      },
+      "modal": {
+        "title": "Formato personalizado",
+        "pattern": "Formato",
+        "required": "(Obligatorio)",
+        "optional": "(Opcional)",
+        "columns": {
+          "tokens": "Marcadores",
+          "meaning": "Significado",
+          "used": "Usado"
+        },
+        "groups": {
+          "year": "Año",
+          "month": "Mes",
+          "day": "Día",
+          "weekday": "Día de la semana",
+          "literal": "Se mantiene tal cual"
+        },
+        "warning": "Tu formato coincide con cualquier número de {{digits}} dígitos. Considera añadir separadores.",
+        "hint": "Escribe un formato con los marcadores de arriba.",
+        "problem": {
+          "adjacent": "Tu formato es ambiguo: {{first}} y {{second}} van seguidos. Añade un separador.",
+          "adjacentWiden": "Tu formato es ambiguo: {{first}} y {{second}} van seguidos. Añade un separador o escribe {{from}} como {{to}}.",
+          "adjacentWidenBoth": "Tu formato es ambiguo: {{first}} y {{second}} van seguidos. Añade un separador o escríbelos como {{firstFixed}} y {{secondFixed}}.",
+          "missing": {
+            "year": "Un formato necesita un año: añade YY o YYYY.",
+            "month": "Un formato necesita un mes: añade M, MM, MMM o MMMM.",
+            "day": "Un formato necesita un día: añade D, DD o Do."
+          },
+          "unknownTokens": "Marcador desconocido: {{chars}}"
+        },
+        "cancel": "Cancelar",
+        "save": "Guardar"
+      }
+    },
+    "scopes": {
+      "heading": "Secciones que analizar",
+      "text": {
+        "name": "Texto del cuerpo"
+      },
+      "headings": {
+        "name": "Encabezados"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Código en línea"
+      },
+      "codeBlocks": {
+        "name": "Bloques de código"
+      },
+      "wikilinks": {
+        "name": "Wikilinks"
+      },
+      "sample": {
+        "heading": "Vista previa",
+        "description": "Una nota de ejemplo, solo para mostrar. Kalendae no resalta fechas en tus notas.",
+        "detected": "Detectada",
+        "skipped": "No detectada"
       }
     }
   },
   "notices": {
-    "notImplemented": "El selector de fechas aún no está creado."
+    "notImplemented": "El selector de fechas aún no está creado.",
+    "noEditor": "Abre primero una nota en vista de edición.",
+    "reportEmpty": "No se encontró nada con forma de fecha en esta nota.",
+    "reportSummary": "{{accepted}} reconocidas, {{rejected}} descartadas. Consulta la consola de desarrollo.",
+    "reportPartialContext": "La nota era demasiado larga para analizarla entera. Las secciones del final pueden ser incorrectas."
   }
 }

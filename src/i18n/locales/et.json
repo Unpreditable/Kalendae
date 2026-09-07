@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "Vali kuupäev"
+    "pickDate": "Vali kuupäev",
+    "reportDetections": "Näita selles märkmes leitud kuupäevi"
   },
   "settings": {
     "trigger": {
-      "name": "Käivitaja",
-      "description": "Kuidas valija ilmub märkmes oleval kuupäeval.",
+      "name": "Avamisviis",
+      "description": "Kuidas valik ilmub märkmes oleva kuupäeva juurde.",
       "options": {
         "hover-icon": "Ikoon hiirega peale liikudes",
         "double-click": "Topeltklõps kuupäeval",
         "both": "Mõlemad"
       }
+    },
+    "formats": {
+      "heading": "Kuupäevavormingud",
+      "description": "Kuupäevavormingud, mida Kalendae sinu märkmetes tunneb, rakendatakse ülalt alla.",
+      "add": "Lisa vorming",
+      "addCustom": "Oma…",
+      "builtIn": "Sisseehitatud",
+      "custom": "Oma",
+      "newFormat": "Uus vorming",
+      "unfinished": "Lõpetamata",
+      "edit": "Muuda vormingut",
+      "delete": "Eemalda vorming",
+      "reorder": "Lohista järjekorra muutmiseks",
+      "shadow": {
+        "move": "Ei kasutata kunagi: {{by}} ülalpool võtab need kuupäevad esimesena. Tõsta see sellest ülespoole.",
+        "remove": "Ei kasutata kunagi: {{by}} ülalpool loeb samu kuupäevi. Eemalda üks neist.",
+        "shared": "Jagab kuupäevi vorminguga {{by}}. Kus mõlemad sobivad, võidab ülemine."
+      },
+      "modal": {
+        "title": "Oma vorming",
+        "pattern": "Vorming",
+        "required": "(Kohustuslik)",
+        "optional": "(Valikuline)",
+        "columns": {
+          "tokens": "Tähised",
+          "meaning": "Tähendus",
+          "used": "Kasutusel"
+        },
+        "groups": {
+          "year": "Aasta",
+          "month": "Kuu",
+          "day": "Päev",
+          "weekday": "Nädalapäev",
+          "literal": "Jääb nii, nagu kirjutatud"
+        },
+        "warning": "Sinu vorming sobib iga {{digits}}-kohalise arvuga. Kaalu eraldajate lisamist.",
+        "hint": "Kirjuta vorming ülal olevate tähistega.",
+        "problem": {
+          "adjacent": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja.",
+          "adjacentWiden": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja või kirjuta {{from}} kujul {{to}}.",
+          "adjacentWidenBoth": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja või kirjuta need kujul {{firstFixed}} ja {{secondFixed}}.",
+          "missing": {
+            "year": "Vorming vajab aastat: lisa YY või YYYY.",
+            "month": "Vorming vajab kuud: lisa M, MM, MMM või MMMM.",
+            "day": "Vorming vajab päeva: lisa D, DD või Do."
+          },
+          "unknownTokens": "Tundmatu tähis: {{chars}}"
+        },
+        "cancel": "Loobu",
+        "save": "Salvesta"
+      }
+    },
+    "scopes": {
+      "heading": "Läbivaadatavad osad",
+      "text": {
+        "name": "Põhitekst"
+      },
+      "headings": {
+        "name": "Pealkirjad"
+      },
+      "frontmatter": {
+        "name": "Frontmatter"
+      },
+      "inlineCode": {
+        "name": "Reasisene kood"
+      },
+      "codeBlocks": {
+        "name": "Koodiplokid"
+      },
+      "wikilinks": {
+        "name": "Wiki-lingid"
+      },
+      "sample": {
+        "heading": "Eelvaade",
+        "description": "Näidismärge, ainult näitlikustamiseks. Kalendae ei tõsta sinu märkmetes kuupäevi esile.",
+        "detected": "Tuvastatud",
+        "skipped": "Tuvastamata"
+      }
     }
   },
   "notices": {
-    "notImplemented": "Kuupäevavalija pole veel valmis."
+    "notImplemented": "Kuupäevavalijat pole veel tehtud.",
+    "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
+    "reportEmpty": "Sellest märkmest ei leitud midagi kuupäeva moodi.",
+    "reportSummary": "{{accepted}} tuvastatud, {{rejected}} kõrvale jäetud. Vaata arendajakonsooli.",
+    "reportPartialContext": "Märge oli täies mahus analüüsimiseks liiga pikk. Lõpu osad võivad olla valed."
   }
 }

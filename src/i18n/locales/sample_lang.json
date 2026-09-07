@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": ""
+    "pickDate": "",
+    "reportDetections": ""
   },
   "settings": {
     "trigger": {
@@ -11,9 +12,91 @@
         "double-click": "",
         "both": ""
       }
+    },
+    "formats": {
+      "heading": "",
+      "description": "",
+      "add": "",
+      "addCustom": "",
+      "builtIn": "",
+      "custom": "",
+      "newFormat": "",
+      "unfinished": "",
+      "edit": "",
+      "delete": "",
+      "reorder": "",
+      "shadow": {
+        "move": "",
+        "remove": "",
+        "shared": ""
+      },
+      "modal": {
+        "title": "",
+        "pattern": "",
+        "required": "",
+        "optional": "",
+        "columns": {
+          "tokens": "",
+          "meaning": "",
+          "used": ""
+        },
+        "groups": {
+          "year": "",
+          "month": "",
+          "day": "",
+          "weekday": "",
+          "literal": ""
+        },
+        "warning": "",
+        "hint": "",
+        "problem": {
+          "adjacent": "",
+          "adjacentWiden": "",
+          "adjacentWidenBoth": "",
+          "missing": {
+            "year": "",
+            "month": "",
+            "day": ""
+          },
+          "unknownTokens": ""
+        },
+        "cancel": "",
+        "save": ""
+      }
+    },
+    "scopes": {
+      "heading": "",
+      "text": {
+        "name": ""
+      },
+      "headings": {
+        "name": ""
+      },
+      "frontmatter": {
+        "name": ""
+      },
+      "inlineCode": {
+        "name": ""
+      },
+      "codeBlocks": {
+        "name": ""
+      },
+      "wikilinks": {
+        "name": ""
+      },
+      "sample": {
+        "heading": "",
+        "description": "",
+        "detected": "",
+        "skipped": ""
+      }
     }
   },
   "notices": {
-    "notImplemented": ""
+    "notImplemented": "",
+    "noEditor": "",
+    "reportEmpty": "",
+    "reportSummary": "",
+    "reportPartialContext": ""
   }
 }

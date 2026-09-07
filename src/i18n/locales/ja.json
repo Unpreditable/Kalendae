@@ -1,19 +1,102 @@
 {
   "commands": {
-    "pickDate": "日付を選択"
+    "pickDate": "日付を選択",
+    "reportDetections": "このノートで検出した日付を一覧表示"
   },
   "settings": {
     "trigger": {
-      "name": "表示のきっかけ",
-      "description": "ノート内の日付で選択ツールをどのように表示するか。",
+      "name": "起動方法",
+      "description": "ノート内の日付でピッカーがどのように現れるか。",
       "options": {
-        "hover-icon": "ホバーでアイコンを表示",
+        "hover-icon": "ホバーでアイコン",
         "double-click": "日付をダブルクリック",
         "both": "両方"
+      }
+    },
+    "formats": {
+      "heading": "日付フォーマット",
+      "description": "Kalendae がノート内で認識する日付フォーマット。上から順に適用されます。",
+      "add": "フォーマットを追加",
+      "addCustom": "カスタム…",
+      "builtIn": "組み込み",
+      "custom": "カスタム",
+      "newFormat": "新しいフォーマット",
+      "unfinished": "未完成",
+      "edit": "フォーマットを編集",
+      "delete": "フォーマットを削除",
+      "reorder": "ドラッグして並べ替え",
+      "shadow": {
+        "move": "使われません: 上の {{by}} がこれらの日付を先に取ります。これを上に移動してください。",
+        "remove": "使われません: 上の {{by}} が同じ日付を読み取ります。どちらか一方を削除してください。",
+        "shared": "{{by}} と日付を分け合っています。どちらも一致する場合は上が優先されます。"
+      },
+      "modal": {
+        "title": "カスタムフォーマット",
+        "pattern": "フォーマット",
+        "required": "(必須)",
+        "optional": "(任意)",
+        "columns": {
+          "tokens": "トークン",
+          "meaning": "意味",
+          "used": "使用"
+        },
+        "groups": {
+          "year": "年",
+          "month": "月",
+          "day": "日",
+          "weekday": "曜日",
+          "literal": "そのまま出力"
+        },
+        "warning": "このフォーマットは {{digits}} 桁のどんな数字にも一致します。区切り文字の追加を検討してください。",
+        "hint": "上のトークンを使ってフォーマットを書いてください。",
+        "problem": {
+          "adjacent": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加してください。",
+          "adjacentWiden": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加するか、{{from}} を {{to}} と書いてください。",
+          "adjacentWidenBoth": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加するか、{{firstFixed}} と {{secondFixed}} と書いてください。",
+          "missing": {
+            "year": "フォーマットには年が必要です: YY または YYYY を追加してください。",
+            "month": "フォーマットには月が必要です: M、MM、MMM、MMMM のいずれかを追加してください。",
+            "day": "フォーマットには日が必要です: D、DD、Do のいずれかを追加してください。"
+          },
+          "unknownTokens": "不明なトークン: {{chars}}"
+        },
+        "cancel": "キャンセル",
+        "save": "保存"
+      }
+    },
+    "scopes": {
+      "heading": "検索する範囲",
+      "text": {
+        "name": "本文"
+      },
+      "headings": {
+        "name": "見出し"
+      },
+      "frontmatter": {
+        "name": "フロントマター"
+      },
+      "inlineCode": {
+        "name": "インラインコード"
+      },
+      "codeBlocks": {
+        "name": "コードブロック"
+      },
+      "wikilinks": {
+        "name": "ウィキリンク"
+      },
+      "sample": {
+        "heading": "プレビュー",
+        "description": "説明用のサンプルノートです。Kalendae があなたのノート内で日付を強調表示することはありません。",
+        "detected": "検出",
+        "skipped": "検出しない"
       }
     }
   },
   "notices": {
-    "notImplemented": "日付ピッカーはまだできていません。"
+    "notImplemented": "日付ピッカーはまだ作られていません。",
+    "noEditor": "先に編集ビューでノートを開いてください。",
+    "reportEmpty": "このノートに日付らしきものは見つかりませんでした。",
+    "reportSummary": "{{accepted}} 件を認識、{{rejected}} 件を除外しました。開発者コンソールを参照してください。",
+    "reportPartialContext": "ノートが長すぎて最後まで解析できませんでした。末尾付近の範囲は正しくない場合があります。"
   }
 }
