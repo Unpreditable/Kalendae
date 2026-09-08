@@ -58,7 +58,8 @@
             "month": "Um formato precisa de um mês: adicione M, MM, MMM ou MMMM.",
             "day": "Um formato precisa de um dia: adicione D, DD ou Do."
           },
-          "unknownTokens": "Marcador desconhecido: {{chars}}"
+          "unknownTokens": "Marcador desconhecido: {{chars}}",
+          "brackets": "Seu formato não pode usar [ nem ]"
         },
         "cancel": "Cancelar",
         "save": "Salvar"

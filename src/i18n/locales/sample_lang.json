@@ -58,7 +58,8 @@
             "month": "",
             "day": ""
           },
-          "unknownTokens": ""
+          "unknownTokens": "",
+          "brackets": ""
         },
         "cancel": "",
         "save": ""

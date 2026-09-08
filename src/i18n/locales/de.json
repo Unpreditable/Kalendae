@@ -58,7 +58,8 @@
             "month": "Ein Format braucht einen Monat: füge M, MM, MMM oder MMMM hinzu.",
             "day": "Ein Format braucht einen Tag: füge D, DD oder Do hinzu."
           },
-          "unknownTokens": "Unbekannter Platzhalter: {{chars}}"
+          "unknownTokens": "Unbekannter Platzhalter: {{chars}}",
+          "brackets": "Dein Format darf [ oder ] nicht verwenden"
         },
         "cancel": "Abbrechen",
         "save": "Speichern"

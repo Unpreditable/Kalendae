@@ -89,6 +89,26 @@ describe("checkFormat", () => {
       component: "day",
     });
   });
+
+  it("refuses a bracket pair, which moment reads as escaped text", () => {
+    // moment reads [YYYY-MM-DD] as the literal string "YYYY-MM-DD", so the
+    // compiled regex still finds text in the note and the strict parse then
+    // rejects it: the report calls a real date invalid and nothing is offered.
+    expect(checkFormat("[[YYYY-MM-DD]]")).toEqual({ code: "bracket-pair" });
+  });
+
+  it("reports the brackets before the letters they hold", () => {
+    // "Due" is only a stray letter run because the brackets were meant to
+    // excuse it, so naming the letters would explain the wrong thing.
+    expect(checkFormat("[Due] YYYY-MM-DD")).toEqual({ code: "bracket-pair" });
+  });
+
+  it("refuses a bracket with no partner too, so the rule is the character", () => {
+    // moment does parse a lone bracket as a literal, so this one is refused by
+    // choice rather than by necessity: nobody separates a date with a bracket,
+    // and "your format can't use [ or ]" has to be true as written.
+    expect(checkFormat("YYYY-MM-DD]")).toEqual({ code: "bracket-pair" });
+  });
 });
 
 describe("the token vocabulary", () => {

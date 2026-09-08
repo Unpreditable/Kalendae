@@ -58,7 +58,8 @@
             "month": "Vorming vajab kuud: lisa M, MM, MMM või MMMM.",
             "day": "Vorming vajab päeva: lisa D, DD või Do."
           },
-          "unknownTokens": "Tundmatu tähis: {{chars}}"
+          "unknownTokens": "Tundmatu tähis: {{chars}}",
+          "brackets": "Vorming ei tohi kasutada [ ega ]"
         },
         "cancel": "Loobu",
         "save": "Salvesta"

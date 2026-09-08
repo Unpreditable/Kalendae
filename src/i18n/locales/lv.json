@@ -58,7 +58,8 @@
             "month": "Formātam vajag mēnesi: pievieno M, MM, MMM vai MMMM.",
             "day": "Formātam vajag dienu: pievieno D, DD vai Do."
           },
-          "unknownTokens": "Nezināms apzīmējums: {{chars}}"
+          "unknownTokens": "Nezināms apzīmējums: {{chars}}",
+          "brackets": "Formātā nedrīkst izmantot [ vai ]"
         },
         "cancel": "Atcelt",
         "save": "Saglabāt"

@@ -58,7 +58,8 @@
             "month": "Formatui reikia mėnesio: pridėkite M, MM, MMM arba MMMM.",
             "day": "Formatui reikia dienos: pridėkite D, DD arba Do."
           },
-          "unknownTokens": "Nežinomas žymuo: {{chars}}"
+          "unknownTokens": "Nežinomas žymuo: {{chars}}",
+          "brackets": "Formate negalima naudoti [ ar ]"
         },
         "cancel": "Atšaukti",
         "save": "Įrašyti"

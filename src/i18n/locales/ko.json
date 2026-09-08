@@ -58,7 +58,8 @@
             "month": "형식에는 월이 필요합니다: M, MM, MMM, MMMM 중 하나를 넣으세요.",
             "day": "형식에는 일이 필요합니다: D, DD, Do 중 하나를 넣으세요."
           },
-          "unknownTokens": "알 수 없는 토큰: {{chars}}"
+          "unknownTokens": "알 수 없는 토큰: {{chars}}",
+          "brackets": "형식에는 [ 나 ] 를 쓸 수 없습니다"
         },
         "cancel": "취소",
         "save": "저장"

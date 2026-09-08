@@ -58,7 +58,8 @@
             "month": "フォーマットには月が必要です: M、MM、MMM、MMMM のいずれかを追加してください。",
             "day": "フォーマットには日が必要です: D、DD、Do のいずれかを追加してください。"
           },
-          "unknownTokens": "不明なトークン: {{chars}}"
+          "unknownTokens": "不明なトークン: {{chars}}",
+          "brackets": "フォーマットに [ と ] は使えません"
         },
         "cancel": "キャンセル",
         "save": "保存"

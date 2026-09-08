@@ -11,7 +11,14 @@ import { DEFAULT_SETTINGS } from "../../src/settings";
  * which only the syntax tree can judge.
  */
 
-const corpus = readFileSync(join(__dirname, "../fixtures/detection-corpus.md"), "utf8");
+// Read with its line endings normalised. Git checks the fixture out with CRLF
+// on Windows, and `section` below looks for an LF straight after the heading,
+// so the suite passed in CI and failed on a Windows clone. What the test is
+// about is detection, not how a checkout happens to write the file.
+const corpus = readFileSync(join(__dirname, "../fixtures/detection-corpus.md"), "utf8").replace(
+  /\r\n/g,
+  "\n",
+);
 
 /** The body of one `## ` section, by heading. */
 function section(heading: string): string {

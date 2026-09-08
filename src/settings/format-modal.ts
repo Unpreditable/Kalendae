@@ -132,9 +132,12 @@ export class FormatModal extends Modal {
 
     // Punctuation, last, and with an empty third cell: there is nothing to tick,
     // because there is no requirement to meet. It earns its row by answering the
-    // question the four above it raise — what may go between the tokens.
+    // question the four above it raise — what may go between the tokens. The
+    // ellipsis after the samples is doing real work: what a pattern may hold is
+    // everything that is not a letter, which is far longer than a row.
     const literal = this.tokenRow(table);
-    this.tokenCell(literal, "kalendae-format-token-list", LITERAL_SAMPLE.join("  "));
+    const shown = `${LITERAL_SAMPLE.join("  ")}  …`;
+    this.tokenCell(literal, "kalendae-format-token-list", shown);
     this.tokenCell(literal, "kalendae-format-token-name", t("settings.formats.modal.groups.literal"));
     this.tokenCell(literal, "kalendae-format-token-mark", "");
   }
@@ -209,6 +212,8 @@ function describe(problem: FormatProblem): string {
       return t(`settings.formats.modal.problem.missing.${problem.component}`);
     case "unknown-tokens":
       return t("settings.formats.modal.problem.unknownTokens", { chars: problem.chars });
+    case "bracket-pair":
+      return t("settings.formats.modal.problem.brackets");
     case "adjacent-numbers": {
       const names = { first: problem.first, second: problem.second };
       if (problem.widen.length === 0) {

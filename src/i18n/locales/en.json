@@ -96,7 +96,9 @@
             "day": "A format needs a day: add D, DD or Do."
           },
           "unknownTokens_comment": "Shown beside the buttons when the format contains letters Kalendae has no token for. {{chars}} is those letters as typed, and may be more than one run of them separated by commas.",
-          "unknownTokens": "Unknown token: {{chars}}"
+          "unknownTokens": "Unknown token: {{chars}}",
+          "brackets_comment": "Shown beside the buttons when the format holds a pair of square brackets. The date library reads anything between [ and ] as text to reproduce rather than as tokens, so such a format can never match a date and cannot be saved. Keep the [ and ] characters as they are and translate only the words around them. A bracket with no partner is fine and does not show this.",
+          "brackets": "Your format can't use [ or ]"
         },
         "cancel_comment": "Button that closes the custom format dialog without keeping the format.",
         "cancel": "Cancel",

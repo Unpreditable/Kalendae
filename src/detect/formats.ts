@@ -24,6 +24,7 @@ export interface CompiledFormat {
  */
 export type FormatProblem =
   | { code: "unknown-tokens"; chars: string }
+  | { code: "bracket-pair" }
   | { code: "missing-component"; component: "year" | "month" | "day" }
   | { code: "adjacent-numbers"; first: string; second: string; widen: TokenWidening[] };
 
@@ -57,10 +58,13 @@ export type TokenGroupKey = (typeof TOKEN_GROUPS)[number]["key"];
  * A sample of the punctuation a pattern may hold, for the table in settings.
  *
  * Not a rule, an illustration: the rule is that every character which is not a
- * letter is written out as typed, and letters that are not tokens are refused.
- * Listing them all would be a worse explanation than showing the common ones.
+ * letter is written out as typed — digits, emoji and non-latin letters
+ * included — and letters that are not tokens are refused. Square brackets are
+ * the one character this list must not carry, being the one thing a pattern
+ * may not hold at all; the table sets an ellipsis after these to say the rest
+ * is longer than a row.
  */
-export const LITERAL_SAMPLE = ["-", "/", ".", ",", ":", "(", ")", "[", "]"] as const;
+export const LITERAL_SAMPLE = ["-", "/", ".", ",", ":", "(", ")", "{", "}", "#"] as const;
 
 const COMPONENT_TOKENS = {
   year: ["YYYY", "YY"],
@@ -100,6 +104,15 @@ export function checkFormat(pattern: string): FormatProblem | null {
       return { code: "missing-component", component: component as keyof typeof COMPONENT_TOKENS };
     }
   }
+
+  // moment claims square brackets for its own escaping, reading a balanced
+  // [...] as text to reproduce rather than as tokens to parse. "[[YYYY-MM-DD]]"
+  // therefore compiles to a regex that finds a wiki-linked date and then fails
+  // the strict parse — the report calls a real date invalid while the preview
+  // shows it working. A bracket with no partner does parse, and is refused all
+  // the same: no date format separates on one, and the rule a user is told is
+  // the character rather than the pair.
+  if (/[[\]]/.test(pattern)) return { code: "bracket-pair" };
 
   // Each run is reported on its own: joining them produced strings like "dee"
   // for "(dddd) M-d-YY ee", which appears nowhere in what the user typed.

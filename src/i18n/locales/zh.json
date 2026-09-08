@@ -58,7 +58,8 @@
             "month": "格式需要月份：请加入 M、MM、MMM 或 MMMM。",
             "day": "格式需要日期：请加入 D、DD 或 Do。"
           },
-          "unknownTokens": "未知标记：{{chars}}"
+          "unknownTokens": "未知标记：{{chars}}",
+          "brackets": "格式不能使用 [ 或 ]"
         },
         "cancel": "取消",
         "save": "保存"
