@@ -6,9 +6,9 @@ due: 2024-03-22
 # Detection corpus
 
 This note is both a Jest fixture and a manual test note. Open it in a vault with Kalendae
-installed and run **Kalendae: report detected dates in this note**; the console table should
-agree with `tests/detect/corpus.test.ts` for everything outside code and frontmatter, and the
-scope settings decide the rest.
+installed and hover the dates: the ones that show the calendar icon should agree with
+`tests/detect/corpus.test.ts` for everything outside code and frontmatter, and the scope settings
+decide the rest.
 
 ## Prose — should be recognised
 

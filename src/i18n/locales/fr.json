@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Choisir une date",
-    "reportDetections": "Lister les dates détectées dans cette note"
+    "pickDate": "Choisir une date"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Ouvrez d'abord une note en mode édition.",
-    "noDateHere": "Aucune date ici. Placez d’abord le curseur sur une date.",
-    "reportEmpty": "Rien qui ressemble à une date n'a été trouvé dans cette note.",
-    "reportSummary": "{{accepted}} reconnues, {{rejected}} écartées. Voir la console de développement.",
-    "reportPartialContext": "La note était trop longue pour être analysée en entier. Les sections de la fin peuvent être erronées."
+    "noDateHere": "Aucune date ici. Placez d’abord le curseur sur une date."
   }
 }

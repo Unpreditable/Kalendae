@@ -7,9 +7,10 @@ import { DateFormatEntry, checkFormat, compileFormat } from "./formats";
  * full. Whether a date sits somewhere the user wants touched is a separate
  * question, answered by `context.ts` against the editor's syntax tree.
  *
- * Every regex hit comes back, accepted or rejected with a reason. The report
- * command shows both, because "why did it ignore my date" and "why did it
- * offer me a version number" are the same question asked from either side.
+ * Every regex hit comes back, accepted or rejected with a reason, because "why
+ * did it ignore my date" and "why did it offer me a version number" are the same
+ * question asked from either side. `shadow.ts` reads the rejections, and so does
+ * the detection report on `debug/report-command`.
  */
 
 export type RejectReason =

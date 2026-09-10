@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Vali kuupäev",
-    "reportDetections": "Näita selles märkmes leitud kuupäevi"
+    "pickDate": "Vali kuupäev"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
-    "noDateHere": "Siin pole kuupäeva. Vii kursor kõigepealt kuupäevale.",
-    "reportEmpty": "Sellest märkmest ei leitud midagi kuupäeva moodi.",
-    "reportSummary": "{{accepted}} tuvastatud, {{rejected}} kõrvale jäetud. Vaata arendajakonsooli.",
-    "reportPartialContext": "Märge oli täies mahus analüüsimiseks liiga pikk. Lõpu osad võivad olla valed."
+    "noDateHere": "Siin pole kuupäeva. Vii kursor kõigepealt kuupäevale."
   }
 }

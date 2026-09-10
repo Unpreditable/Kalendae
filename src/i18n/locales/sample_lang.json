@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "",
-    "reportDetections": ""
+    "pickDate": ""
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "",
-    "noDateHere": "",
-    "reportEmpty": "",
-    "reportSummary": "",
-    "reportPartialContext": ""
+    "noDateHere": ""
   }
 }

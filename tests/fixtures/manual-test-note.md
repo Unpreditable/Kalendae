@@ -6,11 +6,13 @@ tags: [test]
 
 # Kalendae detection test note
 
-Run **Kalendae: report detected dates in this note** from the command palette, then open the
-developer console (`Ctrl+Shift+I`) to read the table.
+Run the pointer down the note: a date Kalendae recognises shows the calendar icon beside it, and a
+rejected one shows nothing at all.
 
-With the shipped defaults — **only `YYYY-MM-DD` enabled, prose only** — you should see
-**17 accepted** and **22 rejected**. Each section below says what it is testing.
+With the shipped defaults — **only `YYYY-MM-DD` enabled, prose only** — **17** dates should offer
+the icon and **22** should not. Each section below says what it is testing, and names the reason a
+rejected section is rejected. The `debug/report-command` branch prints all 39 as a table with those
+reasons, which is faster than hovering when a whole section is wrong.
 
 ---
 

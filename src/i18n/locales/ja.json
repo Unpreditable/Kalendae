@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "日付を選択",
-    "reportDetections": "このノートで検出した日付を一覧表示"
+    "pickDate": "日付を選択"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "先に編集ビューでノートを開いてください。",
-    "noDateHere": "ここには日付がありません。先に日付にカーソルを置いてください。",
-    "reportEmpty": "このノートに日付らしきものは見つかりませんでした。",
-    "reportSummary": "{{accepted}} 件を認識、{{rejected}} 件を除外しました。開発者コンソールを参照してください。",
-    "reportPartialContext": "ノートが長すぎて最後まで解析できませんでした。末尾付近の範囲は正しくない場合があります。"
+    "noDateHere": "ここには日付がありません。先に日付にカーソルを置いてください。"
   }
 }

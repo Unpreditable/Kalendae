@@ -91,7 +91,6 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
 | [src/detect/context.ts](src/detect/context.ts) | `classifyContext()` — where in the note a candidate sits, via `syntaxTree()` |
 | [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` for a whole note, `detectIn()` for a range; both apply the scope settings |
-| [src/detect/report.ts](src/detect/report.ts) | Rows for the report command, rejections included |
 | [src/detect/shadow.ts](src/detect/shadow.ts) | `shadowedFormats()` — which formats an earlier one always beats to its dates |
 | [src/settings.ts](src/settings.ts) | `KalendaeSettings`, defaults, `migrateTriggers()`, `normaliseStoredFormats()`, `reorderById()` |
 | [src/settings/settings-tab.ts](src/settings/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
@@ -138,8 +137,11 @@ abandons the write rather than aiming it at whatever moved into place.
 Split on testability, and keep it that way. `scan.ts` is pure — no Obsidian, no editor — so every
 rule about what counts as a date is unit-testable. `context.ts` needs a live syntax tree and
 cannot be unit-tested at all: Obsidian parses markdown with its own stream parser, so the node
-names in `NODE_HINTS` are Obsidian's, undocumented, and were read off a running vault (1.13). The
-`nodes` column in the report command exists to correct them; don't guess at them from a grammar.
+names in `NODE_HINTS` are Obsidian's, undocumented, and were read off a running vault (1.13). Every
+detection carries the raw names so they can be read off a vault again; don't guess at them from a
+grammar. The command that prints them as a table — along with every candidate and the reason each
+was rejected — is kept off this branch, on `debug/report-command`, because shipping a plugin that
+logs to the console fails Obsidian's review. Rebase that branch to use it.
 
 `syntaxTree(state)` is **not** enough. CodeMirror parses lazily, roughly as far as the rendered
 viewport needs, and past that horizon every lookup comes back empty — which reads as "prose" and

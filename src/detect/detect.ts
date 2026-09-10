@@ -8,8 +8,9 @@ import { KalendaeSettings } from "../settings";
  * Joins the two halves of detection: what the text says (`scan.ts`, pure) and
  * where in the note it says it (`context.ts`, syntax tree).
  *
- * This is the function slice 2 will consume to decide where to put a picker
- * affordance. Today its only caller is the report command.
+ * `detectIn` is what the editor layer asks: the dates in the range it is about
+ * to decorate. `detectDates` answers for a whole note and has no caller on this
+ * branch — the detection report that used it lives on `debug/report-command`.
  */
 
 /** A scan reason, plus the one rejection only this layer can make. */

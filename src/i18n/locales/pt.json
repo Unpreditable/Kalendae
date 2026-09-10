@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Escolher data",
-    "reportDetections": "Listar as datas detectadas nesta nota"
+    "pickDate": "Escolher data"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Abra uma nota no modo de edição primeiro.",
-    "noDateHere": "Não há data aqui. Coloque o cursor sobre uma data primeiro.",
-    "reportEmpty": "Nada com forma de data foi encontrado nesta nota.",
-    "reportSummary": "{{accepted}} reconhecidas, {{rejected}} descartadas. Veja o console de desenvolvimento.",
-    "reportPartialContext": "A nota era longa demais para ser analisada por completo. As seções perto do fim podem estar erradas."
+    "noDateHere": "Não há data aqui. Coloque o cursor sobre uma data primeiro."
   }
 }

@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Datum auswählen",
-    "reportDetections": "Erkannte Datumsangaben in dieser Notiz auflisten"
+    "pickDate": "Datum auswählen"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
-    "noDateHere": "Hier ist kein Datum. Setze den Cursor zuerst auf ein Datum.",
-    "reportEmpty": "In dieser Notiz wurde nichts gefunden, das wie ein Datum aussieht.",
-    "reportSummary": "{{accepted}} erkannt, {{rejected}} ausgeschlossen. Siehe Entwicklerkonsole.",
-    "reportPartialContext": "Die Notiz war zu lang, um sie vollständig zu analysieren. Bereiche am Ende können falsch sein."
+    "noDateHere": "Hier ist kein Datum. Setze den Cursor zuerst auf ein Datum."
   }
 }

@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS } from "../../src/settings";
 /**
  * Drives `tests/fixtures/detection-corpus.md` through the pure scanner under
  * the shipped defaults. The same file is the manual test note: open it in a
- * vault and run the report command, and the console table should agree with
+ * vault and hover its dates, and the ones offering the icon should agree with
  * what is asserted here for every section outside code, frontmatter and links,
  * which only the syntax tree can judge.
  */

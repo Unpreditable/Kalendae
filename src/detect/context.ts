@@ -27,9 +27,10 @@ export interface ContextInfo {
    *
    * Obsidian parses markdown with its own stream parser, so these names are
    * Obsidian's, not those of any published grammar, and they are not
-   * documented. The report command prints this column for exactly that
-   * reason: it is how NODE_HINTS below gets corrected against reality rather
-   * than guesswork.
+   * documented. Carried on every detection so that NODE_HINTS below can be
+   * corrected against a running vault rather than guessed at: the detection
+   * report on `debug/report-command` prints this column for exactly that
+   * reason.
    */
   nodes: string[];
 }

@@ -108,7 +108,7 @@ export function checkFormat(pattern: string): FormatProblem | null {
   // moment claims square brackets for its own escaping, reading a balanced
   // [...] as text to reproduce rather than as tokens to parse. "[[YYYY-MM-DD]]"
   // therefore compiles to a regex that finds a wiki-linked date and then fails
-  // the strict parse — the report calls a real date invalid while the preview
+  // the strict parse — detection calls a real date invalid while the preview
   // shows it working. A bracket with no partner does parse, and is refused all
   // the same: no date format separates on one, and the rule a user is told is
   // the character rather than the pair.

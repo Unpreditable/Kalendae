@@ -1,9 +1,7 @@
 {
   "commands": {
     "pickDate_comment": "Command palette entry. Opens the picker for the date at the cursor.",
-    "pickDate": "Pick a date",
-    "reportDetections_comment": "Command palette entry. Prints every date the plugin found in the current note to the developer console, including the ones it rejected and why.",
-    "reportDetections": "Report detected dates in this note"
+    "pickDate": "Pick a date"
   },
   "settings": {
     "notes": {
@@ -190,15 +188,9 @@
     "nextYear": "Next year"
   },
   "notices": {
-    "noEditor_comment": "Notice shown when the report command runs somewhere there is no editor to read.",
+    "noEditor_comment": "Notice shown when the Pick a date command runs somewhere there is no editor to read.",
     "noEditor": "Open a note in editing view first.",
     "noDateHere_comment": "Notice shown when the Pick a date command runs somewhere with no recognised date at or beside the cursor.",
-    "noDateHere": "No date here. Put the cursor on a date first.",
-    "reportEmpty_comment": "Notice shown when the report command found nothing in the note that even looked like a date.",
-    "reportEmpty": "No date-shaped text found in this note.",
-    "reportSummary_comment": "Notice shown after the report command writes its table to the developer console. {{accepted}} is how many dates were recognised, {{rejected}} how many were ruled out.",
-    "reportSummary": "{{accepted}} recognised, {{rejected}} ruled out. See the developer console.",
-    "reportPartialContext_comment": "Notice shown when the parser could not reach the end of a long note in time, so the 'scope' column in the table may be wrong for the dates near the end.",
-    "reportPartialContext": "The note was too long to parse in full. Scopes near the end may be wrong."
+    "noDateHere": "No date here. Put the cursor on a date first."
   }
 }

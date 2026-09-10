@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Pasirinkti datą",
-    "reportDetections": "Parodyti šioje pastaboje rastas datas"
+    "pickDate": "Pasirinkti datą"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
-    "noDateHere": "Čia datos nėra. Pirmiausia pastatykite žymeklį ties data.",
-    "reportEmpty": "Šioje pastaboje nerasta nieko panašaus į datą.",
-    "reportSummary": "{{accepted}} atpažinta, {{rejected}} atmesta. Žiūrėkite kūrėjo konsolę.",
-    "reportPartialContext": "Pastaba per ilga, kad būtų išanalizuota visa. Skiltys pabaigoje gali būti nustatytos klaidingai."
+    "noDateHere": "Čia datos nėra. Pirmiausia pastatykite žymeklį ties data."
   }
 }

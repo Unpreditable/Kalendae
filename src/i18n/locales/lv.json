@@ -1,7 +1,6 @@
 {
   "commands": {
-    "pickDate": "Izvēlēties datumu",
-    "reportDetections": "Parādīt šajā piezīmē atrastos datumus"
+    "pickDate": "Izvēlēties datumu"
   },
   "settings": {
     "notes": {
@@ -125,9 +124,6 @@
   },
   "notices": {
     "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
-    "noDateHere": "Šeit nav datuma. Vispirms novietojiet kursoru uz datuma.",
-    "reportEmpty": "Šajā piezīmē nekas datumam līdzīgs nav atrasts.",
-    "reportSummary": "{{accepted}} atpazīti, {{rejected}} noraidīti. Skaties izstrādātāja konsoli.",
-    "reportPartialContext": "Piezīme bija par garu, lai to izanalizētu pilnībā. Daļas beigās var būt noteiktas nepareizi."
+    "noDateHere": "Šeit nav datuma. Vispirms novietojiet kursoru uz datuma."
   }
 }
