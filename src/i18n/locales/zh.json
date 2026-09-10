@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "今天",
+    "weekColumn": "周",
+    "prevMonth": "上一个月",
+    "nextMonth": "下一个月",
+    "prevYear": "上一年",
+    "nextYear": "下一年"
+  },
   "notices": {
     "noEditor": "请先在编辑视图中打开笔记。",
     "notImplemented": "日期选择器尚未构建。",

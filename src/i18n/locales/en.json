@@ -175,6 +175,20 @@
       }
     }
   },
+  "picker": {
+    "today_comment": "Button under the calendar that sets the date to today and closes the picker. The only shortcut the picker ships with.",
+    "today": "Today",
+    "weekColumn_comment": "Heading of the optional week-number column, at the left edge of the calendar. Kept to two or three characters: the column is one number wide.",
+    "weekColumn": "Wk",
+    "prevMonth_comment": "Screen-reader label for the single left chevron above the calendar. The button shows no text.",
+    "prevMonth": "Previous month",
+    "nextMonth_comment": "Screen-reader label for the single right chevron above the calendar.",
+    "nextMonth": "Next month",
+    "prevYear_comment": "Screen-reader label for the double left chevron above the calendar, which steps a whole year.",
+    "prevYear": "Previous year",
+    "nextYear_comment": "Screen-reader label for the double right chevron above the calendar.",
+    "nextYear": "Next year"
+  },
   "notices": {
     "noEditor_comment": "Notice shown when the report command runs somewhere there is no editor to read.",
     "noEditor": "Open a note in editing view first.",

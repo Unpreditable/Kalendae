@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "Šiandien",
+    "weekColumn": "Sav",
+    "prevMonth": "Ankstesnis mėnuo",
+    "nextMonth": "Kitas mėnuo",
+    "prevYear": "Ankstesni metai",
+    "nextYear": "Kiti metai"
+  },
   "notices": {
     "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
     "notImplemented": "Datos pasirinkimas dar nesukurtas.",

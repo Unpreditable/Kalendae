@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "今日",
+    "weekColumn": "週",
+    "prevMonth": "前の月",
+    "nextMonth": "次の月",
+    "prevYear": "前の年",
+    "nextYear": "次の年"
+  },
   "notices": {
     "noEditor": "先に編集ビューでノートを開いてください。",
     "notImplemented": "日付ピッカーはまだ作られていません。",

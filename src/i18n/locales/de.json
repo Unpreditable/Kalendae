@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "Heute",
+    "weekColumn": "KW",
+    "prevMonth": "Vorheriger Monat",
+    "nextMonth": "Nächster Monat",
+    "prevYear": "Vorheriges Jahr",
+    "nextYear": "Nächstes Jahr"
+  },
   "notices": {
     "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
     "notImplemented": "Die Datumsauswahl ist noch nicht gebaut.",

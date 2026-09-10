@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "Täna",
+    "weekColumn": "Näd",
+    "prevMonth": "Eelmine kuu",
+    "nextMonth": "Järgmine kuu",
+    "prevYear": "Eelmine aasta",
+    "nextYear": "Järgmine aasta"
+  },
   "notices": {
     "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
     "notImplemented": "Kuupäevavalijat pole veel tehtud.",

@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "오늘",
+    "weekColumn": "주",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "prevYear": "이전 해",
+    "nextYear": "다음 해"
+  },
   "notices": {
     "noEditor": "먼저 편집 화면에서 노트를 여세요.",
     "notImplemented": "날짜 선택기는 아직 만들어지지 않았습니다.",

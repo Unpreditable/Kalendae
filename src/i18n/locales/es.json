@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "Hoy",
+    "weekColumn": "Sem",
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "prevYear": "Año anterior",
+    "nextYear": "Año siguiente"
+  },
   "notices": {
     "noEditor": "Abre primero una nota en vista de edición.",
     "notImplemented": "El selector de fechas aún no está creado.",

@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "",
+    "weekColumn": "",
+    "prevMonth": "",
+    "nextMonth": "",
+    "prevYear": "",
+    "nextYear": ""
+  },
   "notices": {
     "noEditor": "",
     "notImplemented": "",

@@ -115,6 +115,14 @@
       }
     }
   },
+  "picker": {
+    "today": "Šodien",
+    "weekColumn": "Ned",
+    "prevMonth": "Iepriekšējais mēnesis",
+    "nextMonth": "Nākamais mēnesis",
+    "prevYear": "Iepriekšējais gads",
+    "nextYear": "Nākamais gads"
+  },
   "notices": {
     "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
     "notImplemented": "Datuma izvēle vēl nav izveidota.",

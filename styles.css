@@ -320,6 +320,190 @@
   color: var(--text-faint);
 }
 
+/* The calendar panel
+ *
+ * Every rule is scoped under `.kalendae-panel`, which is not tidiness: Obsidian
+ * styles `button` with selectors that outrank a single class of ours, so an
+ * unscoped `.kalendae-day-selected` loses its background and its colour to the
+ * app's own button rules. Two classes deep wins cleanly.
+ *
+ * Sized and coloured in Obsidian's variables throughout, so it reads as part of
+ * the app rather than as a control dropped into it. Four states a day can be
+ * in, and they must stay tellable apart: the note's own date is filled, today
+ * is outlined, the keyboard's position is ringed, and a neighbouring month's
+ * days are faded.
+ */
+
+/* CodeMirror puts `cm-tooltip` on the panel element itself rather than in a
+   wrapper around it, and `.cm-tooltip` carries a hard-coded pale background and
+   border. Two single classes tie on specificity, and CodeMirror injects its
+   styles after ours, so its #f5f5f5 won and the panel came out white under a
+   dark theme. Naming both classes settles it. */
+.cm-tooltip.kalendae-panel {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+.kalendae-panel {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-s);
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+  padding: var(--size-4-2);
+  /* A calendar is pointed at, not selected: dragging across it should not
+     leave half the month highlighted. */
+  user-select: none;
+}
+
+.kalendae-panel:focus,
+.kalendae-panel:focus-visible {
+  /* The ring belongs on the day the keyboard is on, not around the whole
+     panel, and the panel takes focus purely to receive the keys. */
+  outline: none;
+}
+
+.kalendae-panel .kalendae-panel-header {
+  align-items: center;
+  display: flex;
+  gap: var(--size-2-1);
+  margin-bottom: var(--size-2-3);
+}
+
+.kalendae-panel .kalendae-panel-month {
+  flex: 1;
+  font-weight: var(--font-medium);
+  text-align: center;
+}
+
+.kalendae-panel .kalendae-panel-step {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-s);
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  padding: var(--size-2-1);
+}
+
+.kalendae-panel .kalendae-panel-step:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.kalendae-panel .kalendae-panel-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* One extra column, only when the week numbers are switched on. */
+.kalendae-panel .kalendae-panel-weeks .kalendae-panel-row {
+  grid-template-columns: auto repeat(7, 1fr);
+}
+
+.kalendae-panel .kalendae-panel-weekday,
+.kalendae-panel .kalendae-panel-weeknumber {
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  padding: var(--size-2-1);
+  text-align: center;
+}
+
+.kalendae-panel .kalendae-panel-day {
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-s);
+  box-shadow: none;
+  color: var(--text-normal);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  font-weight: inherit;
+  padding: var(--size-2-2) var(--size-2-1);
+  text-align: center;
+}
+
+.kalendae-panel .kalendae-panel-day:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.kalendae-panel .kalendae-day-outside {
+  color: var(--text-faint);
+  opacity: 0.6;
+}
+
+/* Today is outlined and the note's date is filled, so a date that happens to
+   be today reads as both rather than as one hiding the other. */
+.kalendae-panel .kalendae-day-today {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.kalendae-panel .kalendae-day-selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.kalendae-panel .kalendae-day-selected.kalendae-day-outside {
+  opacity: 1;
+}
+
+.kalendae-panel .kalendae-day-focused {
+  outline: 2px solid var(--background-modifier-border-focus);
+  outline-offset: -2px;
+}
+
+.kalendae-panel .kalendae-panel-footer {
+  align-items: center;
+  border-top: 1px solid var(--background-modifier-border);
+  display: flex;
+  gap: var(--size-4-2);
+  margin-top: var(--size-2-3);
+  padding-top: var(--size-2-3);
+}
+
+.kalendae-panel .kalendae-panel-today {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-accent);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  padding: 0;
+}
+
+.kalendae-panel .kalendae-panel-today:hover {
+  color: var(--text-accent-hover);
+}
+
+.kalendae-panel .kalendae-panel-writes {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-inline-start: auto;
+}
+
+/* Fixed columns, so the panel is the same width in September as in May. With
+   1fr columns the grid took its width from the header, and the header's width
+   is the length of the month's name. */
+.kalendae-panel .kalendae-panel-row {
+  grid-template-columns: repeat(7, 2.2em);
+}
+
+.kalendae-panel .kalendae-panel-weeks .kalendae-panel-row {
+  grid-template-columns: 2.2em repeat(7, 2.2em);
+}
+
+/* The label yields instead: it is centred between the chevrons and may shorten,
+   where the grid may not. */
+.kalendae-panel .kalendae-panel-month {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Settings sections
  *
  * Obsidian rules a line between every setting row, which turns three related
