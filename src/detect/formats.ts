@@ -158,11 +158,27 @@ export function renderExample(pattern: string, on: Date = new Date()): string {
   // moment() call is not callable under the Jest tsconfig's esModuleInterop,
   // and converting a local Date to UTC would show yesterday's date near
   // midnight for anyone west of Greenwich.
-  const when = moment.utc({
+  return renderPattern(pattern, {
     year: on.getFullYear(),
     month: on.getMonth(),
     day: on.getDate(),
   });
+}
+
+/**
+ * One date, written in one pattern, using only the tokens Kalendae compiles.
+ *
+ * Both callers need exactly this and neither may use `moment().format(pattern)`
+ * instead: the preview in settings would then show a working date for a pattern
+ * the validator rejects, and write-back would put tokens into a note that
+ * detection cannot read back. The month is 0-based, as moment counts.
+ */
+export function renderPattern(
+  pattern: string,
+  on: { year: number; month: number; day: number },
+): string {
+  const when = moment.utc(on);
+
   return split(pattern, tokenCache())
     .map((piece) => (piece.isToken ? when.format(piece.text) : piece.text))
     .join("");

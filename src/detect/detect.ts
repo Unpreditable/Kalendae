@@ -57,6 +57,53 @@ export function detectDates(state: EditorState, settings: KalendaeSettings): Det
   };
 }
 
+/**
+ * How far into a note the positional frontmatter guard is worth computing.
+ *
+ * The guard needs the text from the start of the note, and a viewport halfway
+ * down a long one would pay for all of it on every keystroke. Past this, the
+ * syntax tree carries frontmatter on its own — `NODE_HINTS` matches Obsidian's
+ * `hmd-frontmatter`, and over a rendered range the tree is fully parsed, which
+ * is the case the guard exists to cover for.
+ */
+const FRONTMATTER_PREFIX = 8192;
+
+/**
+ * The dates in one range of a note.
+ *
+ * `detectDates` above answers for a whole note and pays `ensureSyntaxTree` to
+ * do it. This one answers for a range, which is what a view plugin asks about:
+ * CodeMirror has already parsed as far as it renders, so `syntaxTree(state)` is
+ * reliable exactly here. No parse budget, and nothing partial to report.
+ *
+ * The range widens to whole lines before scanning. A viewport ends where the
+ * screen ends, and half of `2026-02-02` matches nothing at all.
+ */
+export function detectIn(
+  state: EditorState,
+  settings: KalendaeSettings,
+  from: number,
+  to: number,
+): Detection[] {
+  const start = state.doc.lineAt(clamp(state, from)).from;
+  const end = state.doc.lineAt(clamp(state, to)).to;
+  const tree = syntaxTree(state);
+  const upto = frontmatterEnd(state.doc.sliceString(0, Math.min(end, FRONTMATTER_PREFIX)));
+
+  return scanText(state.doc.sliceString(start, end), settings.formats).map((candidate) =>
+    withContext(
+      tree,
+      upto,
+      { ...candidate, from: candidate.from + start, to: candidate.to + start },
+      settings,
+    ),
+  );
+}
+
+function clamp(state: EditorState, at: number): number {
+  return Math.max(0, Math.min(state.doc.length, at));
+}
+
 function withContext(
   tree: ReturnType<typeof syntaxTree>,
   frontmatterUpto: number,
