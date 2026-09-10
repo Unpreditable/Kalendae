@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
-    "notImplemented": "Kuupäevavalijat pole veel tehtud.",
+    "noDateHere": "Siin pole kuupäeva. Vii kursor kõigepealt kuupäevale.",
     "reportEmpty": "Sellest märkmest ei leitud midagi kuupäeva moodi.",
     "reportSummary": "{{accepted}} tuvastatud, {{rejected}} kõrvale jäetud. Vaata arendajakonsooli.",
     "reportPartialContext": "Märge oli täies mahus analüüsimiseks liiga pikk. Lõpu osad võivad olla valed."

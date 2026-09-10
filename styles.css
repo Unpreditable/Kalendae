@@ -320,6 +320,104 @@
   color: var(--text-faint);
 }
 
+/* Date picker affordance
+ *
+ * Nothing here may move the text. The mark adds no box of its own, the frame
+ * is an out-of-flow pseudo-element, and the icon is absolutely positioned
+ * inside an anchor of no width — so a note reads exactly as it did until a
+ * pointer arrives, and paints over the following word rather than pushing it.
+ *
+ * Every offset is in em. A heading scales the icon but not a pixel count, and
+ * a frame measured in pixels cut straight through the glyph there.
+ */
+
+.kalendae-date {
+  /* How far the frame reaches past the date to take the icon in. */
+  --kalendae-icon-space: 1.9em;
+  --kalendae-frame-inset: -2px calc(-1 * var(--kalendae-icon-space)) -2px -4px;
+  position: relative;
+}
+
+/* The frame reaches out on whichever side the icon sits; the default above is
+   the right-hand one. */
+.kalendae-date.kalendae-place-left {
+  --kalendae-frame-inset: -2px -4px -2px calc(-1 * var(--kalendae-icon-space));
+}
+
+/* Outline only, no fill. A fill has to sit behind the date to keep it legible,
+   which puts it behind the word the icon covers as well — where it hides
+   nothing and the icon needs its own opaque chip regardless. */
+.kalendae-date.kalendae-framed::before {
+  border: 1px solid var(--background-modifier-border-focus);
+  border-radius: var(--radius-s);
+  content: "";
+  inset: var(--kalendae-frame-inset);
+  opacity: 0;
+  /* The frame overlaps the neighbouring word, so it must never take a click
+     that belongs to the text under it. */
+  pointer-events: none;
+  position: absolute;
+}
+
+.kalendae-date.kalendae-framed.kalendae-hot::before {
+  opacity: 1;
+}
+
+/* Zero-width anchor holding the icon out of the flow. */
+.kalendae-icon-anchor {
+  position: relative;
+}
+
+/* Opaque, because it is drawn over the word after the date rather than in a
+   space of its own: a transparent glyph and the text under it read as one
+   smudge. The note's own background, so it looks like a hole in the line
+   rather than a chip laid on top of it. */
+.kalendae-icon {
+  --icon-size: 1em;
+  /* The middle of the anchor's box and the middle of a line of digits are not
+     quite the same place, and which way they differ depends on the font. At
+     Obsidian's defaults the difference is under a pixel, so this is zero and
+     kept only as the one place to correct it from. */
+  --kalendae-icon-nudge: 0em;
+  align-items: center;
+  background-color: var(--background-primary);
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  line-height: 1;
+  opacity: 0;
+  /* The chip is bigger than the glyph on purpose. It is laid over a word, and
+     a background tight to the strokes leaves the letters underneath showing
+     between them. */
+  padding: 0.2em 0.3em;
+  position: absolute;
+  top: 50%;
+  transform: translateY(calc(-50% + var(--kalendae-icon-nudge)));
+  /* Above the word it covers. Without it, a themed span after the date can
+     paint over the icon, since both are positioned and the text comes later
+     in the document. */
+  z-index: 1;
+}
+
+.kalendae-icon-anchor.kalendae-hot .kalendae-icon {
+  opacity: 1;
+}
+
+/* The space before the glyph is padding inside the icon's own box, never a gap
+   beside it: a gap is pixels belonging to neither the date nor the icon, and
+   crossing it is what made the affordance flicker. */
+.kalendae-icon-right .kalendae-icon {
+  left: 0;
+  padding-inline: 0.45em 0.3em;
+}
+
+.kalendae-icon-left .kalendae-icon {
+  padding-inline: 0.3em 0.45em;
+  right: 0;
+}
+
+
 /* The calendar panel
  *
  * Every rule is scoped under `.kalendae-panel`, which is not tidiness: Obsidian

@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Abre primero una nota en vista de edición.",
-    "notImplemented": "El selector de fechas aún no está creado.",
+    "noDateHere": "Aquí no hay ninguna fecha. Pon el cursor sobre una fecha primero.",
     "reportEmpty": "No se encontró nada con forma de fecha en esta nota.",
     "reportSummary": "{{accepted}} reconocidas, {{rejected}} descartadas. Consulta la consola de desarrollo.",
     "reportPartialContext": "La nota era demasiado larga para analizarla entera. Las secciones del final pueden ser incorrectas."

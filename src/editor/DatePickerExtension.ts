@@ -1,17 +1,20 @@
-import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view";
+import { Extension } from "@codemirror/state";
+import { EditorView, ViewPlugin } from "@codemirror/view";
+import { KalendaeSettings } from "../settings";
+import { dateDecorations } from "./decorations";
+import { hotDate, hoverHandlers } from "./hover-state";
+import { pickerTooltip, showPicker } from "./picker-tooltip";
 
 /**
- * The seam where date detection and the picker affordance will live.
+ * Everything Kalendae adds to an editor, in one extension.
  *
- * Source mode and Live Preview are the same CodeMirror EditorView, so this one
- * extension serves both — there is no second code path. Reading mode is not
- * CodeMirror and is deliberately out of scope.
+ * Source mode and Live Preview are the same CodeMirror EditorView, so this
+ * serves both and there is no second code path. Reading mode is not CodeMirror
+ * and is deliberately out of scope.
  *
- * Today it still produces no decorations. Detection exists, but nothing yet
- * consumes it in the editor, so scanning on every change would be work thrown
- * away; the report command scans on demand instead. What this plugin does
- * provide is the registry below, which is how a command reaches the live
- * EditorView — and its EditorState, and so the syntax tree — for a note.
+ * The pieces, in the order they depend on each other: a registry of live views
+ * so a command can find one, the field holding which date the pointer is on,
+ * the handlers that set it, and the decorations that read it.
  */
 
 const liveViews = new Set<EditorView>();
@@ -32,26 +35,26 @@ export function editorViewIn(container: HTMLElement): EditorView | null {
   return null;
 }
 
-class DatePickerView {
-  decorations: DecorationSet;
-
-  constructor(private readonly view: EditorView) {
-    this.decorations = Decoration.none;
-    liveViews.add(view);
-  }
-
-  update(update: ViewUpdate): void {
-    // Scanning is viewport-bound, so a scroll matters as much as an edit.
-    if (update.docChanged || update.viewportChanged) {
-      this.decorations = Decoration.none;
+const registry = ViewPlugin.fromClass(
+  class {
+    constructor(private readonly view: EditorView) {
+      liveViews.add(view);
     }
-  }
 
-  destroy(): void {
-    liveViews.delete(this.view);
-  }
+    destroy(): void {
+      liveViews.delete(this.view);
+    }
+  },
+);
+
+export function datePickerExtension(getSettings: () => KalendaeSettings): Extension {
+  return [
+    registry,
+    hotDate,
+    hoverHandlers,
+    // The icon opens the same picker the double-click and the command open,
+    // by dispatching the same effect.
+    dateDecorations(getSettings, (target, view) => showPicker(view, target)),
+    pickerTooltip(getSettings),
+  ];
 }
-
-export const datePickerExtension = ViewPlugin.fromClass(DatePickerView, {
-  decorations: (plugin) => plugin.decorations,
-});

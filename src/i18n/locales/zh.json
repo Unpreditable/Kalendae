@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "请先在编辑视图中打开笔记。",
-    "notImplemented": "日期选择器尚未构建。",
+    "noDateHere": "这里没有日期。请先将光标放在日期上。",
     "reportEmpty": "本笔记中未找到形似日期的内容。",
     "reportSummary": "已识别 {{accepted}} 个，排除 {{rejected}} 个。请查看开发者控制台。",
     "reportPartialContext": "笔记过长，无法完整解析。末尾附近的范围可能不准确。"

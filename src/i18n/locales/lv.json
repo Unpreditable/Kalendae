@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
-    "notImplemented": "Datuma izvēle vēl nav izveidota.",
+    "noDateHere": "Šeit nav datuma. Vispirms novietojiet kursoru uz datuma.",
     "reportEmpty": "Šajā piezīmē nekas datumam līdzīgs nav atrasts.",
     "reportSummary": "{{accepted}} atpazīti, {{rejected}} noraidīti. Skaties izstrādātāja konsoli.",
     "reportPartialContext": "Piezīme bija par garu, lai to izanalizētu pilnībā. Daļas beigās var būt noteiktas nepareizi."

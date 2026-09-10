@@ -192,8 +192,8 @@
   "notices": {
     "noEditor_comment": "Notice shown when the report command runs somewhere there is no editor to read.",
     "noEditor": "Open a note in editing view first.",
-    "notImplemented_comment": "Placeholder notice shown by the stub command while the picker itself is unbuilt.",
-    "notImplemented": "The date picker isn't built yet.",
+    "noDateHere_comment": "Notice shown when the Pick a date command runs somewhere with no recognised date at or beside the cursor.",
+    "noDateHere": "No date here. Put the cursor on a date first.",
     "reportEmpty_comment": "Notice shown when the report command found nothing in the note that even looked like a date.",
     "reportEmpty": "No date-shaped text found in this note.",
     "reportSummary_comment": "Notice shown after the report command writes its table to the developer console. {{accepted}} is how many dates were recognised, {{rejected}} how many were ruled out.",

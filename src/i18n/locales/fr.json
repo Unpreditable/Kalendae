@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Ouvrez d'abord une note en mode édition.",
-    "notImplemented": "Le sélecteur de dates n'existe pas encore.",
+    "noDateHere": "Aucune date ici. Placez d’abord le curseur sur une date.",
     "reportEmpty": "Rien qui ressemble à une date n'a été trouvé dans cette note.",
     "reportSummary": "{{accepted}} reconnues, {{rejected}} écartées. Voir la console de développement.",
     "reportPartialContext": "La note était trop longue pour être analysée en entier. Les sections de la fin peuvent être erronées."

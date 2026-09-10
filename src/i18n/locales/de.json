@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
-    "notImplemented": "Die Datumsauswahl ist noch nicht gebaut.",
+    "noDateHere": "Hier ist kein Datum. Setze den Cursor zuerst auf ein Datum.",
     "reportEmpty": "In dieser Notiz wurde nichts gefunden, das wie ein Datum aussieht.",
     "reportSummary": "{{accepted}} erkannt, {{rejected}} ausgeschlossen. Siehe Entwicklerkonsole.",
     "reportPartialContext": "Die Notiz war zu lang, um sie vollständig zu analysieren. Bereiche am Ende können falsch sein."

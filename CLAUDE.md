@@ -80,21 +80,58 @@ grep -c "class EditorView" main.js                          # must be 0
 | File | Role |
 |---|---|
 | [src/main.ts](src/main.ts) | Plugin entry point; settings load/save, command and editor-extension registration |
-| [src/editor/DatePickerExtension.ts](src/editor/DatePickerExtension.ts) | CM6 `ViewPlugin` — no decorations yet; owns the live-`EditorView` registry that `editorViewIn()` reads |
-| [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `BUILT_IN_FORMATS` |
+| [src/editor/DatePickerExtension.ts](src/editor/DatePickerExtension.ts) | Composes the whole editor layer; owns the live-`EditorView` registry that `editorViewIn()` reads |
+| [src/editor/decorations.ts](src/editor/decorations.ts) | Marks each date in view and hangs the icon widget off it, paired by a shared id |
+| [src/editor/hover-state.ts](src/editor/hover-state.ts) | `StateField` holding which date the pointer is on |
+| [src/editor/picker-tooltip.ts](src/editor/picker-tooltip.ts) | The tooltip, the three ways to open it, and the write-back transaction |
+| [src/picker/month.ts](src/picker/month.ts) | Pure calendar arithmetic: `buildMonth()`, `clampDay()`, `shiftMonths()`, `firstDayOf()` |
+| [src/picker/panel.ts](src/picker/panel.ts) | The calendar's DOM and keyboard; knows nothing of CodeMirror |
+| [src/picker/write.ts](src/picker/write.ts) | `replacementFor()` and the `stillThere()` guard |
+| [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `renderPattern()`, `BUILT_IN_FORMATS` |
 | [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
 | [src/detect/context.ts](src/detect/context.ts) | `classifyContext()` — where in the note a candidate sits, via `syntaxTree()` |
-| [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` — joins the two, applies the scope settings |
+| [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` for a whole note, `detectIn()` for a range; both apply the scope settings |
 | [src/detect/report.ts](src/detect/report.ts) | Rows for the report command, rejections included |
 | [src/detect/shadow.ts](src/detect/shadow.ts) | `shadowedFormats()` — which formats an earlier one always beats to its dates |
-| [src/settings.ts](src/settings.ts) | `KalendaeSettings`, `TriggerMode`, defaults, `normaliseStoredFormats()`, `reorderById()` |
+| [src/settings.ts](src/settings.ts) | `KalendaeSettings`, defaults, `migrateTriggers()`, `normaliseStoredFormats()`, `reorderById()` |
 | [src/settings/settings-tab.ts](src/settings/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
 | [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand; the Sortable binding |
 | [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern |
 | [src/settings/sections-page.ts](src/settings/sections-page.ts) | The scope toggles and their worked example |
 | [src/i18n/i18n.ts](src/i18n/i18n.ts) | i18next init; every user-visible string goes through `t()` |
 
-The calendar UI and write-back do not exist yet. This section grows as they land.
+Times do not exist yet, and neither does anything that writes more than one date at a time.
+
+### The picker
+
+Three ways in, all dispatching one state effect, which is why the second and third cost almost
+nothing: the hover icon, a double-click on the date, and the `pick-date` command with the caret on
+one. `showPicker()` is the only entry point; the effects behind it are private.
+
+Two rules the editor layer must keep, both paid for by a spike that is now deleted:
+
+- **Nothing may move the text.** Marks over the date, and an icon absolutely positioned inside a
+  zero-width widget. Any decoration that occupies space reflows the line every time a pointer
+  crosses it.
+- **A date and its icon cannot find each other through the DOM.** CodeMirror slips a
+  `cm-widgetBuffer` between a mark and the widget after it, and Obsidian's formatting spans —
+  emphasis, strong, strikethrough, headings, `[…]` — reparent one without the other. They carry a
+  shared `data-kalendae` id instead, and which one is lit lives in a `StateField` rather than on
+  the elements, where a redraw would strand it.
+
+Geometry is CSS, never JavaScript: every offset is in `em` so it tracks the line's font size, and
+the icon's leading space is padding inside its own box rather than a gap beside it — a gap belongs
+to neither element and dropping the hover while crossing it is what made the affordance flicker.
+
+`.cm-tooltip` lands on the panel element itself, not on a wrapper, and carries a hard-coded pale
+background. `.cm-tooltip.kalendae-panel` names both classes to beat it; a single class ties and
+loses, because CodeMirror injects its styles after ours. Obsidian's `button` rules outrank a single
+class the same way, which is why every panel rule is scoped under `.kalendae-panel`.
+
+Write-back replaces exactly the detected range in one transaction, rendered through the format that
+matched — so a note that says `22.03.2024` goes on saying dates that way, and one undo restores the
+old date whole. The picker closes on any document change; if an edit lands first, `stillThere()`
+abandons the write rather than aiming it at whatever moved into place.
 
 ### Detection
 

@@ -125,7 +125,7 @@
   },
   "notices": {
     "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
-    "notImplemented": "Datos pasirinkimas dar nesukurtas.",
+    "noDateHere": "Čia datos nėra. Pirmiausia pastatykite žymeklį ties data.",
     "reportEmpty": "Šioje pastaboje nerasta nieko panašaus į datą.",
     "reportSummary": "{{accepted}} atpažinta, {{rejected}} atmesta. Žiūrėkite kūrėjo konsolę.",
     "reportPartialContext": "Pastaba per ilga, kad būtų išanalizuota visa. Skiltys pabaigoje gali būti nustatytos klaidingai."
