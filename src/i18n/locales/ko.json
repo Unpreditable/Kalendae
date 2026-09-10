@@ -4,14 +4,36 @@
     "reportDetections": "이 노트에서 찾은 날짜 보기"
   },
   "settings": {
-    "trigger": {
-      "name": "실행 방식",
-      "description": "노트의 날짜 위에 선택기가 나타나는 방식.",
+    "notes": {
+      "heading": "노트의 날짜"
+    },
+    "calendar": {
+      "heading": "달력"
+    },
+    "doubleClick": {
+      "name": "더블 클릭",
+      "desc": "날짜를 더블 클릭하면 달력이 열립니다."
+    },
+    "hoverIcon": {
+      "name": "마우스를 올렸을 때 아이콘",
+      "desc": "날짜 위에 포인터를 올리면 나타나는 {{icon}} 을(를) 클릭하세요.",
       "options": {
-        "hover-icon": "마우스를 올리면 아이콘",
-        "double-click": "날짜를 두 번 클릭",
-        "both": "둘 다"
+        "off": "사용 안 함",
+        "left": "왼쪽에 표시",
+        "right": "오른쪽에 표시"
       }
+    },
+    "hoverFrame": {
+      "name": "마우스를 올렸을 때 테두리"
+    },
+    "weekNumbers": {
+      "name": "주 번호"
+    },
+    "weekStart": {
+      "name": "주의 첫 요일"
+    },
+    "writesPreview": {
+      "name": "새 날짜 미리 보기"
     },
     "formats": {
       "heading": "날짜 형식",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "날짜 선택기는 아직 만들어지지 않았습니다.",
     "noEditor": "먼저 편집 화면에서 노트를 여세요.",
+    "notImplemented": "날짜 선택기는 아직 만들어지지 않았습니다.",
     "reportEmpty": "이 노트에서 날짜처럼 보이는 것을 찾지 못했습니다.",
     "reportSummary": "{{accepted}}개 인식, {{rejected}}개 제외. 개발자 콘솔을 확인하세요.",
     "reportPartialContext": "노트가 너무 길어 전부 해석하지 못했습니다. 끝부분의 범위는 정확하지 않을 수 있습니다."

@@ -4,14 +4,36 @@
     "reportDetections": "Listar as datas detectadas nesta nota"
   },
   "settings": {
-    "trigger": {
-      "name": "Gatilho",
-      "description": "Como o seletor aparece em uma data na sua nota.",
+    "notes": {
+      "heading": "Datas em uma nota"
+    },
+    "calendar": {
+      "heading": "Calendário"
+    },
+    "doubleClick": {
+      "name": "Duplo clique",
+      "desc": "Dê um duplo clique em uma data para abrir o calendário."
+    },
+    "hoverIcon": {
+      "name": "Ícone ao passar o mouse",
+      "desc": "Clique no {{icon}} que aparece quando o ponteiro está sobre uma data.",
       "options": {
-        "hover-icon": "Ícone ao passar o mouse",
-        "double-click": "Clique duplo na data",
-        "both": "Ambos"
+        "off": "Desativado",
+        "left": "À esquerda",
+        "right": "À direita"
       }
+    },
+    "hoverFrame": {
+      "name": "Contorno ao passar o mouse"
+    },
+    "weekNumbers": {
+      "name": "Números das semanas"
+    },
+    "weekStart": {
+      "name": "Primeiro dia da semana"
+    },
+    "writesPreview": {
+      "name": "Prévia da nova data"
     },
     "formats": {
       "heading": "Formatos de data",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "O seletor de datas ainda não foi criado.",
     "noEditor": "Abra uma nota no modo de edição primeiro.",
+    "notImplemented": "O seletor de datas ainda não foi criado.",
     "reportEmpty": "Nada com forma de data foi encontrado nesta nota.",
     "reportSummary": "{{accepted}} reconhecidas, {{rejected}} descartadas. Veja o console de desenvolvimento.",
     "reportPartialContext": "A nota era longa demais para ser analisada por completo. As seções perto do fim podem estar erradas."

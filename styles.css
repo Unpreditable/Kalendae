@@ -319,3 +319,26 @@
   border-bottom: 1px dashed var(--text-faint);
   color: var(--text-faint);
 }
+
+/* Settings sections
+ *
+ * Obsidian rules a line between every setting row, which turns three related
+ * settings into three unrelated ones. Inside our own groups the rows belong
+ * together and the heading is what separates one subject from the next.
+ */
+
+.kalendae-group .setting-item:not(.setting-item-heading),
+.kalendae-scope-group .setting-item:not(.setting-item-heading) {
+  border-top: none;
+  padding-block: var(--size-2-3);
+}
+
+/* The calendar icon standing inside the hover-icon row's description, where a
+   picture of the thing beats a name for it. */
+.kalendae-inline-icon {
+  --icon-size: 1em;
+  align-items: center;
+  color: var(--text-muted);
+  display: inline-flex;
+  vertical-align: text-bottom;
+}

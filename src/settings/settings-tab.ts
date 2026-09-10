@@ -5,9 +5,17 @@ import {
   Setting,
   SettingDefinitionItem,
   SettingGroup,
+  moment,
+  setIcon,
 } from "obsidian";
 import { BUILT_IN_FORMATS, DateFormatEntry, renderExample } from "../detect/formats";
-import { KalendaeSettings, DEFAULT_SETTINGS, TRIGGER_MODES, reorderById } from "../settings";
+import {
+  KalendaeSettings,
+  DEFAULT_SETTINGS,
+  HOVER_ICONS,
+  WEEK_STARTS,
+  reorderById,
+} from "../settings";
 import { shadowedFormats } from "../detect/shadow";
 import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
 import { KalendaeHost } from "./host";
@@ -20,11 +28,15 @@ import { t } from "../i18n/i18n";
  * is no older version to fall back for — which is the whole reason the floor
  * is 1.13.
  *
- * The trigger dropdown is a declarative `control` and binds by
+ * The plain rows are declarative `control` definitions binding by
  * `keyof KalendaeSettings`, so the inherited getControlValue/setControlValue
  * read and persist `plugin.settings[key]` with no save wiring here. The format
  * rows are `render` definitions instead — see format-list.ts for why — and
  * they mutate the settings themselves, which is what `saveSettings()` is for.
+ *
+ * The order is the order they are read in: what a date does in a note, what the
+ * calendar shows, where dates are looked for, and last the formats, which is
+ * the longest section and the one a reader visits deliberately.
  */
 export class KalendaeSettingTab extends PluginSettingTab {
   constructor(
@@ -41,16 +53,94 @@ export class KalendaeSettingTab extends PluginSettingTab {
 
     return [
       {
-        name: t("settings.trigger.name"),
-        desc: t("settings.trigger.description"),
-        control: {
-          type: "dropdown",
-          key: "trigger",
-          defaultValue: DEFAULT_SETTINGS.trigger,
-          options: Object.fromEntries(
-            TRIGGER_MODES.map((mode) => [mode, t(`settings.trigger.options.${mode}`)]),
-          ),
-        },
+        // What a date does under the pointer, which is a different subject from
+        // what the calendar itself offers once it is open.
+        type: "group",
+        cls: "kalendae-group",
+        heading: t("settings.notes.heading"),
+        items: [
+          {
+            name: t("settings.doubleClick.name"),
+            desc: t("settings.doubleClick.desc"),
+            control: {
+              type: "toggle",
+              key: "doubleClick",
+              defaultValue: DEFAULT_SETTINGS.doubleClick,
+            },
+          },
+          {
+            name: t("settings.hoverIcon.name"),
+            desc: hoverIconDesc(),
+            control: {
+              type: "dropdown",
+              key: "hoverIcon",
+              defaultValue: DEFAULT_SETTINGS.hoverIcon,
+              options: Object.fromEntries(
+                HOVER_ICONS.map((value) => [value, t(`settings.hoverIcon.options.${value}`)]),
+              ),
+            },
+          },
+          {
+            name: t("settings.hoverFrame.name"),
+            control: {
+              type: "toggle",
+              key: "showHoverFrame",
+              defaultValue: DEFAULT_SETTINGS.showHoverFrame,
+            },
+          },
+        ],
+      },
+      {
+        type: "group",
+        cls: "kalendae-group",
+        heading: t("settings.calendar.heading"),
+        items: [
+          {
+            name: t("settings.weekNumbers.name"),
+            control: {
+              type: "toggle",
+              key: "showWeekNumbers",
+              defaultValue: DEFAULT_SETTINGS.showWeekNumbers,
+            },
+          },
+          {
+            name: t("settings.weekStart.name"),
+            control: {
+              type: "dropdown",
+              key: "weekStart",
+              defaultValue: DEFAULT_SETTINGS.weekStart,
+              options: weekStartOptions(),
+            },
+          },
+          {
+            name: t("settings.writesPreview.name"),
+            control: {
+              type: "toggle",
+              key: "showWritesPreview",
+              defaultValue: DEFAULT_SETTINGS.showWritesPreview,
+            },
+          },
+        ],
+      },
+      {
+        // A heading with one row under it, rather than a row that carries both
+        // its own name and its value. The heading names the thing once; the row
+        // then has nothing left to say but what is currently scanned.
+        type: "group",
+        cls: "kalendae-scope-group",
+        heading: t("settings.scopes.heading"),
+        items: [
+          {
+            // No name of its own. The heading above has already said what this
+            // is, so the row is left with nothing but the value — which is what
+            // `displayValue` is for, and it keeps the value out of the page
+            // title the row's name would otherwise supply.
+            name: "",
+            type: "page",
+            displayValue: () => scopeSummary(this.kalendae.settings),
+            page: () => new SectionsPage(this.kalendae, () => this.update()),
+          },
+        ],
       },
       {
         // Heading, explanation and rows are one list, so the framework's own
@@ -94,26 +184,6 @@ export class KalendaeSettingTab extends PluginSettingTab {
                 shadows.get(entry.id),
               ),
           })),
-        ],
-      },
-      {
-        // A heading with one row under it, rather than a row that carries both
-        // its own name and its value. The heading names the thing once; the row
-        // then has nothing left to say but what is currently scanned.
-        type: "group",
-        cls: "kalendae-scope-group",
-        heading: t("settings.scopes.heading"),
-        items: [
-          {
-            // No name of its own. The heading above has already said what this
-            // is, so the row is left with nothing but the value — which is what
-            // `displayValue` is for, and it keeps the value out of the page
-            // title the row's name would otherwise supply.
-            name: "",
-            type: "page",
-            displayValue: () => scopeSummary(this.kalendae.settings),
-            page: () => new SectionsPage(this.kalendae, () => this.update()),
-          },
         ],
       },
     ];
@@ -207,4 +277,40 @@ export class KalendaeSettingTab extends PluginSettingTab {
     await this.kalendae.saveSettings();
     this.update();
   }
+}
+
+/**
+ * The hover-icon row's description, with the icon itself standing in it.
+ *
+ * A picture of the thing beats a name for it: the row is telling you what to
+ * click, and the reader can then look for that shape in their note rather than
+ * for the word "calendar". Translators are given the sentence with an {{icon}}
+ * marker to place, which is why this is assembled rather than interpolated.
+ */
+function hoverIconDesc(): DocumentFragment {
+  const description = createFragment();
+  const [before, after] = t("settings.hoverIcon.desc").split("{{icon}}");
+
+  description.appendText(before);
+  if (after !== undefined) {
+    const icon = description.createSpan({ cls: "kalendae-inline-icon" });
+    setIcon(icon, "calendar");
+    description.appendText(after);
+  }
+
+  return description;
+}
+
+/**
+ * The week-start dropdown: the seven days, named by moment.
+ *
+ * The names come from the date library rather than from our locale files,
+ * which is the rule the calendar itself follows — a vault in French says
+ * "lundi" whether or not anyone has translated Kalendae into French. The order
+ * of `WEEK_STARTS` is moment's own, so an entry's index is the day it names.
+ */
+function weekStartOptions(): Record<string, string> {
+  const names = moment.weekdays();
+
+  return Object.fromEntries(WEEK_STARTS.map((value, day) => [value, names[day]]));
 }

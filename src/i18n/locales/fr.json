@@ -4,14 +4,36 @@
     "reportDetections": "Lister les dates détectées dans cette note"
   },
   "settings": {
-    "trigger": {
-      "name": "Déclencheur",
-      "description": "Comment le sélecteur apparaît sur une date dans votre note.",
+    "notes": {
+      "heading": "Dates dans une note"
+    },
+    "calendar": {
+      "heading": "Calendrier"
+    },
+    "doubleClick": {
+      "name": "Double-clic",
+      "desc": "Double-cliquez sur une date pour ouvrir le calendrier."
+    },
+    "hoverIcon": {
+      "name": "Icône au survol",
+      "desc": "Cliquez sur l'icône {{icon}} qui apparaît lorsque le pointeur est sur une date.",
       "options": {
-        "hover-icon": "Icône au survol",
-        "double-click": "Double-clic sur la date",
-        "both": "Les deux"
+        "off": "Désactivée",
+        "left": "À gauche",
+        "right": "À droite"
       }
+    },
+    "hoverFrame": {
+      "name": "Cadre au survol"
+    },
+    "weekNumbers": {
+      "name": "Numéros de semaine"
+    },
+    "weekStart": {
+      "name": "Premier jour de la semaine"
+    },
+    "writesPreview": {
+      "name": "Aperçu de la nouvelle date"
     },
     "formats": {
       "heading": "Formats de date",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "Le sélecteur de dates n'existe pas encore.",
     "noEditor": "Ouvrez d'abord une note en mode édition.",
+    "notImplemented": "Le sélecteur de dates n'existe pas encore.",
     "reportEmpty": "Rien qui ressemble à une date n'a été trouvé dans cette note.",
     "reportSummary": "{{accepted}} reconnues, {{rejected}} écartées. Voir la console de développement.",
     "reportPartialContext": "La note était trop longue pour être analysée en entier. Les sections de la fin peuvent être erronées."

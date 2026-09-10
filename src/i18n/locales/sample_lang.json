@@ -4,14 +4,36 @@
     "reportDetections": ""
   },
   "settings": {
-    "trigger": {
+    "notes": {
+      "heading": ""
+    },
+    "calendar": {
+      "heading": ""
+    },
+    "doubleClick": {
       "name": "",
-      "description": "",
+      "desc": ""
+    },
+    "hoverIcon": {
+      "name": "",
+      "desc": "",
       "options": {
-        "hover-icon": "",
-        "double-click": "",
-        "both": ""
+        "off": "",
+        "left": "",
+        "right": ""
       }
+    },
+    "hoverFrame": {
+      "name": ""
+    },
+    "weekNumbers": {
+      "name": ""
+    },
+    "weekStart": {
+      "name": ""
+    },
+    "writesPreview": {
+      "name": ""
     },
     "formats": {
       "heading": "",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "",
     "noEditor": "",
+    "notImplemented": "",
     "reportEmpty": "",
     "reportSummary": "",
     "reportPartialContext": ""

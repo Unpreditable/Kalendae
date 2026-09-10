@@ -4,14 +4,36 @@
     "reportDetections": "列出本笔记中检测到的日期"
   },
   "settings": {
-    "trigger": {
-      "name": "触发方式",
-      "description": "选择器在笔记中的日期上如何出现。",
+    "notes": {
+      "heading": "笔记中的日期"
+    },
+    "calendar": {
+      "heading": "日历"
+    },
+    "doubleClick": {
+      "name": "双击",
+      "desc": "双击日期即可打开日历。"
+    },
+    "hoverIcon": {
+      "name": "悬停时的图标",
+      "desc": "点击将指针悬停在日期上时出现的 {{icon}}。",
       "options": {
-        "hover-icon": "悬停时显示图标",
-        "double-click": "双击日期",
-        "both": "两者"
+        "off": "禁用",
+        "left": "放在左侧",
+        "right": "放在右侧"
       }
+    },
+    "hoverFrame": {
+      "name": "悬停时显示边框"
+    },
+    "weekNumbers": {
+      "name": "周数"
+    },
+    "weekStart": {
+      "name": "每周的第一天"
+    },
+    "writesPreview": {
+      "name": "新日期预览"
     },
     "formats": {
       "heading": "日期格式",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "日期选择器尚未构建。",
     "noEditor": "请先在编辑视图中打开笔记。",
+    "notImplemented": "日期选择器尚未构建。",
     "reportEmpty": "本笔记中未找到形似日期的内容。",
     "reportSummary": "已识别 {{accepted}} 个，排除 {{rejected}} 个。请查看开发者控制台。",
     "reportPartialContext": "笔记过长，无法完整解析。末尾附近的范围可能不准确。"

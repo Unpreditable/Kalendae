@@ -1,15 +1,45 @@
 import { DateFormatEntry } from "./detect/formats";
 
 /**
- * How the picker offers itself on a date the plugin has recognised.
+ * Whether the hover icon appears, and which side of the date it sits on.
  *
- * The design goal is least interference: the note should look untouched until
- * the user reaches for the date. Which of these ends up as the default is an
- * open question — see TODO.md.
+ * One setting rather than a switch and a position, because "off" and "which
+ * side" are the same question asked once: an icon nobody wants has no side.
+ *
+ * The side is a class on the icon's anchor rather than a computed position —
+ * the icon hangs off a zero-width span at one end of the date, so each side is
+ * one CSS rule and neither costs any geometry in JavaScript. Left and right
+ * only: an icon above or below the line can only be aligned with one edge of
+ * the date, because centring it means measuring the date, and CSS cannot ask
+ * how wide a range of text is.
  */
-export type TriggerMode = "hover-icon" | "double-click" | "both";
+export const HOVER_ICONS = ["off", "left", "right"] as const;
 
-export const TRIGGER_MODES: TriggerMode[] = ["hover-icon", "double-click", "both"];
+export type HoverIcon = (typeof HOVER_ICONS)[number];
+
+/**
+ * Which day a week starts on in the calendar.
+ *
+ * Named days rather than the numbers moment counts in, because a dropdown's
+ * value is a string: storing `0` would read back as `"0"` and quietly stop
+ * being the number the type promises. `firstDayOf()` in `picker/month.ts` turns
+ * one of these into moment's index.
+ *
+ * Seven entries and no "follow the app" option. A fresh install resolves one
+ * from the reader's own region — see `defaultWeekStart()` — and writes it down,
+ * so the setting always names a day rather than a rule to be worked out again.
+ */
+export const WEEK_STARTS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+export type WeekStart = (typeof WEEK_STARTS)[number];
 
 /**
  * Where a date is allowed to be for the plugin to offer to edit it.
@@ -24,7 +54,9 @@ export const TRIGGER_MODES: TriggerMode[] = ["hover-icon", "double-click", "both
  * hand-written save wiring.
  */
 export interface KalendaeSettings {
-  trigger: TriggerMode;
+  /** Whether double-clicking a date opens the calendar on it. */
+  doubleClick: boolean;
+  hoverIcon: HoverIcon;
   /** Ordered and never empty; the first format that matches a range claims it. */
   formats: DateFormatEntry[];
   /**
@@ -38,17 +70,60 @@ export interface KalendaeSettings {
   scopeCodeBlocks: boolean;
   scopeFrontmatter: boolean;
   scopeWikilinks: boolean;
+  /** The outline drawn around a hovered date and its icon. */
+  showHoverFrame: boolean;
+  showWeekNumbers: boolean;
+  weekStart: WeekStart;
+  /** The line naming the exact text a pick will write into the note. */
+  showWritesPreview: boolean;
 }
 
 export const DEFAULT_SETTINGS: KalendaeSettings = {
-  trigger: "both",
+  doubleClick: true,
+  hoverIcon: "right",
   formats: [{ id: "iso", pattern: "YYYY-MM-DD" }],
   scopeHeadings: true,
   scopeInlineCode: false,
   scopeCodeBlocks: false,
   scopeFrontmatter: false,
   scopeWikilinks: false,
+  showHoverFrame: true,
+  showWeekNumbers: false,
+  weekStart: "monday",
+  showWritesPreview: true,
 };
+
+/**
+ * The two trigger settings, read out of whatever an older version wrote.
+ *
+ * Until 2026-09-10 these were a three-way `trigger` — hover icon, double-click
+ * or both — beside an `iconPlacement` that meant nothing in the first two
+ * cases. They are now one boolean and one three-way, which is the same set of
+ * choices with the impossible combination removed and one less row on screen.
+ *
+ * Anything unrecognised falls back to the defaults rather than to a guess: a
+ * stored value from a version that never existed says nothing about what the
+ * reader wants.
+ */
+export function migrateTriggers(stored: unknown): Pick<KalendaeSettings, "doubleClick" | "hoverIcon"> {
+  const settings = typeof stored === "object" && stored !== null ? (stored as Record<string, unknown>) : {};
+
+  if (typeof settings.doubleClick === "boolean" && isHoverIcon(settings.hoverIcon)) {
+    return { doubleClick: settings.doubleClick, hoverIcon: settings.hoverIcon };
+  }
+
+  const side = isHoverIcon(settings.iconPlacement) ? settings.iconPlacement : "right";
+
+  if (settings.trigger === "hover-icon") return { doubleClick: false, hoverIcon: side };
+  if (settings.trigger === "double-click") return { doubleClick: true, hoverIcon: "off" };
+  if (settings.trigger === "both") return { doubleClick: true, hoverIcon: side };
+
+  return { doubleClick: DEFAULT_SETTINGS.doubleClick, hoverIcon: DEFAULT_SETTINGS.hoverIcon };
+}
+
+function isHoverIcon(value: unknown): value is HoverIcon {
+  return HOVER_ICONS.includes(value as HoverIcon);
+}
 
 /**
  * Reads the format list out of `data.json`, which is whatever some version of

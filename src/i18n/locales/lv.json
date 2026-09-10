@@ -4,14 +4,36 @@
     "reportDetections": "Parādīt šajā piezīmē atrastos datumus"
   },
   "settings": {
-    "trigger": {
-      "name": "Izsaukšana",
-      "description": "Kā datuma izvēle parādās pie datuma tavā piezīmē.",
+    "notes": {
+      "heading": "Datumi piezīmē"
+    },
+    "calendar": {
+      "heading": "Kalendārs"
+    },
+    "doubleClick": {
+      "name": "Dubultklikšķis",
+      "desc": "Veic dubultklikšķi uz datuma, lai atvērtu kalendāru."
+    },
+    "hoverIcon": {
+      "name": "Ikona, virzot peli",
+      "desc": "Noklikšķini uz {{icon}}, kas parādās, kad kursors ir virs datuma.",
       "options": {
-        "hover-icon": "Ikona, uzejot ar peli",
-        "double-click": "Dubultklikšķis uz datuma",
-        "both": "Abi"
+        "off": "Izslēgta",
+        "left": "Pa kreisi",
+        "right": "Pa labi"
       }
+    },
+    "hoverFrame": {
+      "name": "Rāmis, virzot peli"
+    },
+    "weekNumbers": {
+      "name": "Nedēļu numuri"
+    },
+    "weekStart": {
+      "name": "Nedēļas pirmā diena"
+    },
+    "writesPreview": {
+      "name": "Jaunā datuma priekšskatījums"
     },
     "formats": {
       "heading": "Datumu formāti",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "Datuma izvēle vēl nav izveidota.",
     "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
+    "notImplemented": "Datuma izvēle vēl nav izveidota.",
     "reportEmpty": "Šajā piezīmē nekas datumam līdzīgs nav atrasts.",
     "reportSummary": "{{accepted}} atpazīti, {{rejected}} noraidīti. Skaties izstrādātāja konsoli.",
     "reportPartialContext": "Piezīme bija par garu, lai to izanalizētu pilnībā. Daļas beigās var būt noteiktas nepareizi."

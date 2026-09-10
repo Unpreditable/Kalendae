@@ -1,20 +1,48 @@
 import {
   DEFAULT_SETTINGS,
-  TRIGGER_MODES,
-  TriggerMode,
+  HOVER_ICONS,
+  WEEK_STARTS,
+  migrateTriggers,
   normaliseStoredFormats,
   reorderById,
 } from "../src/settings";
 
 describe("settings defaults", () => {
-  it("defaults the trigger to a mode the dropdown actually offers", () => {
-    expect(TRIGGER_MODES).toContain(DEFAULT_SETTINGS.trigger);
+  it("opens on a double-click and on the hover icon, out of the box", () => {
+    expect(DEFAULT_SETTINGS.doubleClick).toBe(true);
+    expect(DEFAULT_SETTINGS.hoverIcon).toBe("right");
   });
 
-  it("lists every trigger mode exactly once", () => {
-    const expected: TriggerMode[] = ["hover-icon", "double-click", "both"];
-    expect([...TRIGGER_MODES].sort()).toEqual([...expected].sort());
-    expect(new Set(TRIGGER_MODES).size).toBe(TRIGGER_MODES.length);
+  it("offers the icon a side or none at all, once each", () => {
+    expect([...HOVER_ICONS]).toEqual(["off", "left", "right"]);
+  });
+
+  it("starts with the outline on, week numbers off and the preview on", () => {
+    // Week numbers are the one setting here that is noise to anyone who does
+    // not plan by them, so they are the one that starts off.
+    expect(DEFAULT_SETTINGS.showHoverFrame).toBe(true);
+    expect(DEFAULT_SETTINGS.showWeekNumbers).toBe(false);
+    expect(DEFAULT_SETTINGS.showWritesPreview).toBe(true);
+  });
+
+  it("names a day as the week's start rather than a rule to work out later", () => {
+    // A fresh install overwrites this from the reader's own region on first
+    // load; the constant is only what stands if that cannot be answered.
+    expect(WEEK_STARTS).toContain(DEFAULT_SETTINGS.weekStart);
+  });
+
+  it("offers the seven days in moment's order, once each", () => {
+    // The order is load-bearing: an entry's index in this list is the day
+    // number moment counts in, which is how firstDayOf() reads it.
+    expect([...WEEK_STARTS]).toEqual([
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ]);
   });
 });
 
@@ -78,5 +106,53 @@ describe("normaliseStoredFormats", () => {
   it("falls back to the default rather than an empty list", () => {
     expect(normaliseStoredFormats([])).toEqual(DEFAULT_SETTINGS.formats);
     expect(normaliseStoredFormats("nonsense")).toEqual(DEFAULT_SETTINGS.formats);
+  });
+});
+
+describe("migrating the trigger settings", () => {
+  it("reads the old hover-icon mode as an icon and no double-click", () => {
+    expect(migrateTriggers({ trigger: "hover-icon", iconPlacement: "left" })).toEqual({
+      doubleClick: false,
+      hoverIcon: "left",
+    });
+  });
+
+  it("reads the old double-click mode as no icon", () => {
+    expect(migrateTriggers({ trigger: "double-click", iconPlacement: "right" })).toEqual({
+      doubleClick: true,
+      hoverIcon: "off",
+    });
+  });
+
+  it("reads the old both mode as both", () => {
+    expect(migrateTriggers({ trigger: "both", iconPlacement: "left" })).toEqual({
+      doubleClick: true,
+      hoverIcon: "left",
+    });
+  });
+
+  it("falls back to the right-hand side when the old placement is missing", () => {
+    expect(migrateTriggers({ trigger: "both" })).toEqual({ doubleClick: true, hoverIcon: "right" });
+  });
+
+  it("leaves settings already in the new shape alone", () => {
+    expect(migrateTriggers({ doubleClick: false, hoverIcon: "off" })).toEqual({
+      doubleClick: false,
+      hoverIcon: "off",
+    });
+  });
+
+  it("gives a fresh install the defaults", () => {
+    expect(migrateTriggers(null)).toEqual({
+      doubleClick: DEFAULT_SETTINGS.doubleClick,
+      hoverIcon: DEFAULT_SETTINGS.hoverIcon,
+    });
+  });
+
+  it("ignores a stored trigger that is not one of the old modes", () => {
+    expect(migrateTriggers({ trigger: "sideways" })).toEqual({
+      doubleClick: DEFAULT_SETTINGS.doubleClick,
+      hoverIcon: DEFAULT_SETTINGS.hoverIcon,
+    });
   });
 });

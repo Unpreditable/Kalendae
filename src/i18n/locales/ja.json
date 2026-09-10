@@ -4,14 +4,36 @@
     "reportDetections": "このノートで検出した日付を一覧表示"
   },
   "settings": {
-    "trigger": {
-      "name": "起動方法",
-      "description": "ノート内の日付でピッカーがどのように現れるか。",
+    "notes": {
+      "heading": "ノート内の日付"
+    },
+    "calendar": {
+      "heading": "カレンダー"
+    },
+    "doubleClick": {
+      "name": "ダブルクリック",
+      "desc": "日付をダブルクリックするとカレンダーが開きます。"
+    },
+    "hoverIcon": {
+      "name": "ホバー時のアイコン",
+      "desc": "日付にポインタを合わせると表示される {{icon}} をクリックします。",
       "options": {
-        "hover-icon": "ホバーでアイコン",
-        "double-click": "日付をダブルクリック",
-        "both": "両方"
+        "off": "無効",
+        "left": "左に表示",
+        "right": "右に表示"
       }
+    },
+    "hoverFrame": {
+      "name": "ホバー時の枠線"
+    },
+    "weekNumbers": {
+      "name": "週番号"
+    },
+    "weekStart": {
+      "name": "週の始まり"
+    },
+    "writesPreview": {
+      "name": "新しい日付のプレビュー"
     },
     "formats": {
       "heading": "日付フォーマット",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "日付ピッカーはまだ作られていません。",
     "noEditor": "先に編集ビューでノートを開いてください。",
+    "notImplemented": "日付ピッカーはまだ作られていません。",
     "reportEmpty": "このノートに日付らしきものは見つかりませんでした。",
     "reportSummary": "{{accepted}} 件を認識、{{rejected}} 件を除外しました。開発者コンソールを参照してください。",
     "reportPartialContext": "ノートが長すぎて最後まで解析できませんでした。末尾付近の範囲は正しくない場合があります。"

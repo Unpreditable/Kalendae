@@ -6,19 +6,49 @@
     "reportDetections": "Report detected dates in this note"
   },
   "settings": {
-    "trigger": {
-      "name_comment": "Settings row label for the dropdown controlling how the picker offers itself on a recognised date.",
-      "name": "Trigger",
-      "description_comment": "Settings row description under the Trigger label.",
-      "description": "How the picker appears on a date in your note.",
+    "notes": {
+      "notes_comment": "Heading of the settings section covering how a date behaves in a note: what opens the calendar, and what is drawn around a date under the pointer.",
+      "heading": "Dates in a note"
+    },
+    "calendar": {
+      "calendar_comment": "Heading of the settings section covering what the calendar itself shows once open.",
+      "heading": "Calendar"
+    },
+    "doubleClick": {
+      "name_comment": "Settings row label for the toggle that lets a double-click on a date open the calendar.",
+      "name": "Double-click",
+      "desc_comment": "Description under that toggle.",
+      "desc": "Double-click a date to open the calendar."
+    },
+    "hoverIcon": {
+      "name_comment": "Settings row label for the dropdown controlling the small icon that appears beside a date while the pointer is over it.",
+      "name": "Icon on hover",
+      "desc_comment": "Description under that dropdown. {{icon}} is replaced by the icon itself, drawn inline — keep the marker, and put it where the icon reads naturally in your language.",
+      "desc": "Click the {{icon}} that appears when the pointer is over a date.",
       "options": {
-        "hover-icon_comment": "Dropdown option: a small icon appears beside the date only while the pointer is over it.",
-        "hover-icon": "Icon on hover",
-        "double-click_comment": "Dropdown option: double-clicking the date opens the picker, so a single click still just places the cursor.",
-        "double-click": "Double-click the date",
-        "both_comment": "Dropdown option: both the hover icon and the double-click gesture are active.",
-        "both": "Both"
+        "off_comment": "Dropdown option: no icon appears at all.",
+        "off": "Disabled",
+        "left_comment": "Dropdown option: the icon appears before the date.",
+        "left": "Place left",
+        "right_comment": "Dropdown option: the icon appears after the date. The default.",
+        "right": "Place right"
       }
+    },
+    "hoverFrame": {
+      "name_comment": "Settings row label for the toggle that draws an outline around a date and its icon while the pointer is over them.",
+      "name": "Outline on hover"
+    },
+    "weekNumbers": {
+      "name_comment": "Settings row label for the toggle adding a week-number column to the calendar. Off by default.",
+      "name": "Week numbers"
+    },
+    "weekStart": {
+      "name_comment": "Settings row label for the dropdown choosing which day a week starts on in the calendar.",
+      "name": "First day of the week"
+    },
+    "writesPreview": {
+      "name_comment": "Settings row label for the toggle showing, in the calendar, the exact text a pick will write into the note.",
+      "name": "Preview the new date"
     },
     "formats": {
       "heading_comment": "Heading above the list of date formats the plugin looks for.",
@@ -146,10 +176,10 @@
     }
   },
   "notices": {
-    "notImplemented_comment": "Placeholder notice shown by the stub command while the picker itself is unbuilt.",
-    "notImplemented": "The date picker isn't built yet.",
     "noEditor_comment": "Notice shown when the report command runs somewhere there is no editor to read.",
     "noEditor": "Open a note in editing view first.",
+    "notImplemented_comment": "Placeholder notice shown by the stub command while the picker itself is unbuilt.",
+    "notImplemented": "The date picker isn't built yet.",
     "reportEmpty_comment": "Notice shown when the report command found nothing in the note that even looked like a date.",
     "reportEmpty": "No date-shaped text found in this note.",
     "reportSummary_comment": "Notice shown after the report command writes its table to the developer console. {{accepted}} is how many dates were recognised, {{rejected}} how many were ruled out.",

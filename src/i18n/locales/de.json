@@ -4,14 +4,36 @@
     "reportDetections": "Erkannte Datumsangaben in dieser Notiz auflisten"
   },
   "settings": {
-    "trigger": {
-      "name": "Auslöser",
-      "description": "Wie die Auswahl bei einem Datum in deiner Notiz erscheint.",
+    "notes": {
+      "heading": "Datumsangaben in einer Notiz"
+    },
+    "calendar": {
+      "heading": "Kalender"
+    },
+    "doubleClick": {
+      "name": "Doppelklick",
+      "desc": "Doppelklicke auf ein Datum, um den Kalender zu öffnen."
+    },
+    "hoverIcon": {
+      "name": "Symbol beim Überfahren",
+      "desc": "Klicke auf das {{icon}}, das erscheint, wenn der Zeiger über einem Datum steht.",
       "options": {
-        "hover-icon": "Symbol beim Daraufzeigen",
-        "double-click": "Doppelklick auf das Datum",
-        "both": "Beides"
+        "off": "Deaktiviert",
+        "left": "Links platzieren",
+        "right": "Rechts platzieren"
       }
+    },
+    "hoverFrame": {
+      "name": "Rahmen beim Überfahren"
+    },
+    "weekNumbers": {
+      "name": "Kalenderwochen"
+    },
+    "weekStart": {
+      "name": "Erster Tag der Woche"
+    },
+    "writesPreview": {
+      "name": "Neues Datum vorab anzeigen"
     },
     "formats": {
       "heading": "Datumsformate",
@@ -94,8 +116,8 @@
     }
   },
   "notices": {
-    "notImplemented": "Die Datumsauswahl ist noch nicht gebaut.",
     "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
+    "notImplemented": "Die Datumsauswahl ist noch nicht gebaut.",
     "reportEmpty": "In dieser Notiz wurde nichts gefunden, das wie ein Datum aussieht.",
     "reportSummary": "{{accepted}} erkannt, {{rejected}} ausgeschlossen. Siehe Entwicklerkonsole.",
     "reportPartialContext": "Die Notiz war zu lang, um sie vollständig zu analysieren. Bereiche am Ende können falsch sein."
