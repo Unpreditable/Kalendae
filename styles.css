@@ -334,12 +334,16 @@
 .kalendae-date {
   /* How far the frame reaches past the date to take the icon in. */
   --kalendae-icon-space: 1.9em;
-  --kalendae-frame-inset: -2px calc(-1 * var(--kalendae-icon-space)) -2px -4px;
+  --kalendae-frame-inset: -2px -4px;
   position: relative;
 }
 
-/* The frame reaches out on whichever side the icon sits; the default above is
-   the right-hand one. */
+/* The frame reaches out on whichever side the icon sits. The default above is
+   snug on both sides, which is what a date with the icon switched off gets. */
+.kalendae-date.kalendae-place-right {
+  --kalendae-frame-inset: -2px calc(-1 * var(--kalendae-icon-space)) -2px -4px;
+}
+
 .kalendae-date.kalendae-place-left {
   --kalendae-frame-inset: -2px -4px -2px calc(-1 * var(--kalendae-icon-space));
 }
