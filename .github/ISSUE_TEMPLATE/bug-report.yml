@@ -7,7 +7,7 @@ body:
     attributes:
       label: Version check
       options:
-        - label: I'm using the latest version of the [Kalendae Date Picker plugin](https://github.com/Unpreditable/Kalendae/releases/latest)
+        - label: I'm using the latest version of the [Kalendae plugin](https://github.com/Unpreditable/Kalendae/releases/latest)
           required: true
 
   - type: textarea
@@ -55,7 +55,7 @@ body:
     id: plugin-version
     attributes:
       label: Plugin version
-      description: Found in Settings → Community plugins → Kalendae Date Picker.
+      description: Found in Settings → Community plugins → Kalendae.
       placeholder: 0.0.1
     validations:
       required: true

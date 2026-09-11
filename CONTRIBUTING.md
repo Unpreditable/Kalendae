@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in Kalendae Date Picker! There are four ways to contribute:
+Thanks for your interest in Kalendae! There are four ways to contribute:
 
 - [Report a bug](#report-a-bug)
 - [Request a feature](#request-a-feature)

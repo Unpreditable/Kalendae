@@ -7,7 +7,7 @@ body:
     attributes:
       label: Scope check
       options:
-        - label: This is about the [Kalendae Date Picker plugin](https://github.com/Unpreditable/Kalendae), and I think it'd be useful beyond just my own workflow
+        - label: This is about the [Kalendae plugin](https://github.com/Unpreditable/Kalendae), and I think it'd be useful beyond just my own workflow
           required: true
 
   - type: textarea
