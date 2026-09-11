@@ -87,10 +87,10 @@ export class FormatModal extends Modal {
    * The token vocabulary, one row per part of a date, ticked or crossed as the
    * pattern gains or loses it.
    *
-   * A grid rather than a `<table>`: Obsidian and themes both style tables, and
-   * the rules they draw could not be reliably removed — two attempts at
-   * outranking them failed. Nothing styles a plain div, so the columns are laid
-   * out here and nowhere else. Built from TOKEN_GROUPS rather than written out
+   * Divs given table display values rather than a `<table>`: Obsidian and
+   * themes both style that element, and the rules they draw could not be
+   * reliably removed — two attempts at outranking them failed. Nothing styles a
+   * plain div. Built from TOKEN_GROUPS rather than written out
    * by hand, so the list the user reads is the list the compiler implements —
    * a token added to one is a token added to both.
    */
@@ -145,9 +145,9 @@ export class FormatModal extends Modal {
   /**
    * One row of the token grid.
    *
-   * The row exists for the reader, not the layout: it carries the role that
-   * makes three loose cells a row to a screen reader, while `display: contents`
-   * keeps the cells themselves in the grid so the columns line up across rows.
+   * The row carries the role that makes three loose cells a row to a screen
+   * reader, and `display: table-row` in the stylesheet is what lines its cells
+   * up with the rows above and below.
    */
   private tokenRow(table: HTMLElement): HTMLElement {
     const row = table.createDiv({ cls: "kalendae-format-token-row" });

@@ -1,5 +1,5 @@
 /*
- * Kalendae Date Picker
+ * Kalendae
  *
  * Rules (see CLAUDE.md): no !important, no inline styles, no partially
  * supported CSS properties, and colours/fonts/spacing come from Obsidian's
@@ -209,26 +209,42 @@
   font-family: var(--font-monospace);
 }
 
-/* The token table: tokens, what they spell, and whether the pattern has one.
+/* The token table: tokens, what they write, and whether the format uses one.
    Three columns that line up, and none of the rules or row padding a settings
    row would have brought — four rows of reference material should not push the
-   preview off the screen. */
-/* The token grid: tokens, what they write, and whether the format uses one.
-   Laid out here rather than as a <table>, because Obsidian and themes both
-   style tables and their rules could not be reliably overridden. Nothing
-   styles a plain div, so there is nothing to remove. */
+   preview off the screen.
+
+   Table display values on plain divs, never a <table>: Obsidian and themes both
+   style that element and their rules could not be reliably overridden, while
+   nothing styles a div. Spacing is cell padding rather than gaps, because
+   `column-gap` and `display: contents` — what a grid would need here — are both
+   only partially supported by the Chromium Obsidian ships. */
 .kalendae-format-tokens {
-  align-items: center;
-  column-gap: var(--size-4-4);
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  border-spacing: 0;
+  display: table;
   margin-block-end: var(--size-4-3);
-  row-gap: var(--size-2-1);
+  width: 100%;
 }
 
-/* The row is there for screen readers; its cells belong to the grid. */
+/* The row is there for screen readers; its cells line up the columns. */
 .kalendae-format-token-row {
-  display: contents;
+  display: table-row;
+}
+
+.kalendae-format-token-head,
+.kalendae-format-token-list,
+.kalendae-format-token-name,
+.kalendae-format-token-mark {
+  display: table-cell;
+  /* Half the space wanted between two rows, paid by the cells on either side. */
+  padding-block: calc(var(--size-2-1) / 2);
+  padding-inline-end: var(--size-4-4);
+  vertical-align: middle;
+}
+
+/* Nothing hangs off the right edge of the last column. */
+.kalendae-format-token-row > :last-child {
+  padding-inline-end: 0;
 }
 
 .kalendae-format-token-head {
@@ -240,8 +256,11 @@
   white-space: nowrap;
 }
 
+/* The column that takes the slack, so the tokens beside it and the tick after
+   it stay as narrow as what they hold. */
 .kalendae-format-token-name {
   color: var(--text-muted);
+  width: 100%;
 }
 
 /* Whether the row is a part a date cannot do without. Fainter than the name it
