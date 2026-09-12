@@ -648,15 +648,59 @@
 
 /* Settings sections
  *
- * Obsidian rules a line between every setting row, which turns three related
- * settings into three unrelated ones. Inside our own groups the rows belong
- * together and the heading is what separates one subject from the next.
+ * Obsidian rules a line above every setting row in a group, which turns three
+ * related settings into three unrelated ones. Inside our own sections the rows
+ * belong together, so the lines come out and one goes above each heading
+ * instead: the separation is between subjects, not between switches. Format
+ * rows are the exception and keep theirs.
+ *
+ * The row divider is not a border and cannot be switched off like one. It is a
+ * pseudo-element of Obsidian's own, drawn just above each row:
+ *
+ *   .setting-group .setting-item:not(.setting-item-heading)::before {
+ *     border-top: var(--setting-items-divider-width) solid ...
+ *   }
+ *
+ * So the width variable is the switch, set on the group and inherited by every
+ * row in it. Obsidian uses the same variable itself, zeroing it on a focused
+ * row. The format list is left alone, which is how its rows keep their lines.
+ *
+ * `border-radius: 0` on the heading is not tidiness. The base `.setting-item`
+ * rule sets `border-radius: var(--setting-items-radius)`, so a border on a row
+ * Obsidian has not already squared draws a curved box rather than a rule.
  */
 
-.kalendae-group .setting-item:not(.setting-item-heading),
-.kalendae-scope-group .setting-item:not(.setting-item-heading) {
-  border-top: none;
+.kalendae-notes-group,
+.kalendae-group,
+.kalendae-scope-group {
+  --setting-items-divider-width: 0;
+}
+
+.kalendae-notes-group .setting-item:not(.setting-item-heading):not(.kalendae-format-row),
+.kalendae-group .setting-item:not(.setting-item-heading):not(.kalendae-format-row),
+.kalendae-scope-group .setting-item:not(.setting-item-heading):not(.kalendae-format-row),
+.kalendae-format-list .setting-item:not(.setting-item-heading):not(.kalendae-format-row) {
   padding-block: var(--size-2-3);
+}
+
+/* The heading carries the line, so a section whose rows are all hidden takes
+   its separator with it rather than leaving a rule floating in the gap.
+ *
+ * Obsidian gives the heading side padding and no top padding, which puts the
+ * line straight onto the words. The space added here is the heading's own
+ * bottom margin, so the line, the heading and the first row below it are
+ * evenly spread rather than the title sitting against the rule. */
+.kalendae-group .setting-item.setting-item-heading,
+.kalendae-scope-group .setting-item.setting-item-heading,
+.kalendae-format-list .setting-item.setting-item-heading {
+  border-radius: 0;
+  border-top: var(--border-width) solid var(--background-modifier-border);
+  padding-block-start: var(--size-4-4);
+}
+
+/* The first section has nothing above it to be separated from. */
+.kalendae-notes-group .setting-item.setting-item-heading {
+  border-top: none;
 }
 
 /* The line naming the command as the last way into the calendar. It sits under
@@ -664,7 +708,7 @@
    it stays the size of the format list's intro and tucks up against the heading
    above it. The accent colour is what marks it instead of weight: the theme's
    own highlight, which points without claiming anything is broken. */
-.kalendae-group .setting-item.kalendae-command-only {
+.kalendae-notes-group .setting-item.kalendae-command-only {
   padding-block-start: 0;
 }
 

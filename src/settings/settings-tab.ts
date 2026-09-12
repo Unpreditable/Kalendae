@@ -57,8 +57,11 @@ export class KalendaeSettingTab extends PluginSettingTab {
       {
         // What a date does under the pointer, which is a different subject from
         // what the calendar itself offers once it is open.
+        //
+        // A class of its own rather than the shared one: this is the first
+        // section, and the only one with nothing above it to be separated from.
         type: "group",
-        cls: "kalendae-group",
+        cls: "kalendae-notes-group",
         heading: t("settings.notes.heading"),
         items: [
           {
@@ -127,20 +130,20 @@ export class KalendaeSettingTab extends PluginSettingTab {
         heading: t("settings.calendar.heading"),
         items: [
           {
-            name: t("settings.weekNumbers.name"),
-            control: {
-              type: "toggle",
-              key: "showWeekNumbers",
-              defaultValue: DEFAULT_SETTINGS.showWeekNumbers,
-            },
-          },
-          {
             name: t("settings.weekStart.name"),
             control: {
               type: "dropdown",
               key: "weekStart",
               defaultValue: DEFAULT_SETTINGS.weekStart,
               options: weekStartOptions(),
+            },
+          },
+          {
+            name: t("settings.weekNumbers.name"),
+            control: {
+              type: "toggle",
+              key: "showWeekNumbers",
+              defaultValue: DEFAULT_SETTINGS.showWeekNumbers,
             },
           },
           {
