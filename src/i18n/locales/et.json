@@ -6,6 +6,9 @@
     "notes": {
       "heading": "Kuupäevad märkmes"
     },
+    "commandOnly": {
+      "name": "Märkus: kalendri avab ainult „{{command}}“ käsupaletist"
+    },
     "calendar": {
       "heading": "Kalender"
     },

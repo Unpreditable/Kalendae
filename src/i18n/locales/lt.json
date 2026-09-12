@@ -6,6 +6,9 @@
     "notes": {
       "heading": "Datos užraše"
     },
+    "commandOnly": {
+      "name": "Pastaba: kalendorių atveria tik „{{command}}“ komandų paletėje"
+    },
     "calendar": {
       "heading": "Kalendorius"
     },

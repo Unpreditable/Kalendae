@@ -94,6 +94,23 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
 };
 
 /**
+ * Whether the command is the last way into the calendar.
+ *
+ * Both pointer triggers off is a choice, not a mistake: a reader who wants
+ * nothing drawn over their prose still has `pick-date` and whatever hotkey
+ * they gave it. It is a choice the settings have to own up to, though, because
+ * the note cannot — a date goes on outlining itself under the pointer and then
+ * does nothing when clicked. The settings tab reads this and shows a
+ * sub-header naming the way in that is left.
+ *
+ * The outline is deliberately not part of the question. It marks a date; it
+ * has never opened one.
+ */
+export function commandOnly(settings: KalendaeSettings): boolean {
+  return !settings.doubleClick && settings.hoverIcon === "off";
+}
+
+/**
  * The two trigger settings, read out of whatever an older version wrote.
  *
  * Until 2026-09-10 these were a three-way `trigger` — hover icon, double-click

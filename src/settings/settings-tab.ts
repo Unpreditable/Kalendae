@@ -14,6 +14,7 @@ import {
   DEFAULT_SETTINGS,
   HOVER_ICONS,
   WEEK_STARTS,
+  commandOnly,
   reorderById,
 } from "../settings";
 import { shadowedFormats } from "../detect/shadow";
@@ -59,6 +60,21 @@ export class KalendaeSettingTab extends PluginSettingTab {
         cls: "kalendae-group",
         heading: t("settings.notes.heading"),
         items: [
+          {
+            // Ahead of the two switches that put it there. With both of them
+            // off nothing in a note opens the calendar, and the note cannot
+            // say so — a date goes on outlining itself under the pointer and
+            // then does nothing when clicked. The section says it instead, and
+            // names the way in that is left.
+            //
+            // Not a heading, though it sits where one would: a second line of
+            // heading under the section's own reads as a second section. It is
+            // a line of small muted text, the same treatment the format list's
+            // intro gets, so the switches below stay the loudest thing here.
+            name: commandOnlyText(),
+            visible: () => commandOnly(this.kalendae.settings),
+            render: (setting) => renderCommandOnly(setting),
+          },
           {
             name: t("settings.doubleClick.name"),
             desc: t("settings.doubleClick.desc"),
@@ -190,6 +206,25 @@ export class KalendaeSettingTab extends PluginSettingTab {
   }
 
   /**
+   * Every declarative row saves through here, and the sub-header above them
+   * all is why this is overridden: its `visible` predicate reads `doubleClick`
+   * and `hoverIcon`, and a predicate is only re-evaluated when something asks.
+   *
+   * The redraw is `update()` rather than the cheaper `refreshDomState()`, and
+   * only on the switch between the two states. `refreshDomState()` applies a
+   * predicate's answer to the DOM that is already there, which settles nothing
+   * about a row Obsidian may never have drawn — the tab is usually opened with
+   * both triggers on and this row absent. `update()` builds the definitions
+   * again, so the row exists either way. Twice per visit at the very most.
+   */
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    const before = commandOnly(this.kalendae.settings);
+    await super.setControlValue(key, value);
+
+    if (commandOnly(this.kalendae.settings) !== before) this.update();
+  }
+
+  /**
    * Reopening the tab builds a new list element, and the drag binding on the
    * old one would outlive it. See releaseSortable().
    */
@@ -277,6 +312,34 @@ export class KalendaeSettingTab extends PluginSettingTab {
     await this.kalendae.saveSettings();
     this.update();
   }
+}
+
+/**
+ * The line shown when the command is the last way into the calendar.
+ *
+ * The icon goes inside the name rather than beside it: the row carries no
+ * control, so there is nowhere else on it for the icon to sit. Its spacing is
+ * padding inside the icon's own box, which is the rule the hover icon in a
+ * note follows too — a margin between two elements belongs to neither of them.
+ */
+function renderCommandOnly(setting: Setting): void {
+  const name = createFragment();
+  const icon = name.createSpan({ cls: "kalendae-inline-icon" });
+  setIcon(icon, "info");
+  name.appendText(commandOnlyText());
+
+  setting.setName(name);
+  setting.settingEl.addClass("kalendae-command-only");
+}
+
+/**
+ * Named twice — once for search, once on screen — so the command's own name
+ * is looked up in one place. It comes from the command rather than from a
+ * second string, so it reads exactly as it does in the palette, in every
+ * language.
+ */
+function commandOnlyText(): string {
+  return t("settings.commandOnly.name", { command: t("commands.pickDate") });
 }
 
 /**

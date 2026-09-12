@@ -6,6 +6,9 @@
     "notes": {
       "heading": "Datumi piezīmē"
     },
+    "commandOnly": {
+      "name": "Piezīme: kalendāru atver tikai „{{command}}” komandu paletē"
+    },
     "calendar": {
       "heading": "Kalendārs"
     },

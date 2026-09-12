@@ -6,6 +6,9 @@
     "notes": {
       "heading": "ノート内の日付"
     },
+    "commandOnly": {
+      "name": "注: カレンダーを開けるのはコマンドパレットの「{{command}}」だけです"
+    },
     "calendar": {
       "heading": "カレンダー"
     },

@@ -638,6 +638,28 @@
   padding-block: var(--size-2-3);
 }
 
+/* The line naming the command as the last way into the calendar. It sits under
+   the section heading, where anything bold would read as a second heading, so
+   it stays the size of the format list's intro and tucks up against the heading
+   above it. The accent colour is what marks it instead of weight: the theme's
+   own highlight, which points without claiming anything is broken. */
+.kalendae-group .setting-item.kalendae-command-only {
+  padding-block-start: 0;
+}
+
+.kalendae-command-only .setting-item-name {
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+  font-weight: normal;
+}
+
+/* The icon carries the space before the words itself, rather than leaving a
+   gap that belongs to neither of them. */
+.kalendae-command-only .kalendae-inline-icon {
+  color: inherit;
+  padding-inline-end: var(--size-2-2);
+}
+
 /* The calendar icon standing inside the hover-icon row's description, where a
    picture of the thing beats a name for it. */
 .kalendae-inline-icon {

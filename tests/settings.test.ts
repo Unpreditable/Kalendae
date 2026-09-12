@@ -2,6 +2,7 @@ import {
   DEFAULT_SETTINGS,
   HOVER_ICONS,
   WEEK_STARTS,
+  commandOnly,
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
@@ -154,5 +155,25 @@ describe("migrating the trigger settings", () => {
       doubleClick: DEFAULT_SETTINGS.doubleClick,
       hoverIcon: DEFAULT_SETTINGS.hoverIcon,
     });
+  });
+});
+
+describe("commandOnly", () => {
+  const both = { ...DEFAULT_SETTINGS };
+
+  it("is false while either way in from the note is left", () => {
+    expect(commandOnly(both)).toBe(false);
+    expect(commandOnly({ ...both, hoverIcon: "off" })).toBe(false);
+    expect(commandOnly({ ...both, doubleClick: false })).toBe(false);
+  });
+
+  it("is true once neither the double-click nor the icon is left", () => {
+    expect(commandOnly({ ...both, doubleClick: false, hoverIcon: "off" })).toBe(true);
+  });
+
+  it("does not count the outline, which opens nothing", () => {
+    // The outline still follows the pointer with both triggers off. It marks a
+    // date; it has never been a way to open one.
+    expect(commandOnly({ ...both, showHoverFrame: false })).toBe(false);
   });
 });

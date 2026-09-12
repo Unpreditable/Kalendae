@@ -8,6 +8,10 @@
       "notes_comment": "Heading of the settings section covering how a date behaves in a note: what opens the calendar, and what is drawn around a date under the pointer.",
       "heading": "Dates in a note"
     },
+    "commandOnly": {
+      "name_comment": "Small line at the top of the 'Dates in a note' section, shown only when both the double-click and the hover icon are switched off, so nothing in a note opens the calendar any more. {{command}} is replaced by the name of the Pick a date command, taken from commands.pickDate so it matches the command palette whatever the command is called — keep the marker, and quote it with your language's quotation marks. Keep 'Note:', or your language's equivalent, as an opener. For 'command palette', use the words your language's Obsidian uses for it. The reader chose this, so word it as a fact, not a warning.",
+      "name": "Note: Only “{{command}}” from the command palette opens the calendar"
+    },
     "calendar": {
       "calendar_comment": "Heading of the settings section covering what the calendar itself shows once open.",
       "heading": "Calendar"

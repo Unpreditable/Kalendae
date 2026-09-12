@@ -6,6 +6,9 @@
     "notes": {
       "heading": "Fechas en una nota"
     },
+    "commandOnly": {
+      "name": "Nota: solo «{{command}}» desde la paleta de comandos abre el calendario"
+    },
     "calendar": {
       "heading": "Calendario"
     },

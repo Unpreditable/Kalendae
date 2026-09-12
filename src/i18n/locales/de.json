@@ -6,6 +6,9 @@
     "notes": {
       "heading": "Datumsangaben in einer Notiz"
     },
+    "commandOnly": {
+      "name": "Hinweis: Nur „{{command}}“ über die Befehlspalette öffnet den Kalender"
+    },
     "calendar": {
       "heading": "Kalender"
     },

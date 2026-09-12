@@ -17,6 +17,13 @@ apply it, however clear the resulting change seems.
 doing it. Surface the rest as a list and let the user pick. Finding a real problem is a reason to
 mention it, never a licence to fix it uninvited.
 
+**English only until the end.** While the work is in progress, `en.json` is the only locale to
+touch. Translating the other twelve is the second-to-last step before a commit, once the English
+has stopped moving — a string reworded three times costs thirteen files three times over, and
+twenty-four of those edits are thrown away. Run `npm run build` and `npm test` during the work;
+`npm run validate-translations` fails on a key the locales do not have yet, so leave
+`npm run release-check` for after the translation pass.
+
 **Ask when uncertain, before acting.** If a request could mean two things, say so and wait. Do not
 pick the likelier reading and proceed. Guessing wrong wastes more of the user's time than asking.
 
@@ -209,9 +216,10 @@ Two things follow from how `update()` behaves, and both have already been bugs:
 ### i18n
 
 Every user-visible string lives in `src/i18n/locales/`. `en.json` is the source of truth and
-carries a `<key>_comment` sibling for each key explaining its context to translators. All 13 other
-locales must have exactly en's key set with no blank values — `npm run validate-translations`
-enforces this, and the Release workflow gates on it. `sample_lang.json` is the blank template for
+carries a `<key>_comment` sibling for each key explaining its context to translators. It is also
+the only one to write while a change is still being worked on — see "English only until the end"
+above. All 13 other locales must have exactly en's key set with no blank values —
+`npm run validate-translations` enforces this, and the Release workflow gates on it. `sample_lang.json` is the blank template for
 adding a language and is exempt from the check.
 
 ## CSS rules

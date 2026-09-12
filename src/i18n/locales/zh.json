@@ -6,6 +6,9 @@
     "notes": {
       "heading": "笔记中的日期"
     },
+    "commandOnly": {
+      "name": "注意：只有命令面板中的“{{command}}”才能打开日历"
+    },
     "calendar": {
       "heading": "日历"
     },
