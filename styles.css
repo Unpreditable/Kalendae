@@ -440,6 +440,27 @@
   right: 0;
 }
 
+/* A Tasks emoji standing in for the icon.
+ *
+ * Nothing is added to the line here at all: the glyph was already in the note,
+ * and the mark around it only takes the pointer and lights up. The date beside
+ * it is deliberately outside this box — a pointer cursor over the date would
+ * promise a click that still only moves the caret.
+ */
+.kalendae-marker {
+  cursor: pointer;
+}
+
+/* The chip is painted, never laid out: a background and a box-shadow spread
+   reach past the glyph without the horizontal padding that would push the rest
+   of the line along. The span covers the space after the emoji too, so the
+   chip already has room on that side. */
+.kalendae-marker.kalendae-hot {
+  background-color: var(--background-modifier-hover);
+  border-radius: var(--radius-s);
+  box-shadow: 0 0 0 0.15em var(--background-modifier-hover);
+}
+
 
 /* The calendar panel
  *

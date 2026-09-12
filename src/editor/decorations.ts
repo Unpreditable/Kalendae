@@ -20,6 +20,12 @@ import { hotDate } from "./hover-state";
  * Marks and a zero-width widget, never a widget that occupies space. The icon
  * is absolutely positioned inside an anchor of no width, so the note reads
  * exactly as it did before the plugin was installed until a pointer arrives.
+ *
+ * A date with a Tasks emoji in front of it is drawn the other way round: no
+ * icon at all, and the mark widened to take the emoji in, so one outline covers
+ * the pair and the glyph already in the note is the button. Nothing is added to
+ * that line whatsoever — which is the least-interference goal reached rather
+ * than approximated.
  */
 
 /** What a click on the icon asks for. */
@@ -115,7 +121,7 @@ function build(
   const hot = view.state.field(hotDate);
   // Marks are drawn either way: double-click needs them to hit-test against,
   // and the outline hangs off them. Only the icon answers to its own setting.
-  const withIcon = settings.hoverIcon !== "off";
+  const iconWanted = settings.hoverIcon !== "off";
   let claimed = -1;
 
   for (const range of view.visibleRanges) {
@@ -126,7 +132,16 @@ function build(
       claimed = detection.to;
 
       const id = String(detection.from);
-      const classes = ["kalendae-date", `kalendae-place-${settings.hoverIcon}`];
+      // A Tasks emoji takes the icon's place for its own date rather than
+      // standing beside it: two buttons on one date, one of them drawn over the
+      // emoji that is the other, is not something to offer.
+      const marker = settings.taskEmoji ? detection.markerFrom : undefined;
+      const withIcon = iconWanted && marker === undefined;
+
+      const classes = ["kalendae-date"];
+      // The place class is what reaches the outline out to take the icon in, so
+      // it belongs to a date that has one. A marked date is snug on both sides.
+      if (withIcon) classes.push(`kalendae-place-${settings.hoverIcon}`);
       if (settings.showHoverFrame) classes.push("kalendae-framed");
       if (detection.from === hot) classes.push("kalendae-hot");
 
@@ -153,10 +168,26 @@ function build(
       if (withIcon && atStart) builder.add(detection.from, detection.from, icon());
 
       builder.add(
-        detection.from,
+        marker ?? detection.from,
         detection.to,
         Decoration.mark({ class: classes.join(" "), attributes: { "data-kalendae": id } }),
       );
+
+      // A box of its own for the emoji, so the pointer and the chip stop where
+      // the date begins: a pointer cursor over the date would promise a click
+      // that only moves the caret. It reaches all the way to the date rather
+      // than stopping after the glyph, though, so the space between them belongs
+      // to the target — a gap belonging to neither half is what made the hover
+      // affordance flicker.
+      //
+      // The mark above already covers this range, which the builder cannot take
+      // in order and puts in a layer of its own. Which of the two CodeMirror
+      // then nests inside the other is its business: the class below is what
+      // lights this one, rather than a descendant selector off the other.
+      if (marker !== undefined) {
+        const lit = detection.from === hot ? " kalendae-hot" : "";
+        builder.add(marker, detection.from, Decoration.mark({ class: `kalendae-marker${lit}` }));
+      }
 
       if (withIcon && !atStart) builder.add(detection.to, detection.to, icon());
     }

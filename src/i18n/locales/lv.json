@@ -25,6 +25,10 @@
         "right": "Pa labi"
       }
     },
+    "taskEmoji": {
+      "name": "Tasks spraudņa emocijzīmes ({{emojis}})",
+      "desc": "Noklikšķini uz vienas, lai atvērtu kalendāru. Šiem datumiem ikona, virzot peli, netiek rādīta."
+    },
     "hoverFrame": {
       "name": "Rāmis, virzot peli"
     },

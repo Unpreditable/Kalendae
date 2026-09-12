@@ -25,6 +25,10 @@
         "right": "放在右侧"
       }
     },
+    "taskEmoji": {
+      "name": "Tasks 插件的表情符号（{{emojis}}）",
+      "desc": "点击其中任意一个即可打开日历。这些日期不会显示悬停图标。"
+    },
     "hoverFrame": {
       "name": "悬停时显示边框"
     },

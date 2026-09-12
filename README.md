@@ -8,10 +8,12 @@ Change an existing date in your note with a date picker, instead of retyping it.
 
 ## Using it
 
-Kalendae recognises the dates in your notes. Three ways to open the calendar on one:
+Kalendae recognises the dates in your notes. Four ways to open the calendar on one:
 
 - Hover the date and click the calendar icon that appears beside it.
 - Double-click the date.
+- Click a Tasks plugin emoji in front of the date: ➕ 🛫 ⏳ 📅 ✅ ❌. Those dates show no icon of
+  their own, and the emoji works whether or not you have the Tasks plugin installed.
 - Put the cursor on the date and run **Kalendae: Pick a date** from the command palette.
 
 Pick a day on the calendar, and Kalendae will rewrite the date in the original format.
@@ -39,7 +41,7 @@ Anything in the pattern that isn't an ASCII letter (a dash, a dot, a comma, pare
 
 ## Where it looks
 
-Define where the hover icon and the double-click find dates:
+Define where the hover icon, the Tasks emoji and the double-click find dates:
 
 **Settings → Kalendae → Sections to scan**:
 

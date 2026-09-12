@@ -25,6 +25,10 @@
         "right": "Rechts platzieren"
       }
     },
+    "taskEmoji": {
+      "name": "Emojis des Tasks-Plugins ({{emojis}})",
+      "desc": "Klicke auf eines, um den Kalender zu öffnen. Bei diesen Datumsangaben erscheint kein Symbol beim Überfahren."
+    },
     "hoverFrame": {
       "name": "Rahmen beim Überfahren"
     },

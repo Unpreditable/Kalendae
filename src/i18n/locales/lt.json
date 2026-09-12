@@ -25,6 +25,10 @@
         "right": "Dešinėje"
       }
     },
+    "taskEmoji": {
+      "name": "Tasks papildinio emoji ({{emojis}})",
+      "desc": "Spustelėkite vieną iš jų, kad atidarytumėte kalendorių. Prie šių datų piktograma užvedus pelę nerodoma."
+    },
     "hoverFrame": {
       "name": "Rėmelis užvedus pelę"
     },

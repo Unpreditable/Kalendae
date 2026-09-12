@@ -13,7 +13,13 @@ import {
 describe("settings defaults", () => {
   it("opens on a double-click and on the hover icon, out of the box", () => {
     expect(DEFAULT_SETTINGS.doubleClick).toBe(true);
-    expect(DEFAULT_SETTINGS.hoverIcon).toBe("right");
+    expect(DEFAULT_SETTINGS.hoverIcon).toBe("left");
+  });
+
+  it("uses a Tasks emoji as the way in where a date has one", () => {
+    // On out of the box because it costs the note nothing: the glyph is already
+    // there, and no icon of ours is drawn on a date that has one.
+    expect(DEFAULT_SETTINGS.taskEmoji).toBe(true);
   });
 
   it("offers the icon a side or none at all, once each", () => {
@@ -163,14 +169,21 @@ describe("migrating the trigger settings", () => {
 describe("commandOnly", () => {
   const both = { ...DEFAULT_SETTINGS };
 
-  it("is false while either way in from the note is left", () => {
+  it("is false while any way in from the note is left", () => {
     expect(commandOnly(both)).toBe(false);
     expect(commandOnly({ ...both, hoverIcon: "off" })).toBe(false);
     expect(commandOnly({ ...both, doubleClick: false })).toBe(false);
+    expect(commandOnly({ ...both, taskEmoji: false })).toBe(false);
   });
 
-  it("is true once neither the double-click nor the icon is left", () => {
-    expect(commandOnly({ ...both, doubleClick: false, hoverIcon: "off" })).toBe(true);
+  it("counts a Tasks emoji as a way in, when it is the only one left", () => {
+    expect(commandOnly({ ...both, doubleClick: false, hoverIcon: "off" })).toBe(false);
+  });
+
+  it("is true once none of the three is left", () => {
+    expect(
+      commandOnly({ ...both, doubleClick: false, hoverIcon: "off", taskEmoji: false }),
+    ).toBe(true);
   });
 
   it("does not count the outline, which opens nothing", () => {

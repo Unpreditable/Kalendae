@@ -1,6 +1,6 @@
 import { Extension, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, Tooltip, showTooltip } from "@codemirror/view";
-import { detectIn } from "../detect/detect";
+import { Detection, detectIn } from "../detect/detect";
 import { DayKey, dayFor } from "../picker/month";
 import { createPanel } from "../picker/panel";
 import { insertionFor, stillThere } from "../picker/write";
@@ -14,8 +14,9 @@ import { DateTarget } from "./decorations";
  * anchors to a document position, flips the panel when it would fall off the
  * bottom of the window, and keeps it with the text as the note scrolls.
  *
- * Opening is an effect, which is what makes the three triggers cost almost
- * nothing — the icon, a double-click and the command all dispatch the same one.
+ * Opening is an effect, which is what makes the ways in cost almost nothing —
+ * the icon, a double-click, a click on a Tasks emoji and the command all
+ * dispatch the same one.
  */
 
 // Private on purpose: everything that opens the picker goes through
@@ -47,15 +48,42 @@ export function targetAt(
   for (const detection of detectIn(state, settings, pos, pos)) {
     if (!detection.accepted || pos < detection.from || pos > detection.to) continue;
 
-    return {
-      from: detection.from,
-      to: detection.to,
-      text: detection.text,
-      pattern: detection.pattern,
-    };
+    return targetOf(detection);
   }
 
   return null;
+}
+
+/**
+ * The date a Tasks emoji under this position belongs to.
+ *
+ * The emoji and the space after it are the target; the date itself is not, which
+ * is what leaves a single click on the date doing what a single click does
+ * everywhere else. `markerFrom` already reaches to the start of the date, so the
+ * gap between the two is inside the range rather than beside it.
+ */
+function markedAt(
+  state: EditorView["state"],
+  settings: KalendaeSettings,
+  pos: number,
+): DateTarget | null {
+  for (const detection of detectIn(state, settings, pos, pos)) {
+    if (!detection.accepted || detection.markerFrom === undefined) continue;
+    if (pos < detection.markerFrom || pos >= detection.from) continue;
+
+    return targetOf(detection);
+  }
+
+  return null;
+}
+
+function targetOf(detection: Detection): DateTarget {
+  return {
+    from: detection.from,
+    to: detection.to,
+    text: detection.text,
+    pattern: detection.pattern,
+  };
 }
 
 export function pickerTooltip(getSettings: () => KalendaeSettings): Extension {
@@ -71,21 +99,30 @@ export function pickerTooltip(getSettings: () => KalendaeSettings): Extension {
       // a word — in a date that is one of YYYY, MM or DD, left highlighted
       // under the open panel — and preventDefault there cannot take it back.
       // Here it can, because the selection has not happened yet.
+      //
+      // The same handler answers for the Tasks emoji, which opens on one click
+      // because it is standing in for the icon, and the icon opens on one.
       mousedown: (event, view) => {
         const settings = getSettings();
-        if (event.detail !== 2 || !settings.doubleClick) return false;
+        if (event.button !== 0) return false;
 
         const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
-        const target = pos === null ? null : targetAt(view.state, settings, pos);
+        if (pos === null) return false;
+
+        const marked = settings.taskEmoji ? markedAt(view.state, settings, pos) : null;
+        if (marked !== null) {
+          event.preventDefault();
+          openFromClick(view, marked);
+          return true;
+        }
+
+        if (event.detail !== 2 || !settings.doubleClick) return false;
+
+        const target = targetAt(view.state, settings, pos);
         if (target === null) return false;
 
         event.preventDefault();
-        view.dispatch({
-          // Collapsed after the date, which is where picking a day would leave
-          // the caret anyway.
-          selection: { anchor: target.to },
-          effects: openPicker.of(target),
-        });
+        openFromClick(view, target);
         return true;
       },
     }),
@@ -95,6 +132,20 @@ export function pickerTooltip(getSettings: () => KalendaeSettings): Extension {
 /** Opens the picker on a target, from anywhere that has a view. */
 export function showPicker(view: EditorView, target: DateTarget): void {
   view.dispatch({ effects: openPicker.of(target) });
+}
+
+/**
+ * Opens the picker from a click in the text, caret and all.
+ *
+ * The caret lands after the date, collapsed — which is where picking a day would
+ * leave it anyway, and it keeps a click on the emoji from leaving the caret
+ * behind in the middle of the pair.
+ */
+function openFromClick(view: EditorView, target: DateTarget): void {
+  view.dispatch({
+    selection: { anchor: target.to },
+    effects: openPicker.of(target),
+  });
 }
 
 function tooltipFor(target: DateTarget, settings: KalendaeSettings): Tooltip {

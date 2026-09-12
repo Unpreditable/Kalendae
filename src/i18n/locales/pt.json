@@ -25,6 +25,10 @@
         "right": "À direita"
       }
     },
+    "taskEmoji": {
+      "name": "Emojis do plugin Tasks ({{emojis}})",
+      "desc": "Clique em um deles para abrir o calendário. Essas datas não mostram o ícone ao passar o mouse."
+    },
     "hoverFrame": {
       "name": "Contorno ao passar o mouse"
     },

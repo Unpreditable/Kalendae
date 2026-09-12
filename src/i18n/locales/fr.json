@@ -25,6 +25,10 @@
         "right": "À droite"
       }
     },
+    "taskEmoji": {
+      "name": "Émojis du plugin Tasks ({{emojis}})",
+      "desc": "Cliquez sur l'un d'eux pour ouvrir le calendrier. Ces dates n'affichent pas l'icône au survol."
+    },
     "hoverFrame": {
       "name": "Cadre au survol"
     },

@@ -78,7 +78,7 @@ npm view obsidian@<version> peerDependencies --json
 To confirm a build kept them external:
 
 ```bash
-grep -o 'require("@codemirror/[a-z]*")' main.js | sort -u   # language and view, today
+grep -o 'require("@codemirror/[a-z]*")' main.js | sort -u   # state, language and view, today
 grep -c "class EditorView" main.js                          # must be 0
 ```
 
@@ -96,6 +96,7 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/picker/write.ts](src/picker/write.ts) | `replacementFor()` and the `stillThere()` guard |
 | [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `renderPattern()`, `BUILT_IN_FORMATS` |
 | [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
+| [src/detect/markers.ts](src/detect/markers.ts) | `markerBefore()` — the Tasks emoji in front of a date, and where the pair starts |
 | [src/detect/context.ts](src/detect/context.ts) | `classifyContext()` — where in the note a candidate sits, via `syntaxTree()` |
 | [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` for a whole note, `detectIn()` for a range; both apply the scope settings |
 | [src/detect/shadow.ts](src/detect/shadow.ts) | `shadowedFormats()` — which formats an earlier one always beats to its dates |
@@ -110,9 +111,10 @@ Times do not exist yet, and neither does anything that writes more than one date
 
 ### The picker
 
-Three ways in, all dispatching one state effect, which is why the second and third cost almost
-nothing: the hover icon, a double-click on the date, and the `pick-date` command with the caret on
-one. `showPicker()` is the only entry point; the effects behind it are private.
+Four ways in, all dispatching one state effect, which is why every way in after the first costs
+almost nothing: the hover icon, a double-click on the date, a click on a Tasks emoji in front of
+it, and the `pick-date` command with the caret on one. `showPicker()` is the only entry point; the
+effects behind it are private.
 
 Two rules the editor layer must keep, both paid for by a spike that is now deleted:
 
@@ -124,6 +126,14 @@ Two rules the editor layer must keep, both paid for by a spike that is now delet
   emphasis, strong, strikethrough, headings, `[…]` — reparent one without the other. They carry a
   shared `data-kalendae` id instead, and which one is lit lives in a `StateField` rather than on
   the elements, where a redraw would strand it.
+
+A Tasks emoji in front of a date takes the icon's place for that date — `detect/markers.ts` decides
+what counts as one, `taskEmoji` switches it off. The mark widens to take the emoji and the space
+after it in, so one outline covers the pair and nothing measures anything to do it. That leaves two
+marks over the same range, which `RangeSetBuilder` hands to separate layers. Which of them
+CodeMirror nests inside the other is its business, not something to build on: the emoji's own mark
+carries `kalendae-hot` itself rather than being lit through a descendant selector off the mark
+around it.
 
 Geometry is CSS, never JavaScript: every offset is in `em` so it tracks the line's font size, and
 the icon's leading space is padding inside its own box rather than a gap beside it — a gap belongs
@@ -164,6 +174,10 @@ A candidate must pass three gates, in order:
    digit beyond it (`2026-09-06.` ending a sentence versus `12.11.2026.5`), and an underscore only
    with a letter or digit beyond it (`_2026-09-06_` in italics versus `backup_2026-09-06_final`),
 3. `moment.utc(text, pattern, true).isValid()`, which has the final say.
+
+A marker is not a gate. `scanText()` records where a Tasks emoji in front of a candidate starts and
+changes nothing else — an unmarked date is found exactly as before, and what the marker is worth is
+the editor layer's question.
 
 Gate 3 being the authority is why gate 1 only has to be non-lossy. Use `moment.utc(...)`, not a
 bare `moment(...)`: the namespace stays callable under `esModuleInterop`, which the Jest tsconfig

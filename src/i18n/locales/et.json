@@ -25,6 +25,10 @@
         "right": "Paremale"
       }
     },
+    "taskEmoji": {
+      "name": "Tasksi plugina emojid ({{emojis}})",
+      "desc": "Klõpsa ühel, et kalender avada. Nendel kuupäevadel ikooni hiirega osutades ei näidata."
+    },
     "hoverFrame": {
       "name": "Raam hiirega osutades"
     },

@@ -25,6 +25,10 @@
         "right": "Colocar a la derecha"
       }
     },
+    "taskEmoji": {
+      "name": "Emojis del plugin Tasks ({{emojis}})",
+      "desc": "Haz clic en uno para abrir el calendario. Esas fechas no muestran el icono al pasar el ratón."
+    },
     "hoverFrame": {
       "name": "Recuadro al pasar el ratón"
     },

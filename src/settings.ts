@@ -57,6 +57,20 @@ export interface KalendaeSettings {
   /** Whether double-clicking a date opens the calendar on it. */
   doubleClick: boolean;
   hoverIcon: HoverIcon;
+  /**
+   * Whether a Tasks-plugin date emoji in front of a date is the way into the
+   * calendar for that date — see `detect/markers.ts`.
+   *
+   * Its own setting rather than part of `hoverIcon`, because the two are
+   * separate questions and every combination of them means something. The
+   * common case is this on with the icon off: a task list is reached through
+   * the glyphs it already carries, and nothing is drawn over anything else.
+   *
+   * A marked date never gets an icon as well. That is not a preference — two
+   * buttons on one date, one of them sitting over the emoji that is the other,
+   * is not a choice worth offering.
+   */
+  taskEmoji: boolean;
   /** Ordered and never empty; the first format that matches a range claims it. */
   formats: DateFormatEntry[];
   /**
@@ -80,7 +94,8 @@ export interface KalendaeSettings {
 
 export const DEFAULT_SETTINGS: KalendaeSettings = {
   doubleClick: true,
-  hoverIcon: "right",
+  hoverIcon: "left",
+  taskEmoji: true,
   formats: [{ id: "iso", pattern: "YYYY-MM-DD" }],
   scopeHeadings: true,
   scopeInlineCode: false,
@@ -96,18 +111,25 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
 /**
  * Whether the command is the last way into the calendar.
  *
- * Both pointer triggers off is a choice, not a mistake: a reader who wants
+ * Every pointer trigger off is a choice, not a mistake: a reader who wants
  * nothing drawn over their prose still has `pick-date` and whatever hotkey
  * they gave it. It is a choice the settings have to own up to, though, because
  * the note cannot — a date goes on outlining itself under the pointer and then
  * does nothing when clicked. The settings tab reads this and shows a
  * sub-header naming the way in that is left.
  *
+ * All three are counted, the emoji included, so the sentence stays literally
+ * true: with the emoji on, clicking one opens the calendar, and a notice saying
+ * only the command does would contradict the row three lines below it. The
+ * silence that leaves is real and accepted — a date with no emoji still
+ * outlines itself and still does nothing when clicked, and nothing here says
+ * so.
+ *
  * The outline is deliberately not part of the question. It marks a date; it
  * has never opened one.
  */
 export function commandOnly(settings: KalendaeSettings): boolean {
-  return !settings.doubleClick && settings.hoverIcon === "off";
+  return !settings.doubleClick && settings.hoverIcon === "off" && !settings.taskEmoji;
 }
 
 /**
@@ -154,6 +176,9 @@ export function migrateTriggers(stored: unknown): Pick<KalendaeSettings, "double
     return { doubleClick: settings.doubleClick, hoverIcon: settings.hoverIcon };
   }
 
+  // "right" is what that version drew, not what this one defaults to. This is
+  // reconstructing what the reader was looking at, so it stays a literal and
+  // does not follow DEFAULT_SETTINGS.
   const side = isHoverIcon(settings.iconPlacement) ? settings.iconPlacement : "right";
 
   if (settings.trigger === "hover-icon") return { doubleClick: false, hoverIcon: side };

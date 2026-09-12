@@ -32,16 +32,22 @@
         "off": "Disabled",
         "left_comment": "Dropdown option: the icon appears before the date.",
         "left": "Place left",
-        "right_comment": "Dropdown option: the icon appears after the date. The default.",
+        "right_comment": "Dropdown option: the icon appears after the date.",
         "right": "Place right"
       }
+    },
+    "taskEmoji": {
+      "name_comment": "Settings row label for the toggle that makes one of the Tasks plugin's date emoji the way into the calendar for the date written after it. {{emojis}} is replaced by the list of those emoji — keep the marker, and keep it in brackets. \"Tasks\" is the name of another Obsidian plugin: leave it as it is, and use the plural form your language's Obsidian uses for plugin names.",
+      "name": "Tasks plugin emojis ({{emojis}})",
+      "desc_comment": "Description under that toggle. \"one\" means one of the emoji listed in the label above. The second sentence says what the reader gives up: a date with an emoji in front of it is opened through the emoji, so the hover icon is not drawn on it.",
+      "desc": "Click one to open the calendar. Those dates get no hover icon."
     },
     "hoverFrame": {
       "name_comment": "Settings row label for the toggle that draws an outline around a date and its icon while the pointer is over them.",
       "name": "Outline on hover"
     },
     "weekNumbers": {
-      "name_comment": "Settings row label for the toggle adding a week-number column to the calendar. Off by default.",
+      "name_comment": "Settings row label for the toggle adding a week-number column to the calendar.",
       "name": "Week numbers"
     },
     "weekStart": {
@@ -146,7 +152,7 @@
         "name": "Body text"
       },
       "headings": {
-        "name_comment": "Toggle label: markdown headings, the lines starting with #. On by default, unlike the other optional sections.",
+        "name_comment": "Toggle label: markdown headings, the lines starting with #.",
         "name": "Headings"
       },
       "frontmatter": {

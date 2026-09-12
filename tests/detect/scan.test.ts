@@ -151,6 +151,31 @@ describe("scanText", () => {
       expect(accepted("2026-09-06", entries)).toEqual(["2026-09-06"]);
     });
   });
+
+  // The rule itself lives in markers.ts and is tested there. What matters here
+  // is that a candidate carries the answer, because the editor layer reads it
+  // off the detection rather than going back to the text for it.
+  describe("task emoji markers", () => {
+    it("records where the marker in front of a date begins", () => {
+      const source = "- [ ] Write up 📅 2026-09-06";
+      const [candidate] = scanText(source, ISO);
+
+      expect(source.slice(candidate.markerFrom as number)).toBe("📅 2026-09-06");
+    });
+
+    it("leaves it unset on a date with nothing in front of it", () => {
+      const [candidate] = scanText("due 2026-09-06 at the latest", ISO);
+
+      expect(candidate.markerFrom).toBeUndefined();
+    });
+
+    it("records one on a date it rejected, so the reason is the only thing missing", () => {
+      const [candidate] = scanText("📅 2026-02-30", ISO);
+
+      expect(candidate.accepted).toBe(false);
+      expect(candidate.markerFrom).toBe(0);
+    });
+  });
 });
 
 /**

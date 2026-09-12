@@ -1,5 +1,6 @@
 import { moment } from "obsidian";
 import { DateFormatEntry, checkFormat, compileFormat } from "./formats";
+import { markerBefore } from "./markers";
 
 /**
  * Finds the dates in a piece of text. Pure — no Obsidian editor, no syntax
@@ -29,6 +30,14 @@ export interface Candidate {
   /** The `DateFormatEntry.id` that matched. */
   formatId: string;
   pattern: string;
+  /**
+   * Where the Tasks emoji in front of this date begins, spaces included, when
+   * there is one. The rule is `markers.ts`; this only records what it found.
+   *
+   * Recorded whether or not the candidate was accepted, like every other field
+   * here: a rejection carries the reason it was rejected for and nothing less.
+   */
+  markerFrom?: number;
   accepted: boolean;
   reason?: RejectReason;
 }
@@ -52,6 +61,7 @@ export function scanText(text: string, entries: DateFormatEntry[]): Candidate[] 
         text: match[0],
         formatId: entry.id,
         pattern: entry.pattern,
+        markerFrom: markerBefore(text, from) ?? undefined,
         ...reasonFor(text, from, to, match[0], entry.pattern),
       });
     }

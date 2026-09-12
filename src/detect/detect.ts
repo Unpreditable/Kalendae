@@ -92,13 +92,23 @@ export function detectIn(
   const upto = frontmatterEnd(state.doc.sliceString(0, Math.min(end, FRONTMATTER_PREFIX)));
 
   return scanText(state.doc.sliceString(start, end), settings.formats).map((candidate) =>
-    withContext(
-      tree,
-      upto,
-      { ...candidate, from: candidate.from + start, to: candidate.to + start },
-      settings,
-    ),
+    withContext(tree, upto, shiftBy(candidate, start), settings),
   );
+}
+
+/**
+ * Slice offsets to document offsets, which is every offset a candidate carries.
+ *
+ * The marker is easy to forget and silent when forgotten: an emoji's click
+ * target would land wherever that offset happened to point earlier in the note.
+ */
+function shiftBy(candidate: Candidate, start: number): Candidate {
+  return {
+    ...candidate,
+    from: candidate.from + start,
+    to: candidate.to + start,
+    markerFrom: candidate.markerFrom === undefined ? undefined : candidate.markerFrom + start,
+  };
 }
 
 function clamp(state: EditorState, at: number): number {

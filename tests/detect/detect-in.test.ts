@@ -50,4 +50,18 @@ describe("detectIn", () => {
     );
     expect(rejected.map((detection) => detection.reason)).toEqual(["not-a-date"]);
   });
+
+  it("reports a marker offset in document coordinates, like every other offset", () => {
+    // The scan works on a slice of the note, so every offset it hands back has
+    // to be moved — and a marker left in slice coordinates would point the
+    // emoji's click target at a spot earlier in the note.
+    const marked = ["First line", "- [ ] Write up 📅 2026-02-02"].join("\n");
+    const state = EditorState.create({ doc: marked });
+    const second = marked.indexOf("- [ ]");
+    const [detection] = detectIn(state, DEFAULT_SETTINGS, second, marked.length).filter(
+      (candidate) => candidate.accepted,
+    );
+
+    expect(marked.slice(detection.markerFrom as number)).toBe("📅 2026-02-02");
+  });
 });

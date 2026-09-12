@@ -17,6 +17,7 @@ import {
   commandOnly,
   reorderById,
 } from "../settings";
+import { TASK_MARKERS } from "../detect/markers";
 import { shadowedFormats } from "../detect/shadow";
 import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
 import { KalendaeHost } from "./host";
@@ -94,6 +95,20 @@ export class KalendaeSettingTab extends PluginSettingTab {
               options: Object.fromEntries(
                 HOVER_ICONS.map((value) => [value, t(`settings.hoverIcon.options.${value}`)]),
               ),
+            },
+          },
+          {
+            // Third of the three ways in, under the two that came before it.
+            // The emoji are in the name rather than the description: a reader
+            // scanning the section sees which glyphs this is about without
+            // reading a sentence, and the list has one definition — TASK_MARKERS
+            // — rather than one here and one in thirteen locale files.
+            name: t("settings.taskEmoji.name", { emojis: TASK_MARKERS.join(" ") }),
+            desc: t("settings.taskEmoji.desc"),
+            control: {
+              type: "toggle",
+              key: "taskEmoji",
+              defaultValue: DEFAULT_SETTINGS.taskEmoji,
             },
           },
           {
