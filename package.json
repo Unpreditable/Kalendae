@@ -1,6 +1,6 @@
 {
   "name": "obsidian-kalendae",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Change an existing date in your note by picking it from a calendar, instead of retyping it.",
   "main": "main.js",
   "scripts": {
