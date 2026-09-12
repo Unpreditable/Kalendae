@@ -126,7 +126,6 @@
     "nextYear": "Kiti metai"
   },
   "notices": {
-    "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
-    "noDateHere": "Čia datos nėra. Pirmiausia pastatykite žymeklį ties data."
+    "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje."
   }
 }

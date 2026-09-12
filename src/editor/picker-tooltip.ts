@@ -1,10 +1,9 @@
 import { Extension, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, Tooltip, showTooltip } from "@codemirror/view";
-import { moment } from "obsidian";
 import { detectIn } from "../detect/detect";
-import { DayKey } from "../picker/month";
+import { DayKey, dayFor } from "../picker/month";
 import { createPanel } from "../picker/panel";
-import { replacementFor, stillThere } from "../picker/write";
+import { insertionFor, stillThere } from "../picker/write";
 import { KalendaeSettings } from "../settings";
 import { DateTarget } from "./decorations";
 
@@ -47,27 +46,6 @@ export function targetAt(
 ): DateTarget | null {
   for (const detection of detectIn(state, settings, pos, pos)) {
     if (!detection.accepted || pos < detection.from || pos > detection.to) continue;
-
-    return {
-      from: detection.from,
-      to: detection.to,
-      text: detection.text,
-      pattern: detection.pattern,
-    };
-  }
-
-  return null;
-}
-
-/** The first date in a range, for a caret that is near one rather than in it. */
-export function firstTargetIn(
-  state: EditorView["state"],
-  settings: KalendaeSettings,
-  from: number,
-  to: number,
-): DateTarget | null {
-  for (const detection of detectIn(state, settings, from, to)) {
-    if (!detection.accepted) continue;
 
     return {
       from: detection.from,
@@ -129,7 +107,7 @@ function tooltipFor(target: DateTarget, settings: KalendaeSettings): Tooltip {
     arrow: false,
     create: (view) => {
       const panel = createPanel({
-        value: dayOf(target),
+        value: dayFor(target.text, target.pattern),
         pattern: target.pattern,
         settings,
         onPick: (day) => write(view, target, day),
@@ -155,15 +133,9 @@ function tooltipFor(target: DateTarget, settings: KalendaeSettings): Tooltip {
   };
 }
 
-/** The date the note holds, read back through the format that matched it. */
-function dayOf(target: DateTarget): DayKey {
-  const at = moment.utc(target.text, target.pattern, true);
-
-  return { year: at.year(), month: at.month(), day: at.date() };
-}
-
 /**
- * One transaction, so one undo puts the old date back whole.
+ * One transaction, so one undo puts the old date back whole — or takes an
+ * inserted one away whole, the empty range at a caret being the same write.
  *
  * Guarded first: the picker closes on any edit, but an edit from another pane
  * or a sync can land in the same tick as a pick, and a write aimed at a range
@@ -171,17 +143,21 @@ function dayOf(target: DateTarget): DayKey {
  * whatever moved there.
  */
 function write(view: EditorView, target: DateTarget, day: DayKey): void {
-  if (!stillThere(view.state.doc.toString(), target.from, target.to, target.text)) {
+  const doc = view.state.doc.toString();
+  if (!stillThere(doc, target.from, target.to, target.text)) {
     close(view);
     return;
   }
 
-  const insert = replacementFor(target.pattern, day);
+  const insert = insertionFor(doc, target.from, target.to, target.pattern, day);
 
   view.dispatch({
     changes: { from: target.from, to: target.to, insert },
-    // After the date, not before it: the reader was reading forwards, and a
-    // caret left at the start reads as the edit having gone somewhere else.
+    // After everything written, not before it: the reader was reading forwards,
+    // and a caret left at the start reads as the edit having gone somewhere
+    // else. Past a space the insert case added, too — a letter typed straight
+    // after a pick would otherwise stick to the date and undo the separation
+    // that space was there for.
     selection: { anchor: target.from + insert.length },
     effects: closePicker.of(null),
   });

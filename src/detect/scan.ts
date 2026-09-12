@@ -87,7 +87,26 @@ function reasonFor(
  * beyond them.
  */
 function hasCleanBoundaries(text: string, from: number, to: number): boolean {
-  return isClean(text[from - 1], text[from - 2]) && isClean(text[to], text[to + 1]);
+  return cleanBoundaryBefore(text, from) && cleanBoundaryAfter(text, to);
+}
+
+/**
+ * The same question asked of a date about to be written rather than one already
+ * found: would the text on this side of `at` disqualify it?
+ *
+ * Exported as a side at a time because that is what the insert case needs. A
+ * date written into `backup|final` has to carry a space on each side to be a
+ * date the scanner ever finds again, and one written after `Due:` needs neither
+ * — so the command that inserts one pads the side that objects and leaves the
+ * other alone. A space is never a letter, digit, dot or underscore, so one is
+ * always enough.
+ */
+export function cleanBoundaryBefore(text: string, at: number): boolean {
+  return isClean(text[at - 1], text[at - 2]);
+}
+
+export function cleanBoundaryAfter(text: string, at: number): boolean {
+  return isClean(text[at], text[at + 1]);
 }
 
 function isClean(adjacent: string | undefined, beyond: string | undefined): boolean {

@@ -1,4 +1,5 @@
 import { renderPattern } from "../detect/formats";
+import { cleanBoundaryAfter, cleanBoundaryBefore } from "../detect/scan";
 import { DayKey } from "./month";
 
 /**
@@ -19,6 +20,29 @@ import { DayKey } from "./month";
  */
 export function replacementFor(pattern: string, day: DayKey): string {
   return renderPattern(pattern, day);
+}
+
+/**
+ * The date to write at a range, with whatever spacing the boundary rule needs.
+ *
+ * Two cases, and no branch between them. Replacing a date passed the boundary
+ * rule to have been detected at all, so neither side objects and the date is
+ * written exactly as before. Inserting one at the caret — an empty range — has
+ * no such guarantee: a caret inside a word would leave `back2026-09-06up`, which
+ * the scanner will never find again, so the offending side gets a space and the
+ * plugin can go on editing what it just wrote.
+ */
+export function insertionFor(
+  doc: string,
+  from: number,
+  to: number,
+  pattern: string,
+  day: DayKey,
+): string {
+  const before = cleanBoundaryBefore(doc, from) ? "" : " ";
+  const after = cleanBoundaryAfter(doc, to) ? "" : " ";
+
+  return before + replacementFor(pattern, day) + after;
 }
 
 /**

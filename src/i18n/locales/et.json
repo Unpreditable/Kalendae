@@ -126,7 +126,6 @@
     "nextYear": "Järgmine aasta"
   },
   "notices": {
-    "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
-    "noDateHere": "Siin pole kuupäeva. Vii kursor kõigepealt kuupäevale."
+    "noEditor": "Ava kõigepealt märge redigeerimisvaates."
   }
 }

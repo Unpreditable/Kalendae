@@ -126,7 +126,6 @@
     "nextYear": "Año siguiente"
   },
   "notices": {
-    "noEditor": "Abre primero una nota en vista de edición.",
-    "noDateHere": "Aquí no hay ninguna fecha. Pon el cursor sobre una fecha primero."
+    "noEditor": "Abre primero una nota en vista de edición."
   }
 }

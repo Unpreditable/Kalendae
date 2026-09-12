@@ -1,10 +1,11 @@
 import { MarkdownView, Notice, Plugin } from "obsidian";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
-import { firstTargetIn, showPicker, targetAt } from "./editor/picker-tooltip";
+import { showPicker, targetAt } from "./editor/picker-tooltip";
 import { defaultWeekStart } from "./picker/month";
 import {
   DEFAULT_SETTINGS,
   KalendaeSettings,
+  commandScopes,
   migrateTriggers,
   normaliseStoredFormats,
 } from "./settings";
@@ -33,14 +34,27 @@ export default class KalendaePlugin extends Plugin {
   }
 
   /**
-   * Opens the picker on the date the cursor is in, for anyone who would rather
-   * not reach for the mouse.
+   * Opens the picker on the date the cursor is in, or on the empty space the
+   * cursor is in — for anyone who would rather not reach for the mouse, and for
+   * a note that has no date to edit yet.
    *
-   * The cursor's own position first, then the line it sits on: a cursor just
-   * after a date is beside it as far as the reader is concerned, and refusing
-   * on an off-by-one would read as the command not working. Where a line holds
-   * two dates and the cursor is in neither, the first is as good an answer as
-   * any and better than none.
+   * Nothing but the cursor's own position is consulted. A cursor touching a
+   * date counts as being on it, so an off-by-one still edits rather than
+   * inserting; a cursor anywhere else gets an empty range at that exact spot,
+   * which the picker fills with the day that is chosen. Reaching for a date
+   * further along the line was tried and taken out: the calendar opening on a
+   * date the reader was not looking at is a jump they never asked for, and it
+   * made a second date on one line impossible to add.
+   *
+   * The first format in the list is the one an insert is written in — the same
+   * format that claims a contested range, which is what makes it the preferred
+   * one rather than merely the top one.
+   *
+   * `commandScopes` is why the cursor's context does not matter here at all: a
+   * command the reader ran deliberately treats every context as plain text, so
+   * a code block, frontmatter and the inside of a wikilink are all as editable
+   * as prose whatever those toggles are set to. The toggles decide what the
+   * plugin draws over a note unasked, which is a different question.
    */
   private pickDate(view: MarkdownView | null): void {
     const editorView = view && editorViewIn(view.contentEl);
@@ -50,15 +64,12 @@ export default class KalendaePlugin extends Plugin {
     }
 
     const at = editorView.state.selection.main.head;
-    const line = editorView.state.doc.lineAt(at);
-    const target =
-      targetAt(editorView.state, this.settings, at) ??
-      firstTargetIn(editorView.state, this.settings, line.from, line.to);
-
-    if (!target) {
-      new Notice(t("notices.noDateHere"));
-      return;
-    }
+    const target = targetAt(editorView.state, commandScopes(this.settings), at) ?? {
+      from: at,
+      to: at,
+      text: "",
+      pattern: this.settings.formats[0].pattern,
+    };
 
     showPicker(editorView, target);
   }

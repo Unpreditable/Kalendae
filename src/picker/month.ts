@@ -87,6 +87,20 @@ export function shiftMonths(from: DayKey, months: number): DayKey {
   return { year, month, day: clampDay(year, month, from.day) };
 }
 
+/**
+ * The day a date reads back as, or today when there is no date to read.
+ *
+ * Both of the picker's cases in one: it opens on the date the note holds, and on
+ * today when the command is inserting a date where there was none — an empty
+ * range at the caret, whose text is the empty string. Text that does not parse
+ * answers today as well, rather than a day built out of NaN.
+ */
+export function dayFor(text: string, pattern: string): DayKey {
+  const at = moment.utc(text, pattern, true);
+
+  return at.isValid() ? { year: at.year(), month: at.month(), day: at.date() } : todayKey();
+}
+
 /** Today by the reader's own clock, which is the only place local time is right. */
 export function todayKey(now: Date = new Date()): DayKey {
   return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };

@@ -1,5 +1,5 @@
 import { DateFormatEntry } from "../../src/detect/formats";
-import { scanText } from "../../src/detect/scan";
+import { cleanBoundaryAfter, cleanBoundaryBefore, scanText } from "../../src/detect/scan";
 
 function formats(...patterns: string[]): DateFormatEntry[] {
   return patterns.map((pattern, i) => ({ id: `f${i}`, pattern }));
@@ -150,5 +150,69 @@ describe("scanText", () => {
 
       expect(accepted("2026-09-06", entries)).toEqual(["2026-09-06"]);
     });
+  });
+});
+
+/**
+ * The same rule asked of a date about to be written rather than one already
+ * found, which is how the insert case knows which side needs a space.
+ */
+describe("cleanBoundaryBefore", () => {
+  it("accepts the start of the note, where there is nothing to run into", () => {
+    expect(cleanBoundaryBefore("2026", 0)).toBe(true);
+  });
+
+  it("accepts a space", () => {
+    expect(cleanBoundaryBefore("due ", 4)).toBe(true);
+  });
+
+  it("accepts punctuation", () => {
+    expect(cleanBoundaryBefore("due:", 4)).toBe(true);
+  });
+
+  it("refuses a letter", () => {
+    expect(cleanBoundaryBefore("backup", 6)).toBe(false);
+  });
+
+  it("refuses a digit", () => {
+    expect(cleanBoundaryBefore("v12", 3)).toBe(false);
+  });
+
+  it("accepts the underscores of emphasis", () => {
+    expect(cleanBoundaryBefore("__", 2)).toBe(true);
+  });
+
+  it("refuses an underscore that joins the date to a word", () => {
+    expect(cleanBoundaryBefore("backup_", 7)).toBe(false);
+  });
+
+  it("refuses a dot with a digit beyond it", () => {
+    expect(cleanBoundaryBefore("5.", 2)).toBe(false);
+  });
+
+  it("accepts a dot ending a sentence", () => {
+    expect(cleanBoundaryBefore("so.", 3)).toBe(true);
+  });
+});
+
+describe("cleanBoundaryAfter", () => {
+  it("accepts the end of the note", () => {
+    expect(cleanBoundaryAfter("due ", 4)).toBe(true);
+  });
+
+  it("accepts a space", () => {
+    expect(cleanBoundaryAfter(" x", 0)).toBe(true);
+  });
+
+  it("refuses a letter", () => {
+    expect(cleanBoundaryAfter("up", 0)).toBe(false);
+  });
+
+  it("refuses a dot with a digit beyond it", () => {
+    expect(cleanBoundaryAfter(".5", 0)).toBe(false);
+  });
+
+  it("accepts a dot ending a sentence", () => {
+    expect(cleanBoundaryAfter(". ", 0)).toBe(true);
   });
 });

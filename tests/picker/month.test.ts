@@ -2,6 +2,7 @@ import { WEEK_STARTS } from "../../src/settings";
 import {
   buildMonth,
   clampDay,
+  dayFor,
   defaultWeekStart,
   firstDayOf,
   sameDay,
@@ -189,5 +190,21 @@ describe("defaultWeekStart", () => {
 
   it("never leaves the caller without an answer", () => {
     expect(typeof defaultWeekStart()).toBe("string");
+  });
+});
+
+describe("dayFor", () => {
+  it("reads a date back through the format it was written in", () => {
+    expect(dayFor("09.09.2026", "DD.MM.YYYY")).toEqual(today);
+  });
+
+  it("answers with today when there is no date to read", () => {
+    // The insert case: the picker is opened on an empty range at the caret, and
+    // today is the day it should land on.
+    expect(dayFor("", "YYYY-MM-DD")).toEqual(todayKey());
+  });
+
+  it("answers with today rather than a day built out of NaN", () => {
+    expect(dayFor("not a date", "YYYY-MM-DD")).toEqual(todayKey());
   });
 });

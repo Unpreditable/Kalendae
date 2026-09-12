@@ -111,6 +111,31 @@ export function commandOnly(settings: KalendaeSettings): boolean {
 }
 
 /**
+ * The scopes an explicitly invoked command works in, which is all of them.
+ *
+ * The toggles govern what the plugin offers unprompted: an icon over a date
+ * nobody asked about, and a double-click that means something other than
+ * "select this word". Asking for the calendar by name is not unprompted, so
+ * every context is plain text to a command — a date in a code block, in
+ * frontmatter or inside `[[2026-09-06]]` is editable from the palette whatever
+ * the toggles say, and a date can be written into any of them the same way.
+ *
+ * Wikilinks included, deliberately. Editing the date in a link repoints it, and
+ * possibly at nothing — which is the reader's business, theirs to see and theirs
+ * to undo. A command that quietly declined would be the worse surprise.
+ */
+export function commandScopes(settings: KalendaeSettings): KalendaeSettings {
+  return {
+    ...settings,
+    scopeHeadings: true,
+    scopeInlineCode: true,
+    scopeCodeBlocks: true,
+    scopeFrontmatter: true,
+    scopeWikilinks: true,
+  };
+}
+
+/**
  * The two trigger settings, read out of whatever an older version wrote.
  *
  * Until 2026-09-10 these were a three-way `trigger` — hover icon, double-click

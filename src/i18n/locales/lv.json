@@ -126,7 +126,6 @@
     "nextYear": "Nākamais gads"
   },
   "notices": {
-    "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
-    "noDateHere": "Šeit nav datuma. Vispirms novietojiet kursoru uz datuma."
+    "noEditor": "Vispirms atver piezīmi rediģēšanas skatā."
   }
 }

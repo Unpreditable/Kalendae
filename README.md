@@ -1,6 +1,6 @@
 # Kalendae
 
-Change an existing date in your note by picking it from a calendar, instead of retyping it.
+Change an existing date in your note with a date picker, instead of retyping it. Insert new ones the same way.
 
 > *Kalendae* — the first day of the Roman month, when a priest called out the dates for the month ahead.
 
@@ -15,6 +15,9 @@ Kalendae recognises the dates in your notes. Three ways to open the calendar on 
 - Put the cursor on the date and run **Kalendae: Pick a date** from the command palette.
 
 Pick a day on the calendar, and Kalendae will rewrite the date in the original format.
+
+Run the same **Kalendae: Pick a date** command when the cursor is not on a date, and the day you
+pick is inserted at the cursor. The inserted date uses the first format in your list.
 
 ## Date formats
 
@@ -36,7 +39,7 @@ Anything in the pattern that isn't an ASCII letter (a dash, a dot, a comma, pare
 
 ## Where it looks
 
-Define where you want your dates to be scanned and editable:
+Define where the hover icon and the double-click find dates:
 
 **Settings → Kalendae → Sections to scan**:
 
@@ -48,6 +51,9 @@ Define where you want your dates to be scanned and editable:
 |Inline code|Code inside text surrounded by \`|Safe|Off|
 |Code blocks|Code sections surrounded by \`\`\`|Safe|Off|
 |Wikilinks|Links to other notes|Can point to a note that doesn't exist|Off|
+
+The **Kalendae: Pick a date** command edits and inserts dates in every section, regardless of these
+settings.
 
 ## Scope
 

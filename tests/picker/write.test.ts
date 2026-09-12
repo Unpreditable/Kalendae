@@ -1,7 +1,7 @@
 import { moment } from "obsidian";
 import { BUILT_IN_FORMATS } from "../../src/detect/formats";
 import { scanText } from "../../src/detect/scan";
-import { replacementFor, stillThere } from "../../src/picker/write";
+import { insertionFor, replacementFor, stillThere } from "../../src/picker/write";
 
 /**
  * What gets written into the note. The promise being tested is the plugin's
@@ -58,5 +58,71 @@ describe("stillThere", () => {
 
   it("refuses a range past the end of the note", () => {
     expect(stillThere(doc, 40, 50, "2026-09-06")).toBe(false);
+  });
+});
+
+/**
+ * What the command writes when there was no date to edit. The promise is that
+ * whatever it writes, the scanner finds again — a date inserted mid-word would
+ * otherwise be a date the plugin could never edit.
+ */
+describe("insertionFor", () => {
+  const iso = "YYYY-MM-DD";
+
+  it("writes the date alone where the caret already has room", () => {
+    expect(insertionFor("Due ", 4, 4, iso, wednesday)).toBe("2026-09-09");
+  });
+
+  it("writes the date alone after punctuation, which the rule allows", () => {
+    expect(insertionFor("Due:", 4, 4, iso, wednesday)).toBe("2026-09-09");
+  });
+
+  it("separates the date from a word the caret sits inside", () => {
+    expect(insertionFor("backupfinal", 6, 6, iso, wednesday)).toBe(" 2026-09-09 ");
+  });
+
+  it("separates the date from an underscore that joins it to a word", () => {
+    // backup_2026-09-09 is one filename-shaped token, not a date in prose.
+    expect(insertionFor("backup_", 7, 7, iso, wednesday)).toBe(" 2026-09-09");
+  });
+
+  it("leaves the underscores of emphasis alone, which are not a word", () => {
+    expect(insertionFor("__", 2, 2, iso, wednesday)).toBe("2026-09-09");
+  });
+
+  it("separates the date from a dot with a digit beyond it", () => {
+    // 2026-09-09.5 is the numbered-list case the boundary rule rejects.
+    expect(insertionFor(".5", 0, 0, iso, wednesday)).toBe("2026-09-09 ");
+  });
+
+  it("needs nothing in an empty note", () => {
+    expect(insertionFor("", 0, 0, iso, wednesday)).toBe("2026-09-09");
+  });
+
+  it("pads nothing when replacing a date that was detected where it sits", () => {
+    // An existing date passed the boundary rule to be found at all, so the
+    // editing case goes on writing exactly the string it always wrote.
+    const doc = "Due 2026-09-06 today";
+
+    expect(insertionFor(doc, 4, 14, iso, wednesday)).toBe(replacementFor(iso, wednesday));
+  });
+
+  it("writes a date the scanner finds again, however hostile the spot", () => {
+    const spots = [
+      ["backup", "final"],
+      ["backup_", ""],
+      ["", ".5"],
+      ["Due:", ""],
+      ["", ""],
+      ["v1", "2"],
+    ];
+
+    for (const [before, after] of spots) {
+      const at = before.length;
+      const written = before + insertionFor(before + after, at, at, iso, wednesday) + after;
+      const found = scanText(written, [{ id: "iso", pattern: iso }]).filter((c) => c.accepted);
+
+      expect(found.map((c) => c.text)).toEqual(["2026-09-09"]);
+    }
   });
 });

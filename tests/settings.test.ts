@@ -1,8 +1,10 @@
 import {
   DEFAULT_SETTINGS,
   HOVER_ICONS,
+  KalendaeSettings,
   WEEK_STARTS,
   commandOnly,
+  commandScopes,
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
@@ -175,5 +177,55 @@ describe("commandOnly", () => {
     // The outline still follows the pointer with both triggers off. It marks a
     // date; it has never been a way to open one.
     expect(commandOnly({ ...both, showHoverFrame: false })).toBe(false);
+  });
+});
+
+describe("commandScopes", () => {
+  /**
+   * Every scope switched off, built from the defaults rather than listed, so a
+   * toggle added later is off here too and the test below notices it.
+   */
+  const allOff = Object.fromEntries(
+    Object.entries(DEFAULT_SETTINGS).map(([key, value]) => [
+      key,
+      key.startsWith("scope") ? false : value,
+    ]),
+  ) as KalendaeSettings;
+
+  it("puts every scope in play, whatever the toggles say", () => {
+    const opened = commandScopes(allOff) as unknown as Record<string, unknown>;
+
+    // Named rather than looped as well, so the test reads as the promise.
+    expect(opened.scopeHeadings).toBe(true);
+    expect(opened.scopeInlineCode).toBe(true);
+    expect(opened.scopeCodeBlocks).toBe(true);
+    expect(opened.scopeFrontmatter).toBe(true);
+    // Wikilinks included: editing the date in a link repoints it, which is the
+    // reader's own business when they asked for the calendar by name.
+    expect(opened.scopeWikilinks).toBe(true);
+  });
+
+  it("leaves no scope behind", () => {
+    // Fails the day a sixth scope is added to the settings, whether or not it
+    // was opened here — the count is pinned on purpose, so the named promises
+    // above get revisited rather than quietly going out of date.
+    const opened = commandScopes(allOff) as unknown as Record<string, unknown>;
+    const scopes = Object.keys(allOff).filter((key) => key.startsWith("scope"));
+
+    expect(scopes.length).toBe(5);
+    for (const key of scopes) expect(opened[key]).toBe(true);
+  });
+
+  it("changes nothing but the scopes", () => {
+    const opened = commandScopes(allOff);
+
+    expect({
+      ...opened,
+      scopeHeadings: false,
+      scopeInlineCode: false,
+      scopeCodeBlocks: false,
+      scopeFrontmatter: false,
+      scopeWikilinks: false,
+    }).toEqual(allOff);
   });
 });

@@ -3,7 +3,7 @@
   "name": "Kalendae",
   "version": "1.0.0",
   "minAppVersion": "1.13.0",
-  "description": "Change an existing date in your note by picking it from a calendar, instead of retyping it.",
+  "description": "Change an existing date in your note with a date picker, instead of retyping it. Insert new ones the same way.",
   "author": "Vitaly Ditman",
   "authorUrl": "https://github.com/Unpreditable",
   "isDesktopOnly": false
