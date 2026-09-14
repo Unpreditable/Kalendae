@@ -1,7 +1,7 @@
 {
   "id": "kalendae",
   "name": "Kalendae",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "minAppVersion": "1.13.0",
   "description": "Change an existing date in your note with a date picker, instead of retyping it. Insert new ones the same way.",
   "author": "Vitaly Ditman",
