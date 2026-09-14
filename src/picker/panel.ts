@@ -2,6 +2,8 @@ import { moment, setIcon } from "obsidian";
 import { KalendaeSettings } from "../settings";
 import { t } from "../i18n/i18n";
 import { DayKey, buildMonth, firstDayOf, sameDay, shiftMonths, todayKey } from "./month";
+import { resolveRule } from "./quick";
+import { labelFor, ruleFor } from "./quick-text";
 import { replacementFor } from "./write";
 
 /**
@@ -86,11 +88,54 @@ export function createPanel(options: PanelOptions): Panel {
   };
 
   todayButton.addEventListener("mouseenter", () => preview(today));
+
+  // After the preview in the DOM, which is what lets the shortcuts take a
+  // full-width break under it rather than pushing it down a line.
+  footer.toggleClass("kalendae-panel-footer-preview", writes !== null);
+  const quick = options.settings.showQuickDates ? renderQuick() : null;
+
   // Bound once, to elements that outlive a redraw: the grid is emptied and
   // refilled on every step, so binding inside render would stack a listener per
   // month stepped through.
   footer.addEventListener("mouseleave", () => preview(focused));
   grid.addEventListener("mouseleave", () => preview(focused));
+  quick?.addEventListener("mouseleave", () => preview(focused));
+
+  /**
+   * The reader's own shortcuts, each resolved once against the date the
+   * calendar opened on.
+   *
+   * A slot whose rule cannot be read is passed over rather than drawn as a
+   * button that does nothing — the settings reader empties such a slot on the
+   * next load, and until then it is simply not offered. Where that leaves no
+   * buttons at all, the row goes too: an empty one still takes a full-width
+   * break under the preview.
+   */
+  function renderQuick(): HTMLElement | null {
+    const row = footer.createDiv({ cls: "kalendae-panel-quick" });
+
+    for (const slot of options.settings.quickDates) {
+      const rule = ruleFor(slot);
+      if (rule === null) continue;
+
+      const day = resolveRule(rule, { value: options.value, today, firstDay });
+      const label = labelFor(slot);
+      const button = row.createEl("button", { cls: "kalendae-panel-quick-date", text: label });
+
+      // The date it lands on, for a screen reader, which would otherwise hear
+      // only a name somebody made up.
+      button.setAttribute("aria-label", `${label} — ${replacementFor(options.pattern, day)}`);
+      button.addEventListener("click", () => options.onPick(day));
+      button.addEventListener("mouseenter", () => preview(day));
+    }
+
+    if (!row.hasChildNodes()) {
+      row.remove();
+      return null;
+    }
+
+    return row;
+  }
 
   function render(): void {
     label.setText(moment.utc({ ...focused, day: 1 }).format("MMMM YYYY"));

@@ -597,21 +597,31 @@
   outline-offset: -2px;
 }
 
+/* `width: 0` with `min-width: 100%` is what stops the footer widening the
+   panel. The calendar's width is the month grid's, and a shortcut named
+   "asdf23423424" was making the panel as wide as the name. Zero width keeps
+   the footer out of the panel's own measurement; the minimum fills whatever
+   the grid then sets. */
 .kalendae-panel .kalendae-panel-footer {
   align-items: center;
   border-top: 1px solid var(--background-modifier-border);
   display: flex;
+  flex-wrap: wrap;
   gap: var(--size-4-2);
   margin-top: var(--size-2-3);
+  min-width: 100%;
   padding-top: var(--size-2-3);
+  width: 0;
 }
 
+/* Today keeps its name whatever the shortcuts beside it are called. */
 .kalendae-panel .kalendae-panel-today {
   background-color: transparent;
   border: none;
   box-shadow: none;
   color: var(--text-accent);
   cursor: pointer;
+  flex-shrink: 0;
   font-size: var(--font-ui-small);
   padding: 0;
 }
@@ -624,6 +634,73 @@
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   margin-inline-start: auto;
+}
+
+/* The footer wraps, which is the whole of the merge rule: with the date
+   preview off the shortcuts sit on Today's line, and with it on they take a
+   full-width break and form their own row beneath it. The condition is the
+   setting rather than the available width — the preview's text is the date
+   under the pointer, so a width-driven wrap would move the row while it was
+   being read. */
+/* A grid, not a flex row, and that is the whole of how the names share the
+   space.
+
+   Flex has no "then": every item with a non-zero shrink gives up part of any
+   shortfall at once, so a short name always lost a fraction of a pixel — and a
+   fraction is enough to trigger its ellipsis. Ranking the shrink factors only
+   changed how lopsided the loss was; pinning the short ones at zero left flex
+   with nowhere to put the overflow but a second line.
+
+   Grid's track sizing does what was wanted all along. Each column starts at 0
+   and may grow to its content width; free space is handed out equally and a
+   track freezes the moment it fits its own name. "EoM" freezes at three
+   letters, "Yesterday" at nine, and whatever is left over is split between the
+   names still asking for more. A frozen track is exactly the width the
+   ellipsis test compares against, so a short name is never clipped by a
+   rounding error.
+
+   `flex: 0 1 auto` is what decides whether the row shares Today's line, and it
+   is doing real work. Flex asks whether an item fits using its hypothetical
+   size — what it wants before any shrinking — so a content-sized basis drops
+   the row onto a line of its own exactly when the names would not fit beside
+   Today at their full width. Squeezing them in and cutting them short is the
+   worse trade, and this is how the row knows, without anything measuring
+   anything. */
+.kalendae-panel .kalendae-panel-quick {
+  display: grid;
+  flex: 0 1 auto;
+  gap: var(--size-4-2);
+  grid-auto-columns: minmax(0, auto);
+  grid-auto-flow: column;
+  min-width: 0;
+}
+
+.kalendae-panel .kalendae-panel-footer-preview .kalendae-panel-quick {
+  flex-basis: 100%;
+}
+
+/* `display: block` is what makes `text-align` mean anything here. Obsidian's
+   buttons are flex containers, so the label was a flex item centred by
+   `justify-content`: a name too wide for its column lost both ends, and the
+   ellipsis marked neither. */
+.kalendae-panel .kalendae-panel-quick-date {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-accent);
+  cursor: pointer;
+  display: block;
+  font-size: var(--font-ui-small);
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kalendae-panel .kalendae-panel-quick-date:hover {
+  color: var(--text-accent-hover);
 }
 
 /* Fixed columns, so the panel is the same width in September as in May. With
@@ -733,4 +810,187 @@
   color: var(--text-muted);
   display: inline-flex;
   vertical-align: text-bottom;
+}
+
+/* The quick-dates page. One grid carries the header and all four rows, so a
+   cell shares its column's track with the cell above it — rows are not
+   elements of their own, because a wrapper per row gives each its own tracks
+   and that is the misalignment this replaces.
+
+   The tracks are fixed rather than content-sized: with max-content columns,
+   choosing a preset whose name or reading is longer than the last one moved
+   every column on the page. */
+.kalendae-quick-table {
+  align-items: center;
+  display: grid;
+  gap: var(--size-4-2);
+  grid-template-columns: 11em 9em minmax(0, 1fr) var(--size-4-8);
+}
+
+.kalendae-quick-table .kalendae-quick-head {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.kalendae-quick-table .kalendae-quick-chooser {
+  overflow: hidden;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.kalendae-quick-table .kalendae-quick-alias {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Clipped, never wrapped: a reading long enough to wrap would change its row's
+   height, and the whole of it is on hover anyway. */
+.kalendae-quick-table .kalendae-quick-meaning {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kalendae-quick-table .kalendae-quick-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kalendae-quick-table .kalendae-quick-edit {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  padding: var(--size-4-1);
+}
+
+.kalendae-quick-table .kalendae-quick-edit:hover {
+  color: var(--text-normal);
+}
+
+/* No rules between rows, on the page or in the dialog. Obsidian draws one over
+   every setting item; four slots and five short rows are a single block, not
+   five sections.
+
+   Both classes on the container, which is what wins this: Obsidian's own rule
+   is `.modal:not(.mod-settings) .setting-item:not(.setting-item-heading)`, and
+   a single class in front of `.setting-item` ties with it at best. Naming the
+   container twice outranks it outright. */
+.kalendae-settings-page.kalendae-quick-dates .setting-item:not(.setting-item-heading),
+.kalendae-settings-page.kalendae-quick-modal .setting-item:not(.setting-item-heading) {
+  border-top: none;
+}
+
+/* The rows give up their inset so the table can line up with them. Matching
+   the inset from the other side would mean copying a value out of Obsidian's
+   stylesheet and re-copying it the next time they change it; nothing is a
+   value both sides can agree on except zero. */
+.kalendae-settings-page.kalendae-quick-dates .setting-item {
+  padding-inline: 0;
+}
+
+/* The editor for a shortcut of your own: the rule read back, then the field it
+   reads, then a test date and what it turns into.
+
+   The label column is as wide as the labels and no wider, against Obsidian's
+   own halves: the labels are one word each and the fields are what the reader
+   is working in. Every control then starts at the same place, so the reading
+   above the rule sits over the rule. */
+.kalendae-quick-modal .setting-item-info {
+  flex: 0 0 7em;
+}
+
+.kalendae-quick-modal .setting-item-control {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.kalendae-quick-modal .kalendae-quick-name {
+  width: 100%;
+}
+
+.kalendae-quick-modal .kalendae-quick-rule-box {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.kalendae-quick-modal .kalendae-quick-rule {
+  font-family: var(--font-monospace);
+  width: 100%;
+}
+
+/* One line, three jobs: the rule in words, the reason it does not read, and a
+   hint while the field is empty. Above the field and in the field's own
+   column, so the walkthrough starts where the rule starts. */
+.kalendae-quick-modal .kalendae-quick-reads {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  min-height: var(--size-4-4);
+  padding-bottom: var(--size-4-1);
+}
+
+/* Eight digits and two slashes. What it was taking belongs to the answer. */
+.kalendae-quick-modal .kalendae-quick-test {
+  width: 9em;
+}
+
+/* The calendar's own dialog: as wide as the calendar, and no wider. */
+.kalendae-quick-calendar-modal .modal-content {
+  display: flex;
+  justify-content: center;
+}
+
+.kalendae-quick-calendar-modal .kalendae-panel {
+  border: none;
+  box-shadow: none;
+}
+
+.kalendae-quick-modal .kalendae-quick-problem-error {
+  color: var(--text-error);
+}
+
+.kalendae-quick-modal .kalendae-quick-lands {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  white-space: nowrap;
+}
+
+/* The calendar as the page's own settings draw it, sitting at the foot of the
+   page. Left where the rows are, not centred: it is an example, not a feature
+   of the page. */
+.kalendae-quick-sample {
+  display: flex;
+}
+
+/* A preset in the chooser: its name, and its rule in words pushed away to the
+   right, so the two are read as two things. */
+.menu-item-title .kalendae-quick-menu-name {
+  padding-inline-end: var(--size-4-4);
+}
+
+.menu-item-title .kalendae-quick-menu-meaning {
+  color: var(--text-muted);
+  float: inline-end;
+}
+
+/* A suggestion: the token as it will be inserted, and what it means. */
+.suggestion-item .kalendae-quick-suggestion-token {
+  font-family: var(--font-monospace);
+}
+
+.suggestion-item .kalendae-quick-suggestion-meaning {
+  color: var(--text-muted);
+  padding-inline-start: var(--size-4-3);
+}
+
+.suggestion-item .kalendae-quick-suggestion-done {
+  color: var(--text-accent);
 }

@@ -21,6 +21,7 @@ import { TASK_MARKERS } from "../detect/markers";
 import { shadowedFormats } from "../detect/shadow";
 import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
 import { KalendaeHost } from "./host";
+import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
 import { SectionsPage, scopeSummary } from "./sections-page";
 import { t } from "../i18n/i18n";
 
@@ -153,6 +154,16 @@ export class KalendaeSettingTab extends PluginSettingTab {
               key: "showWritesPreview",
               defaultValue: DEFAULT_SETTINGS.showWritesPreview,
             },
+          },
+          {
+            // A page rather than four rows inline: a slot is a name, a chooser
+            // and a reading of what it does, which is three controls too many
+            // for a section about the calendar's appearance. The value here
+            // says which shortcuts are set without opening it.
+            name: t("settings.quickDates.heading"),
+            type: "page",
+            displayValue: () => quickDatesSummary(this.kalendae.settings),
+            page: () => new QuickDatesPage(this.kalendae, () => this.update()),
           },
         ],
       },

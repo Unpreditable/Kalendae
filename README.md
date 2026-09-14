@@ -21,6 +21,14 @@ Pick a day on the calendar, and Kalendae will rewrite the date in the original f
 Run the same **Kalendae: Pick a date** command when the cursor is not on a date, and the day you
 pick is inserted at the cursor. The inserted date uses the first format in your list.
 
+## Quick dates
+
+The calendar has a **Today** button, and you can put up to four shortcuts beside it: Tomorrow, End
+of this month, Next Monday, or one you write yourself. Eighteen come ready to pick from, and a
+shortcut can count either from today or from the date you are editing.
+
+Set them up under **Settings → Kalendae → Quick dates**.
+
 ## Date formats
 
 Kalendae supports 10 built-in date formats, and you can create your own.

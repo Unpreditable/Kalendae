@@ -8,6 +8,7 @@ import {
   commandScopes,
   migrateTriggers,
   normaliseStoredFormats,
+  normaliseStoredQuickDates,
 } from "./settings";
 import { KalendaeSettingTab } from "./settings/settings-tab";
 import { t } from "./i18n/i18n";
@@ -88,6 +89,7 @@ export default class KalendaePlugin extends Plugin {
       weekStart: stored?.weekStart ?? defaultWeekStart(),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
+      quickDates: normaliseStoredQuickDates(stored?.quickDates),
     };
   }
 

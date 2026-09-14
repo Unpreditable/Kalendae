@@ -94,6 +94,8 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/picker/month.ts](src/picker/month.ts) | Pure calendar arithmetic: `buildMonth()`, `clampDay()`, `shiftMonths()`, `firstDayOf()` |
 | [src/picker/panel.ts](src/picker/panel.ts) | The calendar's DOM and keyboard; knows nothing of CodeMirror |
 | [src/picker/write.ts](src/picker/write.ts) | `replacementFor()` and the `stillThere()` guard |
+| [src/picker/quick.ts](src/picker/quick.ts) | The quick-date language: `parseRule()`, `formatRule()`, `resolveRule()` and `QUICK_PRESETS` |
+| [src/picker/quick-text.ts](src/picker/quick-text.ts) | A rule, a step and a slot read back in words, for the calendar and both settings surfaces |
 | [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `renderPattern()`, `BUILT_IN_FORMATS` |
 | [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
 | [src/detect/markers.ts](src/detect/markers.ts) | `markerBefore()` — the Tasks emoji in front of a date, and where the pair starts |
@@ -105,6 +107,8 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand; the Sortable binding |
 | [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern |
 | [src/settings/sections-page.ts](src/settings/sections-page.ts) | The scope toggles and their worked example |
+| [src/settings/quick-dates-page.ts](src/settings/quick-dates-page.ts) | The four quick-date slots and the switch that hides the row |
+| [src/settings/quick-date-modal.ts](src/settings/quick-date-modal.ts) | The editor for a quick date of your own: a rule field with suggestions, and a date to test it on |
 | [src/i18n/i18n.ts](src/i18n/i18n.ts) | i18next init; every user-visible string goes through `t()` |
 
 Times do not exist yet, and neither does anything that writes more than one date at a time.
@@ -244,5 +248,8 @@ adding a language and is exempt from the check.
   spec. Known problematic properties: `text-decoration-color`, `text-decoration-thickness`,
   `text-decoration-skip-ink`. Use `text-decoration: underline` without sub-properties; style links
   via `color` and the shorthand only.
+- **No `column-gap`** — it belongs to the multi-column spec, so Obsidian flags it as partially
+  supported even inside a grid. Use the `gap` shorthand, and `gap: <row> <column>` when the two
+  values differ.
 - **Use Obsidian CSS variables** for all colors, fonts, spacing — never hardcode values that themes
   should control.

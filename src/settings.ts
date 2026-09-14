@@ -1,4 +1,22 @@
 import { DateFormatEntry } from "./detect/formats";
+import { parseRule, presetById } from "./picker/quick";
+
+/** Four, and the reason the quick-dates page needs no add button, trash or dragging. */
+export const QUICK_SLOTS = 4;
+
+/**
+ * One shortcut under the calendar: a preset, a rule of the reader's own, or
+ * nothing.
+ *
+ * A preset stores its id rather than its rule, so the catalogue can be
+ * corrected without migrating anybody's settings, and its name follows the
+ * app's language. A rule of your own stores its text, and must carry a name —
+ * there is nothing underneath it to fall back on.
+ */
+export type QuickSlot = null | { preset: string; alias?: string } | { rule: string; alias: string };
+
+/** A slot with something in it, which is what every reader of one wants. */
+export type FilledSlot = Exclude<QuickSlot, null>;
 
 /**
  * Whether the hover icon appears, and which side of the date it sits on.
@@ -90,6 +108,10 @@ export interface KalendaeSettings {
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
   showWritesPreview: boolean;
+  /** Whether the quick-date row is drawn at all; the slots are kept either way. */
+  showQuickDates: boolean;
+  /** Exactly QUICK_SLOTS entries, in the order they appear under the calendar. */
+  quickDates: QuickSlot[];
 }
 
 export const DEFAULT_SETTINGS: KalendaeSettings = {
@@ -106,6 +128,13 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,
+  showQuickDates: true,
+  quickDates: [
+    { preset: "tomorrow" },
+    { preset: "endOfThisWeek" },
+    { preset: "endOfThisMonth" },
+    null,
+  ],
 };
 
 /**
@@ -276,4 +305,42 @@ function isStoredFormat(value: unknown): value is StoredFormat {
   if (typeof value !== "object" || value === null) return false;
   const entry = value as Record<string, unknown>;
   return typeof entry.id === "string" && typeof entry.pattern === "string";
+}
+
+/**
+ * The quick dates read out of `data.json`, which is not a shape to be trusted.
+ *
+ * Always four slots. Anything that cannot be read — an unknown preset, a rule
+ * that does not parse, a rule with no name — leaves its slot empty rather than
+ * guessing: a file written by a future version, or edited by hand, must never
+ * be able to put a wrong date or a nameless button in front of a reader.
+ *
+ * A slot carrying both a preset and a rule is read as the preset. That is the
+ * reading that cannot be wrong — the rule behind a preset is ours and is known
+ * good — while a stray rule string is the shape a half-finished write leaves.
+ *
+ * A list that is present but empty stays empty. Only a missing or malformed
+ * list falls back to the defaults, because four deliberately cleared slots are
+ * an answer and refilling them would overrule it.
+ */
+export function normaliseStoredQuickDates(stored: unknown): QuickSlot[] {
+  if (!Array.isArray(stored)) return [...DEFAULT_SETTINGS.quickDates];
+
+  return Array.from({ length: QUICK_SLOTS }, (_unused, at) => readSlot(stored[at]));
+}
+
+function readSlot(value: unknown): QuickSlot {
+  if (typeof value !== "object" || value === null) return null;
+  const slot = value as Record<string, unknown>;
+  const alias = typeof slot.alias === "string" ? slot.alias.trim() : "";
+
+  if (typeof slot.preset === "string" && presetById(slot.preset)) {
+    return alias === "" ? { preset: slot.preset } : { preset: slot.preset, alias };
+  }
+
+  if (typeof slot.rule === "string" && alias !== "" && parseRule(slot.rule)) {
+    return { rule: slot.rule, alias };
+  }
+
+  return null;
 }
