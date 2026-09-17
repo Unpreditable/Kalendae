@@ -352,9 +352,30 @@ function startsWithDigit(token: string): boolean {
 }
 
 /** Every ordinal a day of the month can take, "1st" through "31st". */
+/**
+ * The 31 ordinals `Do` can write, in the locale's own spelling.
+ *
+ * The period matters and is not optional. moment's `ordinal` takes the unit the
+ * number stands in, because a language may decline it: Russian writes the day
+ * of the month as `16-го` and a month as `1-й`. Four of the languages this
+ * plugin ships — ru, uk, ja, ko — return the bare **number** when asked with no
+ * period, which is not a string, and `escapeLiteral` took the settings tab down
+ * with it on the first format check.
+ *
+ * `"D"` is the period `Do` is, and is what `format("Do")` itself passes, so the
+ * alternation now matches what moment writes rather than the digits it does not.
+ * The declared return type said `string[]` throughout and was simply wrong.
+ */
 function ordinals(): string[] {
-  const locale = moment.localeData();
-  return Array.from({ length: 31 }, (_, i) => locale.ordinal(i + 1));
+  // moment's own typings declare one argument where its implementation takes
+  // two, and declare a string return where four locales hand back a number.
+  // Both halves of that gap are why this reached a release: the call type-checked
+  // and the value did not survive contact with `escapeLiteral`.
+  const locale = moment.localeData() as unknown as {
+    ordinal: (value: number, period: string) => string | number;
+  };
+
+  return Array.from({ length: 31 }, (_, i) => String(locale.ordinal(i + 1, "D")));
 }
 
 /** Longest name first, so a short name never shadows a longer sibling. */

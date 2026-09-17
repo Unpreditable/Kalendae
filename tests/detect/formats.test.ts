@@ -5,6 +5,7 @@ import {
   tokenGroupsPresent,
   warnFormat,
 } from "../../src/detect/formats";
+import { moment } from "obsidian";
 
 /** The whole match, or null when the pattern doesn't match at all. */
 function firstMatch(pattern: string, text: string): string | null {
@@ -274,5 +275,46 @@ describe("warnFormat", () => {
     // dash — a plain number cannot match this.
     expect(warnFormat("(dddd) MMM-DDYYYY")).toBeNull();
     expect(checkFormat("(dddd) MMM-DDYYYY")).toBeNull();
+  });
+});
+
+/**
+ * moment's `ordinal` takes the period the number is standing in, and several
+ * locales answer differently for each — Russian writes the day of the month as
+ * "16-го" and the month as "1-й". Four of the thirteen languages this plugin
+ * ships return the bare **number** when no period is given at all, which is not
+ * a string and used to crash the settings tab on load.
+ */
+describe("Do, in a locale whose ordinals are not plain numbers", () => {
+  const locale = moment.locale();
+
+  afterEach(() => {
+    moment.locale(locale);
+  });
+
+  it.each(["ru", "uk", "ja", "ko"])("compiles in %s rather than throwing", (language) => {
+    moment.locale(language);
+
+    expect(() => compileFormat("Do MM.YYYY")).not.toThrow();
+    expect(checkFormat("Do MM.YYYY")).toBeNull();
+  });
+
+  it("matches the ordinal moment actually writes", () => {
+    moment.locale("ru");
+
+    // Month names are left out of this one on purpose: Russian writes a date's
+    // month in the genitive — `сентября` — where `moment.months()` lists the
+    // nominative `сентябрь`, so `MMMM` has a mismatch of its own that this fix
+    // does not touch.
+    const written = moment.utc({ year: 2026, month: 8, day: 16 }).format("Do MM.YYYY");
+
+    expect(written).toBe("16-го 09.2026");
+    expect(firstMatch("Do MM.YYYY", written)).toBe(written);
+  });
+
+  it("still matches a plain English ordinal", () => {
+    moment.locale("en");
+
+    expect(firstMatch("Do MMMM YYYY", "16th September 2026")).toBe("16th September 2026");
   });
 });
