@@ -2,9 +2,11 @@ import {
   QUICK_PRESETS,
   Rule,
   RuleContext,
+  canonicalTyped,
   checkRule,
   formatRule,
   parseRule,
+  parseTyped,
   presetById,
   presetsAnchoredOn,
   resolveRule,
@@ -204,8 +206,8 @@ describe("resolveRule", () => {
 });
 
 describe("the catalogue", () => {
-  it("offers eighteen presets", () => {
-    expect(QUICK_PRESETS).toHaveLength(18);
+  it("offers twenty-two presets", () => {
+    expect(QUICK_PRESETS).toHaveLength(22);
   });
 
   it("gives every preset a rule the parser accepts", () => {
@@ -339,5 +341,79 @@ describe("suggestionsFor", () => {
 
   it("completes the token under the caret, not the last one", () => {
     expect(suggestionsFor("today So +1w", 8)).toEqual(["SoW", "SoM", "SoQ", "SoY"]);
+  });
+});
+
+describe("parseTyped", () => {
+  it("supplies the anchor nobody types", () => {
+    expect(parseTyped("+1d")).toEqual({
+      anchor: "today",
+      steps: [{ kind: "amount", count: 1, unit: "d", back: false }],
+    });
+  });
+
+  it("reads an unsigned count as forward", () => {
+    expect(parseTyped("3d")).toEqual(parseTyped("+3d"));
+    expect(canonicalTyped("3d")).toBe("today +3d");
+  });
+
+  it("keeps a sign that means something", () => {
+    expect(canonicalTyped("-3d")).toBe("today -3d");
+  });
+
+  it("ignores case on units, edges and weekdays", () => {
+    expect(canonicalTyped("eom")).toBe("today EoM");
+    expect(canonicalTyped("EOM")).toBe("today EoM");
+    expect(canonicalTyped("2w")).toBe("today +2w");
+    expect(canonicalTyped("2W")).toBe("today +2w");
+    expect(canonicalTyped("fri")).toBe("today Fri");
+    expect(canonicalTyped("2fri")).toBe("today +2Fri");
+  });
+
+  it("reads m as months, which is the only thing it can mean without times", () => {
+    expect(canonicalTyped("2m")).toBe("today +2M");
+    expect(canonicalTyped("2M")).toBe("today +2M");
+  });
+
+  it("reads a bare weekday as the inclusive form and a counted one as strict", () => {
+    expect(parseTyped("fri")).toEqual({
+      anchor: "today",
+      steps: [{ kind: "weekday", day: 5, count: 1, back: false, inclusive: true }],
+    });
+    expect(parseTyped("1fri")).toEqual({
+      anchor: "today",
+      steps: [{ kind: "weekday", day: 5, count: 1, back: false, inclusive: false }],
+    });
+  });
+
+  it("takes a weekday written out in full, or any prefix of one", () => {
+    expect(canonicalTyped("friday")).toBe("today Fri");
+    expect(canonicalTyped("Friday")).toBe("today Fri");
+    expect(canonicalTyped("frid")).toBe("today Fri");
+    expect(canonicalTyped("2friday")).toBe("today +2Fri");
+    expect(canonicalTyped("-1wednesday")).toBe("today -1Wed");
+    expect(canonicalTyped("thurs")).toBe("today Thu");
+  });
+
+  it("refuses a word that only looks like a day", () => {
+    expect(canonicalTyped("fried")).toBeNull();
+    expect(canonicalTyped("satchel")).toBeNull();
+  });
+
+  it("chains steps across single spaces, and tolerates a trailing one", () => {
+    expect(canonicalTyped("2w eow")).toBe("today +2w EoW");
+    expect(canonicalTyped("2w ")).toBe("today +2w");
+  });
+
+  it("accepts an anchor typed by hand, and refuses the one with nothing to count from", () => {
+    expect(canonicalTyped("today 1d")).toBe("today +1d");
+    expect(parseTyped("date 1d")).toBeNull();
+  });
+
+  it("refuses anything that is not a rule", () => {
+    expect(parseTyped("")).toBeNull();
+    expect(parseTyped("next friday")).toBeNull();
+    expect(parseTyped("xyz")).toBeNull();
+    expect(parseTyped("today")).toBeNull();
   });
 });

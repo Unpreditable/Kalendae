@@ -994,3 +994,78 @@
 .suggestion-item .kalendae-quick-suggestion-done {
   color: var(--text-accent);
 }
+
+/* The list of dates that opens while typing. Three things on a row: what it
+   means, the keyword that produces it, and the day it lands on. The keyword
+   column is what makes the list a cheat sheet rather than only a menu — someone
+   who came for Tomorrow leaves knowing `1d` exists.
+
+   Both classes name the same element, with no space between them: the row class
+   goes on Obsidian's own `.suggestion-item`, so a descendant selector matches
+   nothing at all — which it did, and the three spans sat in a row unstyled. The
+   spans below are descendants and are written as such. */
+.suggestion-item.kalendae-suggest-row {
+  align-items: baseline;
+  display: flex;
+  gap: var(--size-4-2);
+}
+
+.suggestion-item .kalendae-suggest-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The two right-hand columns are the same width on every row, which is what
+   makes them read as columns at all: each row is its own element, so nothing
+   aligns them but the numbers here. Both may outgrow the width — a chain like
+   `+2w EoW` does — and only that row widens; the rest stay in line. Monospace
+   on the keyword, like the token in the rule field: it is a thing to be typed. */
+.suggestion-item .kalendae-suggest-keyword {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  min-width: 7ch;
+}
+
+.suggestion-item .kalendae-suggest-day {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  font-size: var(--font-ui-smaller);
+  min-width: 7ch;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.suggestion-item .kalendae-suggest-invalid {
+  color: var(--text-muted);
+}
+
+/* Eight rows, and the rest scrolls.
+
+   The popup container is Obsidian's and is shared with every other suggester in
+   the app — link autocomplete, tags, slash commands — so it cannot simply be
+   given a height: that would shorten all of them. There is no public way to put
+   a class on it either, which is what `:has()` is doing here. It reaches up from
+   the rows this plugin drew to the box holding them, and touches no other
+   suggester's.
+
+   The cap is in `em`, so it follows the reader's font size rather than assuming
+   a row is so many pixels tall. If `:has()` is ever unavailable the rule is
+   skipped and the list falls back to Obsidian's own height, which is longer —
+   a worse menu, not a broken one. */
+.suggestion-container:has(.kalendae-suggest-row) {
+  max-height: 16em;
+  overflow-y: auto;
+}
+
+/* The row that takes the date as it stands, in the accent colour the plugin
+   already uses for a finished rule in the quick-date field. It is the one row
+   that ends the exchange rather than adding to it, and it earns a colour for
+   the same reason the others do not: everything else in the list is a step. */
+.suggestion-item .kalendae-suggest-accepting {
+  color: var(--text-accent);
+}

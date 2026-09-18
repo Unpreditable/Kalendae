@@ -1,0 +1,528 @@
+# Typed dates — design
+
+Status: drafted 2026-09-13, revised 2026-09-14 with the menu's owner and a settable format switch, revised 2026-09-16
+with the words layer; one topic still open
+Raised: 2026-09-13, in conversation. No TODO item yet.
+
+## What this delivers
+
+Today a date is inserted from the command palette: invoke *Pick a date*, choose a day, get a date.
+That is three steps and a mode change in the middle of a sentence you were already typing.
+
+This adds a second way in. Type one character — `@` by default — at the start of a word and a list
+of dates opens under the caret. Keep typing to narrow it, press Enter, and the trigger and
+everything after it is replaced by the date, written in the same format the insert command uses
+unless you ask for another.
+
+```
+Standup moved to @tom            →  Standup moved to 2026-09-14
+Invoice due @eom                 →  Invoice due 2026-09-30
+Retro @2w EoW                    →  Retro 2026-10-03
+Lunch @next friday               →  Lunch 2026-09-18
+Review @in three weeks           →  Review 2026-10-04
+```
+
+**The vocabulary is closed, and that is the whole safety of it.** `next friday`, `in three weeks`
+and `3 months ago` are read, because every word in them is in a table — see *Saying it in words*.
+A sentence is not read, and nothing here guesses at one. Guessing is the failure mode of every
+plugin in this space: a reader types something plausible, gets nothing, and concludes the feature is
+broken.
+
+Two things keep that from happening. The list teaches the language — every named row carries the
+keyword that produces it, so the menu a reader opens for Tomorrow is also the sheet that tells them
+`1d` exists. And what cannot be read says so, in a row that stays put while the reader fixes it.
+
+## The typed form
+
+The stored language is unchanged: `parseRule()` still takes `today +1d`, and `data.json` still
+holds exactly that. What is typed is a **looser spelling of the same language**, normalised into a
+rule before anything resolves it.
+
+Three differences from the stored form, each with a reason:
+
+| Typed | Stored | Why |
+|---|---|---|
+| no anchor | `today` | Typing into empty text has no date to count from, so the anchor is always `today`. Making a reader type the only value it can take is ceremony. |
+| `3d` | `+3d` | Forward is the common case and the sign is noise. `-3d` still goes back; the sign is only needed when it means something. |
+| `eom`, `EOM`, `EoM` | `EoM` | Matching ignores case. `suggestionsFor()` already does this for the builder, for the same reason: the case rule is real and nobody should have to know it before they can find a token. |
+| `friday`, `frid`, `thurs` | `Fri`, `Thu` | Any prefix of three letters or more of a day's name. The three-letter form is a spelling the builder chose; `friday` is what a reader reaches for, and finding nothing was the first thing to go wrong on a running build. |
+
+Everything else holds. Steps chain, separated by single spaces, applied left to right:
+
+```
+@2w EoW      two weeks on, then the end of that week
+@1M SoM      the start of next month
+@1Fri        next Friday, today never counting
+@fri         the nearest Friday, today counting
+```
+
+The `date` anchor and its eight presets are **out**. They count from a date in the note, and where
+this feature is used there is no date in the note. `presetsAnchoredOn("today")` is already the
+filter.
+
+## The menu
+
+**The menu is Obsidian's own.** `EditorSuggest` is the popup that already serves `[[` links, tags
+and slash commands, so the keyboard, the positioning, the mobile behaviour and the theming all come
+for free and this list looks like every other list in the app.
+
+**The popup sits at the caret.** Obsidian opens it at the start of the range `onTrigger` reports,
+which is the trigger character — so a long query walks the menu away from where the reader is
+looking. It is handed the caret at both ends instead, and the range the write replaces is kept by
+the suggester itself.
+
+**The query is real text in the note.** There is no input box: you are typing into the document, and
+the menu hangs under the caret reading what is there. `@2w EoW` is in the note the whole time the
+menu is open. Accept and it is replaced by the date; walk away without accepting and it stays as
+text, exactly like an abandoned `[[`.
+
+That also settles what a hotkey can be. `EditorSuggest` only opens from `onTrigger`, which Obsidian
+calls on keypresses and cursor moves; `PopoverSuggest.open()` cannot supply the context that fills
+the list. A command could type the trigger character for you, but a menu opened by a hotkey that
+writes nothing at all would mean building the popup ourselves — see *Out of scope*.
+
+### When it opens
+
+The trigger character opens the menu when it **starts a word**: at the start of a line, or after
+whitespace or an opening bracket. Never mid-word, which is what keeps `dvitaly@gmail.com` from
+opening a date menu on every address ever typed.
+
+It does not open inside code blocks, inline code, or frontmatter, subject to the same scope
+settings that govern detection. `@property`, `@media` and `@Override` are the common false fires
+and all three live in code. This is the opposite of how the *Pick a date* command behaves — a
+command is asked for by name and works in every scope — but a menu that opens itself is not asked
+for, so it is held to the detection rules rather than the command's.
+
+### While it is open
+
+The menu stays open while you type and narrows as it goes. Nothing is inserted until Enter.
+
+- **Arrow keys** move the highlight, **Enter** or a click accepts the highlighted row and writes
+  the date.
+- **Tab completes instead of writing.** It puts the highlighted row's keyword into the note and
+  leaves the menu open on what can follow, so a chain is built one key at a time: `@To` Tab gives
+  `@today `, and `@2w` Tab gives `@2w `. The keyword is written rather than the name, because what
+  is in the note has to go on being a query — `@Tomorrow ` is a sentence the parser has no reading
+  for.
+- **Nothing matches** → one row reading "Invalid date". Enter and Escape both close the menu and
+  leave the text exactly as typed; nothing is written.
+- **Backspace repairs.** Because the menu stays open on an unmatched query, deleting back to `@fr`
+  brings the Friday row back. This is the reason it does not close on the first bad character.
+- **Escape** closes the menu at any point and leaves what you typed exactly as it stands. It is not
+  an undo: nothing is inserted, and nothing already in the note is taken away.
+
+### What is in it
+
+One flat list, no headings, no sections:
+
+1. Your own named dates, where they match — **open topic, see below**.
+2. The built-in names that count from today: Today, Tomorrow, Yesterday, In seven days, Next Monday,
+   Next Friday, End of this week, Start of next week, End of this month, Start of next month, End of
+   this quarter.
+
+   **Today is the one name with no rule behind it.** `today` alone is not a rule — `parseRule`
+   refuses it, because a shortcut that moves nowhere would duplicate the calendar's permanent Today
+   button — so that row resolves to today directly and carries no rule at all. `@today` reaches it
+   by name. Typing an anchor and then a step, `@today 1d`, is the rule path instead, and normalises
+   to `today +1d` like any other query.
+3. Step completions from `suggestionsFor()`, once the query looks like a rule rather than a name.
+
+**A name answers to any of its words**, not only its first: `friday` finds Next Friday and `week`
+finds End of this week. Matching the first word alone hides the useful half of a name behind the
+part nobody types.
+
+A named row whose rule is identical to one already listed appears once. Two rows resolving to the
+same day are not duplicates and both stay — Next Friday and End of this week fall on the same day
+often enough, and they mean different things.
+
+Each row carries three things: what it means, the keyword that produces it, and the day it resolves
+to, in three columns that line up down the list.
+
+**A step row reads as the step alone**, not as the whole rule. With `@2w ` already typed, glossing
+the rule would open every row with "2 weeks on →" and repeat what is on screen a line above. The row
+answers "and then what".
+
+```
+@|                                    @2|
+┌────────────────────────────────┐    ┌────────────────────────────────┐
+│ Today          today    13 Sep │    │ In 2 days      2d       15 Sep │
+│ Tomorrow       1d       14 Sep │    │ In 2 weeks     2w       27 Sep │
+│ Yesterday      -1d      12 Sep │    │ In 2 months    2M       13 Nov │
+│ Next Friday    1Fri     18 Sep │    │ In 2 quarters  2Q       13 Mar │
+│ End of week    EoW      19 Sep │    │ In 2 years     2y       13 Sep │
+└────────────────────────────────┘    │ 2nd Monday     2Mon     21 Sep │
+                                      └────────────────────────────────┘
+```
+
+### Choosing the format
+
+A date is written in the first format on the list, the same rule the insert command follows. To
+write one in a different format without going to settings, type `_` after a query that already
+resolves: the list becomes that day, rendered through each enabled format, in list order.
+
+```
+@tom          Tomorrow        1d      14 Sep      ← Enter writes 2026-09-14
+@tom_         2026-09-14                          ← first in the list
+              14/09/2026
+              14.09.2026
+              Sep 14, 2026
+```
+
+`_` means nothing until a query resolves, and nothing at all when only one format is enabled —
+which is the default, so most readers never meet it. A menu offering one choice is not a choice.
+
+`_` is the default switch because it is not a token in the language and never will be: every step is
+a sign, a digit, or a letter. It is refused inside a name for the same reason, so no name can shadow
+it. The character is settable — see *Settings* — and everything written here holds for whichever one
+is set.
+
+Two things to watch on the running build, both about the default rather than the design. `_` is
+markdown emphasis: intraword underscores do not pair in CommonMark, so `@tom_` should be inert, but
+Live Preview is Obsidian's own parser and a line that already carries an underscore may flicker
+italic while the query is open. And `_` is shifted on most keyboard layouts, for a key pressed
+mid-flow straight after a word; `,` is unshifted nearly everywhere and means nothing in markdown.
+Either observation changes the default, not the mechanism.
+
+`setInstructions()` carries the advertisement in the popup's footer, the same row the core
+suggesters use for "↑↓ to navigate": it says `_` opens formats while a query resolves and more than
+one format is enabled, and says nothing otherwise.
+
+### The space is what asks for another step
+
+Before a space, the list answers what has been typed. After one, it offers what could come next, and
+the first row becomes **Accept** — the way back, carrying the date as it already stands, one Enter
+away. Without that row a reader who typed a space and changed their mind has to delete it.
+
+```
+@Sun            this Sunday   Sun    13 Sep      ← the answer; Enter writes it
+@Sun            (nothing else — the token is finished)
+
+@Sun            ↓ type a space ↓
+
+@Sun            Accept               13 Sep      ← in the accent colour, no keyword
+                a day on      +1d    14 Sep
+                end of week   EoW    19 Sep
+                …
+```
+
+Accept appears for every date, the bare anchor included: `@today ` offers it, resolving to today,
+even though `today` alone is not a rule. Where the chain so far is not a date at all — `@2w lunch `
+— there is nothing to accept and the invalid row stands alone.
+
+**A refused count says so.** `@in 1000 days` is a phrase the reader got right and a number the rules
+cannot take, so the row reads "Only counts up to 999" rather than "Invalid date", which would send
+them looking for a spelling mistake that is not there.
+
+**A finished token narrows to itself.** `suggestionsFor()` hands back every token unfiltered once
+the one under the caret is complete, so that the builder in settings can offer what could stand
+*instead*; stand in `Sun` there and every weekday is on the menu. Typing asks the other question,
+so the list is filtered again on the way out and `@Sun` is one row, not twenty-seven.
+
+**A name is a first-position word.** Today, Tomorrow and Yesterday are places to start from, not
+steps to add, and the same goes for the names of several steps — Start of next week is `+1w SoW`,
+and it can only be the whole date, never part of one. Names are offered until a token before the
+caret reads as a step or as the anchor. That is not the same as "until the first space": `@start of
+next` still finds the name, because `start` and `of` are not steps, which is what makes a name of
+several words typable at all.
+
+### Matching order
+
+A query is matched as a **name** first and as a **rule** second. Names are matched on the whole
+query, case-insensitively, on a prefix; rules are matched token by token through `tokenAt()` and
+`suggestionsFor()`, which already handle a caret inside a half-typed token.
+
+Name-first matters because names may contain spaces and so may chains. `@end of` is a name in
+progress, `@2w Eo` is a rule in progress, and trying rules first would classify the former as a
+broken chain and put "Invalid date" in front of someone who is spelling a name correctly.
+
+## Saying it in words
+
+Everything above is typed in the language the builder writes: `+1Fri`, `EoM`, `2w`. This is the same
+dates said the way a reader would say them — `next friday`, `in three weeks`, `3 months ago`.
+
+Two layers, and only one of them costs anything.
+
+### Rows the plugin generates, in every language
+
+Next and last for each of the seven days, and this one too on the day itself — `this Friday` and
+`next Friday` are the same date every day but Friday, and two rows for one date under two names a
+reader cannot tell apart is worse than none. A step forward and back for each unit rides along. None
+of them is a preset, none is stored, and **not one needs a new string**: the labels come from the
+glosses the settings builder already reads rules back with, and the day names from
+`moment.weekdays()`, which Obsidian localises itself. They are capitalised where they are built,
+since the glosses are written for the middle of a sentence and these are entries in a list.
+
+The days run from the reader's own first day of the week, so the list reads in the order their
+calendar does.
+
+```
+settings.quickDates.steps.weekdayThis      "this {{day}}"     →  this Friday   Fri
+settings.quickDates.steps.weekdayNext      "next {{day}}"     →  next Friday   +1Fri
+settings.quickDates.steps.weekdayPrevious  "last {{day}}"     →  last Friday   -1Fri
+settings.quickDates.steps.forward          "{{amount}} on"    →  1 week on     +1w
+settings.quickDates.steps.back             "{{amount}} back"  →  1 month back  -1M
+```
+
+They are ordinary `NamedDate`s to `entriesFor`, and they are matched the way every name is: on the
+whole query or on any word of it. `@next f` finds next Friday in English and its own words in every
+other language, which is the point — this layer is not English-only and never was.
+
+**They sort after the catalogue.** The eleven curated names are what `@` opens with; the generated
+rows follow, reachable by scrolling or by typing one letter. A `NamedDate` carries a flag saying
+which half it is in, and nothing more elaborate than that: an ordering, not a ranking system.
+
+*(The unit rows read "1 week on" rather than "next week", because that is the string that already
+exists. Reading them naturally would mean a `next {{unit}}` key and four unit nouns — six strings in
+thirteen locales. Worth doing, not worth blocking on; the word table below lets `next week` find the
+row whatever it is labelled.)*
+
+### The English word table
+
+A closed vocabulary and a three-slot grammar. No parser, no guessing, nothing that fails silently:
+
+```
+phrase  := lead? count? subject trail?
+lead    := "in" | "next" | "last" | "previous" | "prev" | "this"
+count   := 1…999 | "one"…"twelve" | "a" | "an"
+subject := "day" | "week" | "month" | "quarter" | "year"   (plural too)
+         | "monday"…"sunday" | "mon"…"sun"
+trail   := "ago" | "back"
+```
+
+Five rules decide what that accepts, and each exists because the alternative is an answer nobody can
+predict:
+
+- **Direction comes from one end or neither.** `last`, `previous` and `prev` at the front, or `ago`
+  and `back` at the end, mean backwards; anything else means forwards. Both at once —
+  `last friday ago` — is refused rather than resolved.
+- **`next`, `last` and `this` take no count.** `next 3 weeks` is not a date, and choosing which of
+  the three weeks it means would be guessing. Counts go with `in` or with nothing: `in 3 weeks`,
+  `3 weeks`, `3 weeks ago`.
+- **`this` applies to weekdays only.** `this Friday` is a day; `this month` is not, and the
+  catalogue already carries End of this month for the reader who meant that.
+- **A bare subject needs a count, a lead or a trail.** `week` alone is refused; `in a week`,
+  `next week`, `1 week` and `week ago` are not — a trail qualifies a subject from the other end,
+  exactly as a lead does from the front.
+- **The last word may be a prefix**, as everywhere else here, so `in 3 w` narrows while it is being
+  typed. A number word needs two letters of it — `in th` is three, where `in t` would be two, ten
+  and twelve against every subject at once.
+- **A count with no direction runs both ways.** `3 weeks` is three weeks on *and* three weeks back,
+  paired subject by subject; `in 3 weeks` and `3 weeks ago` are one row each, because the words said
+  which way. There is no word for forward, and none is needed. The same holds of the token spelling:
+  `2w` pairs, `+2w` and `-2w` do not.
+
+```
+@next friday     +1Fri   18 Sep
+@last friday     -1Fri   11 Sep
+@in three weeks  +3w      4 Oct
+@3 months ago    -3M     13 Jun
+@in 200 days     +200d    1 Apr 2027
+@3 weeks         +3w /   -3w    both, since nothing said which way
+```
+
+The ceiling is 999, which is the rule grammar's own limit rather than a second one to explain.
+
+### Words are a first-position thing
+
+A phrase is matched against the **whole query**, and only while nothing before the caret is a
+finished token — the same gate names already pass through. So `@next friday eow` is not a date: it
+reads as a four-word phrase, and there is no such phrase.
+
+The way to that date is the way the menu already works. Type `@next friday`, press **Tab**, and the
+note holds `@+1Fri ` — the canonical spelling, a space, and the menu open on what can follow with
+**Accept** at the top. Then `eow` narrows to the edges and Enter writes it.
+
+**A space after a phrase is not the invitation a space after a token is.** `@2w ` offers Accept and
+the steps that could follow, because `2w` is already the spelling a step is written in. `@next
+friday ` offers that date and nothing to chain onto it, because the words are not that spelling.
+Tab is what turns one into the other, and is the only route on.
+
+That is what makes words and tokens one language rather than two: words are how a date is *found*,
+tokens are what ends up in the note, and Tab is the door between them.
+
+### One date, one row
+
+Several spellings reach the same date — `in a month`, `in 1 month`, `in one month` and `next month`
+are all `+1M`. They produce **one row**, because the words are a matcher over rules rather than a
+producer of rows: a phrase resolves to a rule, and the rule is already keyed in the `seen` set that
+stops "End of this month" and `EoM` appearing twice.
+
+The row is labelled by the plugin's own gloss, never by the words that found it. That is what keeps
+the list steady while a reader types, and what keeps a Russian reader's list in Russian when an
+English phrase is what matched.
+
+**Different rules are not duplicates.** `next month` is `+1M` and Start of next month is `+1M SoM`:
+two dates, two rows, both earned.
+
+### What this costs in translation
+
+| | New strings |
+|---|---|
+| Generated weekday and unit rows | none |
+| The English word table | none — a table in code, not UI text |
+| Naming the unit rows "next week" rather than "1 week on" | six, if taken |
+
+The word table is English-only, shaped as a per-locale table so another language is a list of about
+a dozen words rather than a feature. Nothing is lost in the meantime: the generated rows carry their
+own language's words, and the codes stay ASCII everywhere — `@+3Fri` is `@+3Fri` in Japanese.
+
+**One assumption to confirm before this is built:** that `moment.weekdays()` follows Obsidian's
+language setting rather than the system locale. The calendar grid's day names come from the same
+call, so a vault switched to another language answers it in one look.
+
+### Files and testing
+
+| File | Role |
+|---|---|
+| `src/typing/words.ts` | new — the table and the grammar; query in, canonical rule out. Pure, English-only for now |
+| `src/typing/entries.ts` | the `secondary` flag on a name, words as a source of candidates, the first-position gate widened to cover them |
+| `src/editor/date-suggest.ts` | `catalogue()` generates the weekday and unit rows beside the presets |
+
+Unit tests on `words.ts` carry the weight: every lead, every trail, digits and number words, the
+count ceiling, the four refusals above, and a prefix in the last word. `entries.ts` gets the
+ordering and the collapse — one row for four spellings, two rows for two rules.
+
+### Out of scope, still
+
+- Months by name — `in March`, `March 3`. That is a date rather than an offset, and the language has
+  no way to say it.
+- Word tables for the other twelve languages. The shape is there; the words are not.
+- Anything that reads a sentence. The vocabulary is closed, and a word outside it is not a date.
+
+## Writing the date
+
+The accepted row resolves through `resolveRule(rule, { today, date })` with `date` set to today,
+since there is none in the note, and is written by `insertionFor()` from `picker/write.ts` — the
+same function the insert command already uses, so the spacing rules that keep an inserted date
+editable are not reimplemented here.
+
+The replaced range runs from the trigger character through the caret, so the trigger itself is
+consumed, along with a `_` and any format query after it. The format is the first in the format
+list, matching the insert command exactly, unless a format was chosen through `_`.
+
+One transaction, so one undo takes the whole thing back to the text as typed.
+
+## Settings
+
+Three new settings, in **Dates in a note**, beneath the existing triggers:
+
+- **Type a date** (switch, default on). Whether the menu opens at all.
+- **Trigger character** (text, default `@`). One character, the one that opens the menu.
+- **Format character** (text, default `_`). One character, the one that turns an open menu into the
+  list of formats.
+
+Both fields take exactly one character and refuse a letter, a digit, whitespace, `#` and `[`, saying
+which rule was broken. Letters and digits are out because a character that lands inside ordinary
+words and numbers is noise no word-start rule can clean up. `#` and `[` are out because Obsidian
+gives both their own menu while you type, and two menus over one caret is a defect, not a
+preference. *(That last pair is a call made here, not one you have ruled on.)*
+
+The format character carries two rules of its own, both from the language it sits inside. It cannot
+be `+` or `-`, which begin a step, and it cannot be the trigger character, which would make `@@`
+mean two different things in one query. The second is a rule about a pair of fields rather than one
+field, so it is checked on both: changing either one to collide reports it on the field being
+edited.
+
+The format character is offered whether or not a second format is enabled. Hiding it would make the
+row appear and vanish as formats are added and removed in a different section of settings, which is
+a worse surprise than a row that does nothing yet.
+
+The **command-only notice** already in that section reads three switches today. It should read four:
+with double-click, the hover icon, the Tasks emoji **and** typing all off, the command palette
+really is the only way in, and `commandOnly()` in `settings.ts` is the one place that decides it.
+
+## Open topic — your own named dates
+
+The wish is to type names you defined yourself: `@payday`, `@sprint`, matched by name alone. Three
+shapes, none chosen:
+
+**One list, the calendar picks from it.** A single collection of named dates in settings. Typing
+matches any of them; the calendar's four quick-date buttons become a choice of four entries from
+that list. Define Payday once, get it in both places. Costs a rework of the quick-dates page and a
+migration of the `quickDates` array, which stores four positional slots today.
+
+**A list of its own.** Typing gets its own collection; quick dates are untouched. Nothing to
+migrate, two places to define the same thing.
+
+**The four you already have.** A filled slot's `alias` is already a name the reader chose, so those
+four become typeable and nothing new is built. Capped at four, and those aliases are short by design
+because they sit on small calendar buttons.
+
+Whichever wins, these follow:
+
+- A name is matched case-insensitively, on a prefix, and must be unique within its list.
+- A name that collides with a built-in keyword (`eom`, `1d`, `fri`) is refused at the point of
+  naming, not silently shadowed at the point of typing.
+- A named date anchored on `date` cannot appear in this menu, for the same reason the eight presets
+  cannot.
+
+## Files
+
+| File | Role |
+|---|---|
+| `src/typing/trigger.ts` | new — where a trigger starts and what the query is; the word-start rule |
+| `src/typing/entries.ts` | new — the rows for a query: named matches, step completions, format rows, the invalid row |
+| `src/editor/date-suggest.ts` | new — the `EditorSuggest` subclass: rendering, the footer instructions, the write |
+| `src/picker/quick.ts` | `normalise()` for the typed form: no anchor, unsigned counts |
+| `src/settings.ts` | `typeToInsert`, `typeTrigger`, `formatTrigger`, their validation, and `commandOnly()` reading four switches |
+| `src/settings/settings-tab.ts` | the two new rows |
+| `src/i18n/locales/en.json` | new strings, English only until the work stops moving |
+
+`EditorSuggest` is Obsidian's, which means `date-suggest.ts` cannot be unit-tested at all. Every
+rule about what a query means therefore lives in `typing/`, which is pure — the same split
+`scan.ts` and `context.ts` already keep, and for the same reason.
+
+## Testing
+
+Unit tests, all against the pure modules:
+
+- **trigger.ts** — fires at line start, after a space, after `(` and `[`; does not fire mid-word,
+  inside an email address, or when the setting is off; the query is the text from the trigger to the
+  caret.
+- **entries.ts** — a bare trigger lists every today-anchored name; a name prefix narrows; a rule
+  prefix produces step rows; an unmatched query produces exactly the invalid row; identical rules
+  are deduplicated; name matching beats rule matching.
+- **entries.ts, the format switch** — the format character after a resolving query lists every
+  enabled format in list order; after one that does not resolve it is an ordinary character and
+  changes nothing; with a single format enabled it does the same; the format rows carry the day the
+  query resolved to, not today; a configured character other than `_` behaves identically.
+- **settings.ts** — both character fields refuse a letter, a digit, whitespace, `#`, `[` and an
+  empty or longer value; the format character also refuses `+`, `-` and whatever the trigger is set
+  to; setting the trigger to the format character is refused from that side too.
+- **quick.ts** — the typed form normalises to the stored one: `3d` → `+3d`, `eom` → `EoM`,
+  `2w EoW` → `today +2w EoW`; an anchor typed by hand is still accepted.
+
+Resolution, spacing and formatting are already covered by the quick-date and write tests and are
+not retested here.
+
+## Build order
+
+Front-loaded so there is something to look at before the polish is paid for:
+
+1. ~~`trigger.ts` and `entries.ts` with tests. No UI.~~ **Done.**
+2. ~~`date-suggest.ts` with the built-in names only, insertion working, fixed `@`.~~ **Done**, and
+   looked at: the rows, the space rule, Tab, and the narrowing all came out of that review.
+3. ~~Row layout and wording, against the running build.~~ **Done.**
+4. The words layer, in two halves that do not depend on each other: the generated rows and their
+   ordering flag first, since they need no new strings, then the English word table. Ahead of the
+   two below it, because both of those add strings and the locales are translated once.
+5. The format switch and the footer instructions, on the fixed default, so the character can be
+   judged in use before it becomes a setting.
+6. Named dates, once the open topic is settled.
+7. Settings, then i18n, then the twelve other locales last.
+
+## Out of scope
+
+- **Sentences.** `next friday` is read because both words are in a table; `the friday after the
+  sprint review` is not, and nothing here guesses at it. See *Saying it in words* for where the
+  vocabulary ends.
+- **Months and dates by name** — `in March`, `March 3`. Those name a date rather than an offset, and
+  the language has no way to say one.
+- Times. The language has no time units yet; TODO 3 is where that starts.
+- Editing an existing date by typing. That is what the calendar is for.
+- Reading mode, as everywhere else in this plugin.
+- **A hotkey that opens the menu.** Obsidian's popup cannot be opened by a command, so the only
+  versions of this are a command that types the trigger character for you, or a popup of our own.
+  The first is a few lines and can be added any time it is missed; the second means rebuilding
+  keyboard navigation, positioning, mobile behaviour and theming to arrive back where
+  `EditorSuggest` already is. *Pick a date* covers the no-typing path in the meantime.

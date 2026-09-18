@@ -66,10 +66,14 @@
         "nextMonday": "다음 월",
         "nextFriday": "다음 금",
         "endOfThisWeek": "EoW",
+        "startOfThisWeek": "SoW",
         "startOfNextWeek": "Next SoW",
         "endOfThisMonth": "EoM",
+        "startOfThisMonth": "SoM",
         "startOfNextMonth": "Next SoM",
         "endOfThisQuarter": "EoQ",
+        "startOfThisQuarter": "SoQ",
+        "startOfNextQuarter": "Next SoQ",
         "dayLater": "+1일",
         "sevenDaysLater": "+7일",
         "fourteenDaysLater": "+14일",
@@ -86,10 +90,14 @@
         "nextMonday": "다음 월요일",
         "nextFriday": "다음 금요일",
         "endOfThisWeek": "이번 주의 끝",
+        "startOfThisWeek": "이번 주의 시작",
         "startOfNextWeek": "다음 주의 시작",
         "endOfThisMonth": "이번 달의 끝",
+        "startOfThisMonth": "이번 달의 시작",
         "startOfNextMonth": "다음 달의 시작",
         "endOfThisQuarter": "이번 분기의 끝",
+        "startOfThisQuarter": "이번 분기의 시작",
+        "startOfNextQuarter": "다음 분기의 시작",
         "dayLater": "1일 뒤",
         "sevenDaysLater": "7일 뒤",
         "fourteenDaysLater": "14일 뒤",
@@ -247,6 +255,11 @@
     "nextMonth": "다음 달",
     "prevYear": "이전 해",
     "nextYear": "다음 해"
+  },
+  "typing": {
+    "invalid": "인식할 수 없는 날짜",
+    "accept": "확정",
+    "countTooBig": "999까지만 셀 수 있습니다"
   },
   "notices": {
     "noEditor": "먼저 편집 화면에서 노트를 여세요."

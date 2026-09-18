@@ -66,10 +66,14 @@
         "nextMonday": "次の月",
         "nextFriday": "次の金",
         "endOfThisWeek": "EoW",
+        "startOfThisWeek": "SoW",
         "startOfNextWeek": "Next SoW",
         "endOfThisMonth": "EoM",
+        "startOfThisMonth": "SoM",
         "startOfNextMonth": "Next SoM",
         "endOfThisQuarter": "EoQ",
+        "startOfThisQuarter": "SoQ",
+        "startOfNextQuarter": "Next SoQ",
         "dayLater": "+1日",
         "sevenDaysLater": "+7日",
         "fourteenDaysLater": "+14日",
@@ -86,10 +90,14 @@
         "nextMonday": "次の月曜日",
         "nextFriday": "次の金曜日",
         "endOfThisWeek": "今週の終わり",
+        "startOfThisWeek": "今週の初め",
         "startOfNextWeek": "来週の初め",
         "endOfThisMonth": "今月の終わり",
+        "startOfThisMonth": "今月の初め",
         "startOfNextMonth": "来月の初め",
         "endOfThisQuarter": "今四半期の終わり",
+        "startOfThisQuarter": "今四半期の初め",
+        "startOfNextQuarter": "次の四半期の初め",
         "dayLater": "1日後",
         "sevenDaysLater": "7日後",
         "fourteenDaysLater": "14日後",
@@ -247,6 +255,11 @@
     "nextMonth": "次の月",
     "prevYear": "前の年",
     "nextYear": "次の年"
+  },
+  "typing": {
+    "invalid": "認識できない日付",
+    "accept": "確定",
+    "countTooBig": "999 までしか数えられません"
   },
   "notices": {
     "noEditor": "先に編集ビューでノートを開いてください。"

@@ -1,4 +1,5 @@
 import { MarkdownView, Notice, Plugin } from "obsidian";
+import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
 import { defaultWeekStart } from "./picker/month";
@@ -24,6 +25,7 @@ export default class KalendaePlugin extends Plugin {
 
     this.addSettingTab(new KalendaeSettingTab(this.app, this));
     this.registerEditorExtension(datePickerExtension(() => this.settings));
+    this.registerEditorSuggest(new KalendaeDateSuggest(this.app, () => this.settings));
 
     this.addCommand({
       id: "pick-date",

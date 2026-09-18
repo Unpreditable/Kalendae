@@ -141,6 +141,102 @@ function formatStep(step: Step): string {
   return step.inclusive ? WEEKDAYS[step.day] : `${sign}${step.count}${WEEKDAYS[step.day]}`;
 }
 
+/**
+ * A rule from what someone typed, rather than from what the builder wrote.
+ *
+ * Three liberties the stored grammar does not take, each one because a reader
+ * is holding the keyboard rather than clicking through a builder: the anchor is
+ * left out, since typing into empty text has nothing but today to count from;
+ * an unsigned count means forward, since that is the common case and the sign
+ * is noise; and case is ignored, since the case rule is real and nobody should
+ * have to know it before they can find a token.
+ *
+ * `m` reads as months here, where the stored grammar reserves it for minutes.
+ * There are no times yet, and a case rule making `2m` and `2M` mean different
+ * things is one nobody could guess. Revisit when times land.
+ *
+ * Everything this accepts is handed to `parseRule`, so there is one parser and
+ * one definition of what a rule is; this only respells what it is given.
+ */
+export function parseTyped(text: string): Rule | null {
+  const canonical = canonicalTyped(text);
+
+  return canonical === null ? null : parseRule(canonical);
+}
+
+/** The stored spelling of a typed query, or null when it is not one. */
+export function canonicalTyped(text: string): string | null {
+  const tokens = text.split(" ").filter((token) => token !== "");
+  if (tokens.length === 0) return null;
+
+  // An anchor may be typed, and only one of the two can be: `date` counts from
+  // a date in the note, and this language is used where there is none.
+  if (tokens[0].toLowerCase() === "date") return null;
+  if (tokens[0].toLowerCase() === "today") tokens.shift();
+  if (tokens.length === 0) return null;
+
+  const steps: string[] = [];
+  for (const token of tokens) {
+    const step = canonicalStep(token);
+    if (step === null) return null;
+    steps.push(step);
+  }
+
+  return ["today", ...steps].join(" ");
+}
+
+const TYPED_AMOUNT = /^([+-]?)([1-9][0-9]{0,2})([a-zA-Z])$/;
+const TYPED_DAY = /^([+-]?)([1-9][0-9]{0,2})?([a-zA-Z]{3,})$/;
+
+/**
+ * The day names written out, indexed as `WEEKDAYS` is.
+ *
+ * Typing is the one place a whole word is worth taking: `friday` is what a
+ * reader reaches for, and the three-letter form is a spelling the builder
+ * chose, not one they should have to learn. Any prefix of three letters or more
+ * counts, so `fri`, `frid` and `friday` are one token, and `thurs` works
+ * without a rule of its own.
+ */
+export const DAY_WORDS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+/** One typed token in the spelling `stepFor` expects, or null when it is not a step. */
+function canonicalStep(token: string): string | null {
+  const lower = token.toLowerCase();
+
+  const edge = EDGES.find((value) => value.toLowerCase() === lower);
+  if (edge !== undefined) return edge;
+
+  const amount = TYPED_AMOUNT.exec(token);
+  if (amount) {
+    const unit = UNITS.find((value) => value.toLowerCase() === amount[3].toLowerCase());
+
+    return unit === undefined ? null : `${amount[1] || "+"}${amount[2]}${unit}`;
+  }
+
+  const day = TYPED_DAY.exec(token);
+  if (day) {
+    const word = day[3].toLowerCase();
+    const name = WEEKDAYS[DAY_WORDS.findIndex((value) => value.startsWith(word))];
+    if (name === undefined) return null;
+
+    // Neither a sign nor a count is the inclusive form, which takes neither. A
+    // sign on its own means once in that direction.
+    if (day[2] === undefined) return day[1] === "" ? name : `${day[1]}1${name}`;
+
+    return `${day[1] || "+"}${day[2]}${name}`;
+  }
+
+  return null;
+}
+
 export interface RuleContext {
   /** The date the calendar opened on — what `date` anchors to. */
   value: DayKey;
@@ -244,7 +340,7 @@ export interface QuickPreset {
 /**
  * The shortcuts on offer, written in the same language a reader's own rule is.
  *
- * Ten counting from today and four from the date in the note. Only two weekdays
+ * Fourteen counting from today and four from the date in the note. Only two weekdays
  * are here: all seven would be half the catalogue for the sake of the two
  * nobody has to think about, and `today +1Wed` is one custom slot away.
  */
@@ -254,11 +350,15 @@ export const QUICK_PRESETS: QuickPreset[] = [
   { id: "inSevenDays", rule: "today +7d" },
   { id: "nextMonday", rule: "today +1Mon" },
   { id: "nextFriday", rule: "today +1Fri" },
+  { id: "startOfThisWeek", rule: "today SoW" },
   { id: "endOfThisWeek", rule: "today EoW" },
   { id: "startOfNextWeek", rule: "today +1w SoW" },
+  { id: "startOfThisMonth", rule: "today SoM" },
   { id: "endOfThisMonth", rule: "today EoM" },
   { id: "startOfNextMonth", rule: "today +1M SoM" },
+  { id: "startOfThisQuarter", rule: "today SoQ" },
   { id: "endOfThisQuarter", rule: "today EoQ" },
+  { id: "startOfNextQuarter", rule: "today +1Q SoQ" },
   { id: "dayLater", rule: "date +1d" },
   { id: "sevenDaysLater", rule: "date +7d" },
   { id: "fourteenDaysLater", rule: "date +14d" },

@@ -67,7 +67,7 @@ export function detectDates(state: EditorState, settings: KalendaeSettings): Det
  * `hmd-frontmatter`, and over a rendered range the tree is fully parsed, which
  * is the case the guard exists to cover for.
  */
-const FRONTMATTER_PREFIX = 8192;
+export const FRONTMATTER_PREFIX = 8192;
 
 /**
  * The dates in one range of a note.

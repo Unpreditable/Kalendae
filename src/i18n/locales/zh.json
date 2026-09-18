@@ -66,10 +66,14 @@
         "nextMonday": "下周一",
         "nextFriday": "下周五",
         "endOfThisWeek": "EoW",
+        "startOfThisWeek": "SoW",
         "startOfNextWeek": "Next SoW",
         "endOfThisMonth": "EoM",
+        "startOfThisMonth": "SoM",
         "startOfNextMonth": "Next SoM",
         "endOfThisQuarter": "EoQ",
+        "startOfThisQuarter": "SoQ",
+        "startOfNextQuarter": "Next SoQ",
         "dayLater": "+1 天",
         "sevenDaysLater": "+7 天",
         "fourteenDaysLater": "+14 天",
@@ -86,10 +90,14 @@
         "nextMonday": "下周一",
         "nextFriday": "下周五",
         "endOfThisWeek": "本周结束",
+        "startOfThisWeek": "本周开始",
         "startOfNextWeek": "下周开始",
         "endOfThisMonth": "本月结束",
+        "startOfThisMonth": "本月开始",
         "startOfNextMonth": "下月开始",
         "endOfThisQuarter": "本季度结束",
+        "startOfThisQuarter": "本季度开始",
+        "startOfNextQuarter": "下季度开始",
         "dayLater": "1 天之后",
         "sevenDaysLater": "7 天之后",
         "fourteenDaysLater": "14 天之后",
@@ -247,6 +255,11 @@
     "nextMonth": "下一个月",
     "prevYear": "上一年",
     "nextYear": "下一年"
+  },
+  "typing": {
+    "invalid": "无法识别的日期",
+    "accept": "确认",
+    "countTooBig": "最多只能计到 999"
   },
   "notices": {
     "noEditor": "请先在编辑视图中打开笔记。"
