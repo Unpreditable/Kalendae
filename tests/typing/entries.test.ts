@@ -14,6 +14,7 @@ const keywordOf = (entry: Entry): string =>
 const context: EntryContext = {
   today: { year: 2026, month: 8, day: 13 },
   firstDay: 0,
+  months: [],
   names: [
     { label: "Today", rule: null },
     { label: "Tomorrow", rule: "today +1d" },
@@ -373,5 +374,95 @@ describe("names, words and tokens together", () => {
     for (const query of ["2w ", "today ", "Sun ", "2w eow "]) {
       expect(entriesFor(query, withGenerated).some((entry) => entry.kind === "named")).toBe(false);
     }
+  });
+});
+
+describe("a day named outright", () => {
+  it("leads the list, and carries no keyword", () => {
+    const entries = entriesFor("nov 3", context);
+
+    expect(entries).toEqual([
+      { kind: "date", day: { year: 2026, month: 10, day: 3 }, complete: "nov 3 2026" },
+      { kind: "date", day: { year: 2025, month: 10, day: 3 }, complete: "nov 3 2025" },
+    ]);
+    expect(entries.map(keywordOf)).toEqual(["", ""]);
+  });
+
+  it("takes the year as typed, and offers nothing to chain", () => {
+    expect(entriesFor("nov 3 2027", context)).toEqual([
+      { kind: "date", day: { year: 2027, month: 10, day: 3 }, complete: null },
+    ]);
+    expect(entriesFor("nov 3 ", context)).toEqual(entriesFor("nov 3", context));
+  });
+
+  it("goes last where a single letter named the month", () => {
+    // `3 d` is three days on in the language as it stands, and that row keeps
+    // the top of the list.
+    const entries = entriesFor("3 d", context);
+
+    expect(entries[0]).toEqual(expect.objectContaining({ kind: "step", keyword: "+3d" }));
+    expect(entries.filter((entry) => entry.kind === "date")).toEqual([
+      { kind: "date", day: { year: 2026, month: 11, day: 3 }, complete: "3 d 2026" },
+      { kind: "date", day: { year: 2025, month: 11, day: 3 }, complete: "3 d 2025" },
+    ]);
+    expect(entries[entries.length - 1]).toEqual(
+      expect.objectContaining({ kind: "date", day: { year: 2025, month: 11, day: 3 } }),
+    );
+  });
+
+  it("goes last where only the month was typed", () => {
+    const entries = entriesFor("f", context);
+
+    expect(entries[0].kind).not.toBe("date");
+    expect(entries.filter((entry) => entry.kind === "date")).toEqual([
+      { kind: "date", day: { year: 2027, month: 1, day: 1 }, complete: "f 1 2027" },
+      { kind: "date", day: { year: 2026, month: 1, day: 1 }, complete: "f 1 2026" },
+    ]);
+  });
+
+  it("leaves every offset query answering exactly as it did", () => {
+    expect(entriesFor("3", context).every((entry) => entry.kind === "step")).toBe(true);
+    expect(entriesFor("next friday", context)[0]).toEqual(
+      expect.objectContaining({ kind: "named", label: "Next Friday" }),
+    );
+    expect(entriesFor("2w eow", context)[0]).toEqual(
+      expect.objectContaining({ kind: "step", keyword: "EoW" }),
+    );
+  });
+
+  it("goes last, even naming a month of two letters or more, once another source answers the query too", () => {
+    // Lithuanian: `3 sa` names both 3 January (`sausis`) and `+3Sat`, so the
+    // rule cannot be "a longer month name leads" — that would take Enter from
+    // three Saturdays on. It has to be "nothing else answered".
+    const months = [
+      ["sausis", "sau", "sausio"],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+    ];
+    const entries = entriesFor("3 sa", { ...context, months });
+    const dates = entries.filter((entry) => entry.kind === "date");
+
+    expect(entries[0]).toEqual(expect.objectContaining({ kind: "step", keyword: "+3Sat" }));
+    expect(dates.length).toBeGreaterThan(0);
+    expect(entries.slice(entries.length - dates.length)).toEqual(dates);
+  });
+
+  it("calls a bad day an invalid date, not a refused count", () => {
+    expect(entriesFor("nov 0", context)).toEqual([{ kind: "invalid" }]);
+    expect(entriesFor("0 nov", context)).toEqual([{ kind: "invalid" }]);
+    expect(entriesFor("nov 32", context)).toEqual([{ kind: "invalid" }]);
+    expect(entriesFor("feb 30", context)).toEqual([{ kind: "invalid" }]);
+    // A count out of range still says so, which is the row this one borrowed.
+    expect(entriesFor("in 1000 days", context)).toEqual([{ kind: "invalid", reason: "count" }]);
+    expect(entriesFor("1000", context)).toEqual([{ kind: "invalid", reason: "count" }]);
   });
 });

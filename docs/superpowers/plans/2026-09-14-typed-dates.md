@@ -25,6 +25,24 @@
 
 ---
 
+## Status, 2026-09-17
+
+**Tasks 1-5 are built and committed** in `cfbf27a`, along with the whole of the second plan
+([2026-09-16-typed-dates-words.md](2026-09-16-typed-dates-words.md)). Their boxes are ticked below.
+
+**Tasks 6, 7 and 8 are outstanding**, and are the next work on this feature. Both 6 and 7 were
+amended after the code they describe had already moved — read the notes inside them rather than the
+first draft's assumptions.
+
+Task 8 is smaller than it reads: every string that existed on 2026-09-17 is already translated into
+all twelve locales, so it covers only what tasks 6 and 7 add.
+
+One question inside Task 7 is still open and needs Vitaly: `checkTriggerChar` refuses `[` but not
+the other characters `trigger.ts` treats as word-starts — `(`, `{`, `"` and `'`. A trigger of `"`
+would fire after a quote. Decide whether the openers are refused as a group.
+
+---
+
 ### Task 1: The typed form normalises into a rule
 
 The typed language differs from the stored one in three ways: no anchor, an unsigned count means forward, and case is ignored. One function turns typed text into a `Rule` by canonicalising each token and handing the result to the existing `parseRule()`, so there is exactly one parser and one definition of what a rule is.
@@ -37,7 +55,7 @@ The typed language differs from the stored one in three ways: no anchor, an unsi
 - Consumes: `parseRule()`, `UNITS`, `WEEKDAYS`, `EDGES`, `Rule` — all already exported from `src/picker/quick.ts`.
 - Produces: `parseTyped(text: string): Rule | null` and `canonicalTyped(text: string): string | null`, both exported from `src/picker/quick.ts`. `canonicalTyped` returns the stored spelling of a typed query (`"2w eow"` → `"today +2w EoW"`); `parseTyped` returns the parsed rule or null.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/picker/quick.test.ts`:
 
@@ -100,12 +118,12 @@ describe("parseTyped", () => {
 
 Add `canonicalTyped` and `parseTyped` to the import list at the top of the file.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx jest tests/picker/quick.test.ts -t parseTyped`
 Expected: FAIL, `parseTyped is not a function`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Append to `src/picker/quick.ts`, after `stepFor` and its `formatStep` helper:
 
@@ -184,7 +202,7 @@ function canonicalStep(token: string): string | null {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx jest tests/picker/quick.test.ts`
 Expected: PASS, the new block and every existing one.
@@ -192,7 +210,7 @@ Expected: PASS, the new block and every existing one.
 Run: `npm run build`
 Expected: no TypeScript or eslint errors.
 
-- [ ] **Step 5: Propose the commit**
+- [x] **Step 5: Propose the commit**
 
 ```
 feat: read the typed spelling of a quick-date rule
@@ -221,7 +239,7 @@ The word-start rule: `@` opens the menu at the start of a line, after whitespace
 - Consumes: nothing.
 - Produces: `triggerAt(line: string, caret: number, trigger: string): TypedQuery | null` and `interface TypedQuery { from: number; query: string }`, exported from `src/typing/trigger.ts`. `from` is the offset **within the line** of the trigger character itself; `query` is everything between it and the caret.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/typing/trigger.test.ts`:
 
@@ -280,12 +298,12 @@ describe("triggerAt", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx jest tests/typing/trigger.test.ts`
 Expected: FAIL, cannot find module `../../src/typing/trigger`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `src/typing/trigger.ts`:
 
@@ -337,7 +355,7 @@ export function triggerAt(line: string, caret: number, trigger: string): TypedQu
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx jest tests/typing/trigger.test.ts`
 Expected: PASS, eleven assertions' worth.
@@ -345,7 +363,7 @@ Expected: PASS, eleven assertions' worth.
 Run: `npm run build`
 Expected: clean.
 
-- [ ] **Step 5: Propose the commit**
+- [x] **Step 5: Propose the commit**
 
 ```
 feat: find a typed date query in a line
@@ -373,7 +391,7 @@ The list is names first, rules second, and one "Invalid date" row when neither m
   - `type Entry = { kind: "named"; label: string; keyword: string; day: DayKey; rule: Rule | null } | { kind: "step"; keyword: string; day: DayKey; rule: Rule } | { kind: "invalid" }`
   - `entriesFor(query: string, context: EntryContext): Entry[]` — never empty.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/typing/entries.test.ts`:
 
@@ -490,12 +508,12 @@ describe("entriesFor", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx jest tests/typing/entries.test.ts`
 Expected: FAIL, cannot find module `../../src/typing/entries`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `src/typing/entries.ts`:
 
@@ -652,7 +670,7 @@ function keywordOf(rule: string): string {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx jest tests/typing/entries.test.ts`
 Expected: PASS.
@@ -663,7 +681,7 @@ Expected: PASS, every existing suite included.
 Run: `npm run build`
 Expected: clean.
 
-- [ ] **Step 5: Propose the commit**
+- [x] **Step 5: Propose the commit**
 
 ```
 feat: build the list a typed date query offers
@@ -687,7 +705,7 @@ The first task with something to look at. Fixed `@`, no settings, no format swit
 - Consumes: `triggerAt` (Task 2), `entriesFor`, `Entry`, `NamedDate` (Task 3), `parseTyped`/`canonicalTyped` (Task 1), plus the existing `presetsAnchoredOn`, `QUICK_PRESETS`, `glossFor`, `insertionFor`, `todayKey`, `firstDayOf`, `editorViewIn`, `classifyContext`, `frontmatterEnd`, `SCOPE_SETTING`.
 - Produces: `class KalendaeDateSuggest extends EditorSuggest<Entry>`, constructed as `new KalendaeDateSuggest(app, () => plugin.settings)`.
 
-- [ ] **Step 1: Add the one new string**
+- [x] **Step 1: Add the one new string**
 
 In `src/i18n/locales/en.json`, add a `typing` section beside the existing top-level sections:
 
@@ -698,7 +716,7 @@ In `src/i18n/locales/en.json`, add a `typing` section beside the existing top-le
 }
 ```
 
-- [ ] **Step 2: Write the suggester**
+- [x] **Step 2: Write the suggester**
 
 Create `src/editor/date-suggest.ts`:
 
@@ -833,7 +851,7 @@ function catalogue(): NamedDate[] {
 }
 ```
 
-- [ ] **Step 3: Add the scope gate and the day text**
+- [x] **Step 3: Add the scope gate and the day text**
 
 Append to `src/editor/date-suggest.ts`:
 
@@ -883,7 +901,7 @@ Check `FRONTMATTER_PREFIX` against `src/detect/detect.ts` and reuse its constant
 
 Add `moment` to the `obsidian` import list.
 
-- [ ] **Step 4: Register it**
+- [x] **Step 4: Register it**
 
 In `src/main.ts`, inside `onload()`, after `this.registerEditorExtension(...)`:
 
@@ -893,7 +911,7 @@ this.registerEditorSuggest(new KalendaeDateSuggest(this.app, () => this.settings
 
 and import it: `import { KalendaeDateSuggest } from "./editor/date-suggest";`
 
-- [ ] **Step 5: Build and try it**
+- [x] **Step 5: Build and try it**
 
 Run: `npm run build`
 Expected: clean. Then confirm the CodeMirror packages stayed external:
@@ -919,11 +937,11 @@ With `npm run dev` running and Hot Reload installed, in a scratch note:
 | `@tom` inside a fenced code block | no menu |
 | Ctrl+Z after accepting | the typed text back, in one undo |
 
-- [ ] **Step 6: Stop and look**
+- [x] **Step 6: Stop and look**
 
 This is the spec's review checkpoint. Do not carry on to Task 5 before Vitaly has seen the list and ruled on the row layout, the wording, and whether Today belongs in it.
 
-- [ ] **Step 7: Propose the commit**
+- [x] **Step 7: Propose the commit**
 
 ```
 feat: open a list of dates while typing
@@ -943,7 +961,7 @@ Whatever came out of the checkpoint. Everything here is CSS and wording, not beh
 - Modify: `src/editor/date-suggest.ts` (`renderSuggestion` only)
 - Modify: `src/i18n/locales/en.json` (only if the checkpoint asked for new wording)
 
-- [ ] **Step 1: Write the rules**
+- [x] **Step 1: Write the rules**
 
 Scope every rule under the classes this plugin adds, never under Obsidian's own `.suggestion-item`: a bare `.suggestion-item` rule restyles every suggester in the app, including the ones other plugins own.
 
@@ -982,11 +1000,11 @@ Scope every rule under the classes this plugin adds, never under Obsidian's own 
 }
 ```
 
-- [ ] **Step 2: Check it against both themes and a narrow pane**
+- [x] **Step 2: Check it against both themes and a narrow pane**
 
 Light and dark, one theme other than the default, and a pane narrow enough to make a long name run out of room. The name should ellipsise; the keyword and the day should not move.
 
-- [ ] **Step 3: Propose the commit**
+- [x] **Step 3: Propose the commit**
 
 ```
 style: lay out the rows of the typed date list
@@ -997,6 +1015,13 @@ style: lay out the rows of the typed date list
 ### Task 6: The format switch
 
 `_` after a query that resolves turns the list into that day in each of the formats, in list order. Inert with one format, which is the default.
+
+> **Superseded 2026-09-17, do not build as written.** The spec's *Naming the day itself* section
+> changed what `_` does: it acts on the row the reader has highlighted, completing that row into the
+> note first, rather than resolving the text in front of it. Every step below resolves the text and
+> tests `entriesFor("tom_", …)`, and `dayFor`'s "exactly one day" rule is gone with it. Rewrite this
+> task against the spec before touching it; the pieces that still hold are the `format` row kind,
+> `renderPattern` for the row's text, and the footer instructions.
 
 **Files:**
 - Modify: `src/typing/entries.ts`
@@ -1252,6 +1277,10 @@ describe("checkTriggerChar", () => {
     expect(checkTriggerChar("[", "_")).toBe("reserved");
   });
 
+  it("refuses the character an explicit date spends", () => {
+    expect(checkTriggerChar(",", "_")).toBe("reserved");
+  });
+
   it("refuses a sign, which begins a step", () => {
     expect(checkTriggerChar("+", "_")).toBe("sign");
     expect(checkTriggerChar("-", "_")).toBe("sign");
@@ -1292,15 +1321,16 @@ export type TriggerProblem = "length" | "letter" | "digit" | "space" | "reserved
  * numbers is noise no word-start rule can clean up. `#` and `[` are out because
  * Obsidian gives both their own menu while you type, and two menus over one
  * caret is a defect rather than a preference. A sign is out because `+` and `-`
- * begin a step. And neither field may hold what the other one holds, which is
- * the only rule here about a pair of settings rather than one.
+ * begin a step. `,` is out because a named day tolerates a comma after its day,
+ * so the two cannot both have it. And neither field may hold what the other one
+ * holds, which is the only rule here about a pair of settings rather than one.
  */
 export function checkTriggerChar(value: string, other: string): TriggerProblem | null {
   if ([...value].length !== 1) return "length";
   if (/\s/.test(value)) return "space";
   if (/\p{L}/u.test(value)) return "letter";
   if (/\p{N}/u.test(value)) return "digit";
-  if (value === "#" || value === "[") return "reserved";
+  if (value === "#" || value === "[" || value === ",") return "reserved";
   if (value === "+" || value === "-") return "sign";
   if (value === other) return "clash";
 

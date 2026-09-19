@@ -1,5 +1,6 @@
 import { DayKey } from "../picker/month";
 import { Rule, canonicalTyped, parseTyped, resolveRule, suggestionsFor } from "../picker/quick";
+import { absoluteDates } from "./absolute";
 import { countRefused, rulesFromWords } from "./words";
 
 /**
@@ -32,6 +33,11 @@ export interface EntryContext {
   /** The week's first day as moment counts them, from `firstDayOf(settings.weekStart)`. */
   firstDay: number;
   names: NamedDate[];
+  /**
+   * Every spelling each month answers to in the reader's language, January
+   * first. Handed through to `absoluteDates`, which adds English itself.
+   */
+  months: readonly (readonly string[])[];
 }
 
 export type Entry =
@@ -48,6 +54,10 @@ export type Entry =
   // than completes on it, and its label is a word rather than a reading. The
   // fields the other rows need would all be dead weight here.
   | { kind: "accept"; day: DayKey }
+  // A day named outright: no rule behind it, so no gloss and no keyword. Its
+  // `complete` is null once nothing is missing, which is how Tab knows to write
+  // rather than to fill the rest in.
+  | { kind: "date"; day: DayKey; complete: string | null }
   // `reason` is the difference between "that is not a date" and "that is a
   // date with a number I cannot take", which are different things to be told.
   | { kind: "invalid"; reason?: "count" };
@@ -59,6 +69,16 @@ export type Entry =
  * spaces and so may a chain: `end of` is a name half-typed and `2w Eo` is a
  * rule half-typed, and trying rules first would call the former broken while
  * the reader is spelling it correctly.
+ *
+ * A named day leads the list only where nothing else answered the query;
+ * otherwise it goes last. The rule was once "a day with a two-letter-or-longer
+ * month leads", but a sweep of the shipped locales found a collision that
+ * defeats it: in Lithuanian, `3 sa` names both 3 January (`sausis`) and
+ * `+3Sat`, so the specific-looking reading would take Enter from three
+ * Saturdays on — the exact harm the weak tier exists to prevent. Whether
+ * another source answered is a fact about the *query*, not about which month
+ * matched it, so the named-day rows go on the end of the other three: last
+ * where those answered, and the whole list where they did not.
  *
  * Nothing here closes the menu. A query that matches nothing is a row saying
  * so, which is what leaves backspace able to repair it.
@@ -72,10 +92,30 @@ export function entriesFor(query: string, context: EntryContext): Entry[] {
   const opening = namesAllowed(query);
   const named = opening ? namedEntries(query, context, seen) : [];
   const words = opening ? wordEntries(query, context, seen) : [];
-  const entries = [...named, ...words, ...stepEntries(query, context, seen)];
+  const entries = [
+    ...named,
+    ...words,
+    ...stepEntries(query, context, seen),
+    ...dateEntries(query, context),
+  ];
   if (entries.length > 0) return withoutRepeatedWeekdays(entries);
 
   return [countRefused(query) ? { kind: "invalid", reason: "count" } : { kind: "invalid" }];
+}
+
+/**
+ * The rows a named day reaches.
+ *
+ * No deduplication against the other three sources. A row from here carries no
+ * rule, so it has nothing to key on, and nothing else in the list reaches a day
+ * this way: two rows of one query are different years by construction.
+ */
+function dateEntries(query: string, context: EntryContext): Entry[] {
+  return absoluteDates(query, context).map((row) => ({
+    kind: "date",
+    day: row.day,
+    complete: row.complete,
+  }));
 }
 
 function namedEntries(query: string, context: EntryContext, seen: Set<string>): Entry[] {
@@ -350,7 +390,7 @@ function withoutRepeatedWeekdays(entries: Entry[]): Entry[] {
   const taken = new Set<string>();
 
   return entries.filter((entry) => {
-    if (entry.kind === "invalid" || entry.kind === "accept") return true;
+    if (entry.kind === "invalid" || entry.kind === "accept" || entry.kind === "date") return true;
     if (entry.rule === null || entry.rule.steps.length !== 1) return true;
     if (entry.rule.steps[0].kind !== "weekday") return true;
 

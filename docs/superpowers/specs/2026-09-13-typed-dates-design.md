@@ -1,7 +1,7 @@
 # Typed dates — design
 
 Status: drafted 2026-09-13, revised 2026-09-14 with the menu's owner and a settable format switch, revised 2026-09-16
-with the words layer; one topic still open
+with the words layer, revised 2026-09-17 with explicit dates; one topic still open
 Raised: 2026-09-13, in conversation. No TODO item yet.
 
 ## What this delivers
@@ -171,6 +171,10 @@ resolves: the list becomes that day, rendered through each enabled format, in li
 `_` means nothing until a query resolves, and nothing at all when only one format is enabled —
 which is the default, so most readers never meet it. A menu offering one choice is not a choice.
 
+**Amended 2026-09-17.** `_` acts on the row the reader has highlighted rather than on the text in
+front of it, which is both simpler to state and the only reading that works for a query naming two
+days. See *Naming the day itself*.
+
 `_` is the default switch because it is not a token in the language and never will be: every step is
 a sign, a digit, or a letter. It is refused inside a name for the same reason, so no name can shadow
 it. The character is settable — see *Settings* — and everything written here holds for whichever one
@@ -181,7 +185,8 @@ markdown emphasis: intraword underscores do not pair in CommonMark, so `@tom_` s
 Live Preview is Obsidian's own parser and a line that already carries an underscore may flicker
 italic while the query is open. And `_` is shifted on most keyboard layouts, for a key pressed
 mid-flow straight after a word; `,` is unshifted nearly everywhere and means nothing in markdown.
-Either observation changes the default, not the mechanism.
+Either observation changes the default, not the mechanism. **`,` is spent as of 2026-09-17**: an
+explicit date tolerates a comma after its day, so the two cannot both have it.
 
 `setInstructions()` carries the advertisement in the popup's footer, the same row the core
 suggesters use for "↑↓ to navigate": it says `_` opens formats while a query resolves and more than
@@ -384,10 +389,252 @@ ordering and the collapse — one row for four spellings, two rows for two rules
 
 ### Out of scope, still
 
-- Months by name — `in March`, `March 3`. That is a date rather than an offset, and the language has
-  no way to say it.
+- Months by name — `in March`. A month is not a day, and there is no slot in this grammar for one.
+  Naming a day outright is a layer of its own, below; `in March` stays out of both.
 - Word tables for the other twelve languages. The shape is there; the words are not.
 - Anything that reads a sentence. The vocabulary is closed, and a word outside it is not a date.
+
+## Naming the day itself
+
+Everything above counts from today. `1d`, `EoM`, `next friday` and `3 months ago` are offsets, said
+in tokens or in words, and an offset is what the quick-date language is for. This is the other thing
+a reader means by a date: the day itself, named. `@nov 3`.
+
+It was out of scope until 2026-09-17, on the grounds that the language has no way to say it. That is
+true, and it is the reason this is a layer of its own rather than a table bolted onto the word
+grammar — it is not a reason to leave it out. It adds no strings, and it reads the reader's own
+month names, because those are moment's and Obsidian localises them.
+
+```
+Invoice due @nov 3            →  Invoice due 2026-11-03
+Contract ends @3 nov 2027     →  Contract ends 2027-11-03
+Filed @feb 29                 →  Filed 2028-02-29
+```
+
+### The grammar
+
+```
+explicit := month day year?
+          | day month year?
+month    := any prefix of a month's name, in any case — long, short or
+            declined, in the reader's language or in English
+day      := 1…31, one or two digits, with one optional comma after it in
+            month-day order
+year     := a run of digits, read as the year it says
+```
+
+Each rule below is here because the alternative is an answer a reader cannot predict:
+
+- **With no year typed, two rows: the nearest forward and the nearest back, forward first.** The
+  same shape the words layer already has for a count with no direction on it — `3 weeks` is three
+  weeks each way, and `nov 3` is the November behind and the one ahead. Forward counts today, so on
+  3 November `@nov 3` is today and last year, which is the reading the bare `fri` already has.
+- **Occurrences, not year arithmetic.** `@feb 29` is 2028 and 2024, because those are the nearest
+  29ths of February. Taking this year and next and clamping would have offered 28 February twice —
+  two rows, one date, and neither of them the one asked for.
+- **A month alone is the 1st of it.** `@nov` is 1 November, both years, and typing a day narrows it.
+  The alternative is "Invalid date" in front of a reader who is spelling `nov 3` correctly, for
+  every keystroke until the day lands.
+- **A year is the year it says.** `@nov 3 198` is the year 198, and `@nov 3 0026` is the year 26. No
+  century is assumed and no digits are added, which is what keeps every keystroke of `1985` a row of
+  its own rather than three refusals followed by an answer.
+- **Two digits are read both ways**, since two digits are the one length with something to complete:
+  as typed, and with the current century in front. `@nov 3 26` is 2026 and 26, the century first,
+  because that is what a two-digit year nearly always means and the first row is the one Enter
+  takes.
+- **A day the month does not have drops its row**, and a query whose rows all drop has nothing to
+  show. `@feb 30` is not a date in any year.
+- **A month answers to any prefix of its name**, one letter up, in any case, and every month a
+  prefix names gets rows. `@n 3` and `@3 n` are November; `@j` is January, June and July, six rows
+  with the years. They are paired month by month, forward then back, the way the words layer pairs
+  `3 weeks` on and back, and the day column is what tells them apart. A minimum length was tried on
+  paper and cut: it made `@j` nothing at all, when three months is a list a reader can read.
+- **A prefix of digits alone is not a month.** Japanese, Korean and Chinese name their months
+  `1月`…`12月`, and without this rule `@3` would stop meaning three days on for every reader of
+  those languages. `@3月 4` still reads, because the prefix carries the character that makes it a
+  month name.
+- **A bare day is not a date.** `@3` is three days on, three weeks on and ten more rows, exactly as
+  it is today. The month has to be there for the day to be a day.
+- **Spacing and zeros are forgiving.** `@NOV 3`, `@nov  3` and `@nov 03` all read as 3 November, and
+  a trailing space changes nothing: `@nov 3 ` shows the rows `@nov 3` shows. A terminal date has
+  nothing to chain, so there is no Accept row and no "and then what" — the space rule that governs
+  tokens does not reach here.
+- **Nothing else is read.** No ordinals (`@nov 3rd` — a second number grammar, and English-only), no
+  year first (`@2026 nov 3`), no numeric dates (`@11/3` — the order would have to be guessed, and a
+  reader typing a full numeric date has already finished writing it), and no step after it. A query
+  carrying anything outside this grammar is not an explicit date, which is the safety the word table
+  has for the same reason.
+
+### A bad day is an invalid date, not a bad count
+
+`@nov 0`, `@nov 32`, `@0 nov`, `@32 nov` and `@feb 30` all read "Invalid date". That needs saying
+because the reason a row gives is already branched: `countRefused()` fires on a leading number
+outside 1…999 whatever follows it, so `@0 nov` would announce "Only counts up to 999" about a number
+the reader typed as a day. The count message belongs to a query that is a count, which this one is
+not.
+
+### Which month names are typable
+
+Four lists, all handed to the module as data:
+
+- the locale's long names, `moment.months()`;
+- its short ones, `monthsShort()`, whose trailing dot is never required — `нояб` reads as well as
+  `нояб.`;
+- **the form the locale uses inside a date**, which in Russian, Ukrainian and Lithuanian is not the
+  one it lists. Russian lists `ноябрь` and writes `3 ноября`; Lithuanian lists `lapkritis` and
+  writes `lapkričio`. The row shows the written form, so without this a reader who types back what
+  they are looking at fails on the last letter;
+- English, long and short, always. The codes elsewhere in this language are ASCII — `@+3Fri` is
+  `@+3Fri` in Japanese — and a month name in one of the thirteen locales is not a prefix of a
+  different month in another, so accepting both costs nothing.
+
+A name containing a space cannot be typed, since the grammar splits on spaces. None of the thirteen
+locales has one; Vietnamese, which writes `tháng 11`, would be the case that needs a different
+answer, and it can have one when it arrives.
+
+### It is the end of a query
+
+An explicit date is terminal. Nothing chains onto it: the stored language has no anchor that counts
+from an arbitrary day, and inventing one would change the grammar `data.json` holds for the sake of
+a date that is never stored. So `@nov 3 eow` is not a date, and *the Monday after 3 November* is not
+reachable this way. If it is ever wanted, the way in is an absolute anchor in `quick.ts`, not
+anything in this layer.
+
+Three keys act on the row, and the last is the only character allowed to follow it:
+
+- **Enter** writes the date, through the first format or the one `_` chose.
+- **Tab fills in what is missing.** `@nov 3` and Tab leaves `@nov 3 2026` in the note with one row
+  under it; on a month-alone row it fills in the day as well, so `@nov` and Tab leaves `@nov 1
+  2026`. That is what Tab does everywhere else — keep what the reader typed, word for word, and add
+  what was missing — and it is what makes `_` reach a single day. Nothing is left to complete after
+  that, so Tab on the finished row writes. A one-letter month is kept exactly as typed, so `@j 29`
+  and Tab leaves `@j 29 2027` — a query that still names three months, since filling in the year adds
+  nothing to the letters already there, and it is why the format-switch amendment below only holds
+  after a month of two letters or more.
+- **`_` picks the format**, on the day the highlighted row names — see the amendment below.
+
+Tab leaves no trailing space here, unlike every other completion in the list. Deliberate: a space
+invites another step, and there is none to invite.
+
+### The row
+
+The label is the day spelled out and the right-hand column is its weekday. The keyword column is
+kept and left empty, as on the Accept row: a keyword is the token that produces a row, and this row
+has no token behind it.
+
+```
+@nov 3                                    @nov 3 26
+┌──────────────────────────────────┐      ┌──────────────────────────────────┐
+│ November 3, 2026           Tue   │      │ November 3, 2026           Tue   │
+│ November 3, 2025           Mon   │      │ November 3, 0026           Tue   │
+└──────────────────────────────────┘      └──────────────────────────────────┘
+```
+
+The year is always shown, because the year is exactly what the reader did not type. The weekday
+earns its column for the same reason in reverse: it is the one fact about a named day that cannot be
+read off the query, where a row ending in the date again would say only what is on screen a column
+to its left.
+
+**Both are moment's, so both are localised** — `format("LL")` and `format("ddd")` answer in
+Obsidian's own language, which is why the rows above read `November 3, 2026` rather than
+`3 November 2026`: English is `en`, not `en-gb`. It is also where `moment.weekdays()` already gets
+the generated weekday rows. **This section adds no strings at all**, and so no translation pass.
+
+### Where the rows sit
+
+One rule, and it is not the one this section first carried:
+
+**A named day leads the list only where nothing else answered the query. Where something else did,
+its rows go last.**
+
+What this replaced put a day with a month of two letters or more first, on the grounds that nothing
+else in the language reads those keystrokes. That holds in English and not in every language a
+reader might have: Lithuanian names January `sausis`, so `@3 sa` is both a date and three Saturdays,
+and the date took the Enter key from a row the reader already had. A sweep of all thirteen locales
+found exactly that one collision, which is one more than the old rule survives.
+
+None of the examples changes. `@nov 3`, `@3 dec`, `@feb 29`, `@nov` and `@j` reach no other rows, so
+they are the whole list and lead it. `@3 d` keeps three days on at the top with 3 December beneath
+it, and `@f` keeps the Friday rows first with 1 February last — which is where `@3 n` and `@n 3`
+were asked to be seen.
+
+```
+@f                                @f 3
+┌──────────────────────────────┐  ┌──────────────────────────────┐
+│ Next Friday      +1Fri  18 … │  │ February 3, 2027       Wed   │
+│ Last Friday      -1Fri  11 … │  │ February 3, 2026       Tue   │
+│ …                            │  └──────────────────────────────┘
+│ February 1, 2027        Mon  │
+│ February 1, 2026        Sun  │
+└──────────────────────────────┘
+```
+
+### What the module reads, and what it is handed
+
+`src/typing/absolute.ts` is pure, like `scan.ts` and `words.ts`: a query, today, and the month names
+in, days out.
+
+It owns the English month names itself — data in code, not UI text, exactly as the word table is.
+The reader's own are **handed to it as data**, through `EntryContext`, so the only file that asks
+moment what language it is in stays `date-suggest.ts` and the module can be tested with plain
+strings.
+
+**The whole query, and no first-position gate.** A phrase and a name are matched only while nothing
+before the caret is a finished token, which is what `namesAllowed()` decides. An explicit date needs
+no such gate: it is matched against the whole query, so `@today nov 3` and `@2w nov 3` are not dates
+and nothing has to be taught that they are not.
+
+An explicit row carries its day and nothing else, the way the Accept row does: no rule, so no gloss,
+no keyword, and nothing for `seen` to key on. Two rows of one query cannot name the same day —
+forward and back are different years — and nothing else in the list can reach a day by this route,
+so this source needs no deduplication against the other three.
+
+### Three consequences elsewhere
+
+**The format switch acts on the highlighted row, not on the text before it.** As drafted, `_` was
+read out of the query: the list became the formats for the day *the text* resolved to, and a query
+resolving to more than one day left `_` an ordinary character. An explicit date with no year names
+two days, which is what shows that rule to be the wrong one — the reader has a row highlighted and
+means that one. So `_` completes the highlighted row into the note first, the implicit Tab, and then
+lists the formats for the single day it names: `@nov 3` and `_` becomes `@nov 3 2026_`, with the
+formats for 3 November 2026 under it.
+
+The reading from the text stays, as the floor rather than the rule. A key handler is how `_` is
+caught on a desktop, and a mobile keyboard may never fire one, so `_` has to mean something when it
+simply arrives as text — and what it means is the formats for the day the **first** row names. That
+is the same day the handler would have used until an arrow key moves the highlight, which on mobile
+there is none to move. What goes away is the draft's "exactly one day" test: the first row is always
+a single day, or there is no row and `_` is an ordinary character.
+
+**Task 6 of the plan still builds the version this replaces.** The plan at
+`docs/superpowers/plans/2026-09-14-typed-dates.md` carries `formatEntries()` and `dayFor()` reading `_` out of the text with a "one row, not the first
+row" test, and its tests call `entriesFor("tom_", …)`. That task needs rewriting before it is built,
+not reading around.
+
+**`,` is no longer a candidate for the format character.** The switch's own section floats it as a
+better default than `_`, being unshifted on nearly every layout. The comma after a day spends it:
+`@Nov 3, 2027` has to be typable, and it cannot be if `,` opens the format list. The tolerance is
+worth more than the shift key, since a reader whose format writes `Nov 3, 2027` will type it that
+way, so `,` joins `+`, `-` and the trigger character among the values the format field refuses.
+
+### Files and testing
+
+| File | Role |
+|---|---|
+| `src/typing/absolute.ts` | new — the English month table and the grammar; a query, today and the reader's month names in, days out. Pure |
+| `src/typing/entries.ts` | `months` in `EntryContext`, a fourth source of rows, the `date` row kind, and where a named day's rows sit |
+| `src/editor/date-suggest.ts` | the four month-name lists from moment, the row's two columns, the day and year Tab fills in |
+
+Unit tests on `absolute.ts` carry the weight, a case per rule above: both orders, the two rows and
+which comes first, today counting forward, the nearest 29th of February, a month alone, a one-letter
+prefix and every month it names, a digit-only prefix refused with `1月`…`12月` in the table, a
+declined form matched, a year of one, two, three and four digits and one with a leading zero, a day
+the month does not have, the comma, case, doubled spaces, a trailing space, and the refusals — an
+ordinal, a year first, a bare day, a step after the date.
+
+`entries.ts` gets the row kind, the placement rule — `@nov 3` leading where nothing else answered,
+`@3 d` and `@f` last — the reason on a bad day, and that `@3`, `@3 d` and `@next friday` answer
+exactly as they do today.
 
 ## Writing the date
 
@@ -503,21 +750,23 @@ Front-loaded so there is something to look at before the polish is paid for:
 2. ~~`date-suggest.ts` with the built-in names only, insertion working, fixed `@`.~~ **Done**, and
    looked at: the rows, the space rule, Tab, and the narrowing all came out of that review.
 3. ~~Row layout and wording, against the running build.~~ **Done.**
-4. The words layer, in two halves that do not depend on each other: the generated rows and their
-   ordering flag first, since they need no new strings, then the English word table. Ahead of the
-   two below it, because both of those add strings and the locales are translated once.
-5. The format switch and the footer instructions, on the fixed default, so the character can be
+4. ~~The words layer, in two halves that do not depend on each other: the generated rows, then the
+   English word table.~~ **Done**, both halves, in `cfbf27a`.
+5. Naming the day itself: `absolute.ts` and its tests, then the row and the year Tab fills in. Ahead
+   of the three below it, because it adds no strings either.
+6. The format switch and the footer instructions, on the fixed default, so the character can be
    judged in use before it becomes a setting.
-6. Named dates, once the open topic is settled.
-7. Settings, then i18n, then the twelve other locales last.
+7. Named dates, once the open topic is settled.
+8. Settings, then i18n, then the twelve other locales last.
 
 ## Out of scope
 
 - **Sentences.** `next friday` is read because both words are in a table; `the friday after the
   sprint review` is not, and nothing here guesses at it. See *Saying it in words* for where the
   vocabulary ends.
-- **Months and dates by name** — `in March`, `March 3`. Those name a date rather than an offset, and
-  the language has no way to say one.
+- **Numeric dates, ordinals, and a step after a named day** — `@11/3`, `@nov 3rd`, `@nov 3 eow`.
+  Naming a day is in as of 2026-09-17; *Naming the day itself* is where that grammar stops.
+- **A month as a span** — `in March`, meaning some time in March. This plugin writes days.
 - Times. The language has no time units yet; TODO 3 is where that starts.
 - Editing an existing date by typing. That is what the calendar is for.
 - Reading mode, as everywhere else in this plugin.

@@ -100,7 +100,12 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     const today = todayKey();
     const firstDay = firstDayOf(settings.weekStart);
 
-    return entriesFor(context.query, { today, firstDay, names: catalogue(today, firstDay) });
+    return entriesFor(context.query, {
+      today,
+      firstDay,
+      months: monthNames(),
+      names: catalogue(today, firstDay),
+    });
   }
 
   renderSuggestion(entry: Entry, el: HTMLElement): void {
@@ -122,9 +127,9 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     el.createSpan({ cls: `kalendae-suggest-label${accepting}`, text: labelFor(entry) });
     el.createSpan({
       cls: "kalendae-suggest-keyword",
-      text: entry.kind === "accept" ? "" : entry.keyword,
+      text: entry.kind === "accept" || entry.kind === "date" ? "" : entry.keyword,
     });
-    el.createSpan({ cls: `kalendae-suggest-day${accepting}`, text: dayText(entry.day) });
+    el.createSpan({ cls: `kalendae-suggest-day${accepting}`, text: trailingText(entry) });
   }
 
   /**
@@ -147,11 +152,12 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     const range = this.range;
     if (range === null) return;
 
-    // Tab completes, except on the row that is already complete: there is
-    // nothing to add to `@Sun `, so the key writes the date rather than the
-    // same text over again.
-    if (evt instanceof KeyboardEvent && evt.key === "Tab" && entry.kind !== "accept") {
-      this.complete(entry, range);
+    // Tab completes, except on a row with nothing left to add: there is nothing
+    // to put after `@Sun ` or `@nov 3 2026`, so the key writes the date rather
+    // than the same text over again.
+    const completion = completionOf(entry);
+    if (evt instanceof KeyboardEvent && evt.key === "Tab" && completion !== null) {
+      this.complete(completion, range);
       return;
     }
 
@@ -177,13 +183,15 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
    * keeps whatever the reader has already typed word for word and puts the new
    * token after it, so `@today ` plus a step is `@today +1d ` and not `@+1d `.
    * The trailing space is the invitation — `onTrigger` runs again on the change
-   * and the menu comes back offering what can follow.
+   * and the menu comes back offering what can follow. A named day is the
+   * exception that leaves none: a space invites a step, and a named day takes
+   * none.
    */
-  private complete(entry: Extract<Entry, { kind: "named" | "step" }>, range: WriteRange): void {
+  private complete(completion: string, range: WriteRange): void {
     const editor = this.context?.editor;
     if (editor === undefined) return;
 
-    const text = `${TRIGGER}${entry.complete}`;
+    const text = `${TRIGGER}${completion}`;
     const from = editor.posToOffset(range.start);
 
     editor.replaceRange(text, range.start, range.end);
@@ -260,6 +268,38 @@ interface Chooser {
 
 /** Fixed until the settings land. */
 const TRIGGER = "@";
+
+/**
+ * Every spelling each month answers to in the reader's own language, January
+ * first.
+ *
+ * Three forms, and the third is the one that is easy to miss. Russian lists
+ * `ноябрь` and writes `3 ноября`; Lithuanian lists `lapkritis` and writes
+ * `lapkričio`. The row shows the written form, so without it a reader typing
+ * back what they are looking at fails on the last letter. moment gives it up to
+ * `months()` when it is handed the format the name would be written in, which is
+ * all `D MMMM` is doing: no date is rendered, the day only tells the locale
+ * which of its two lists to answer from. Formatting a real date and stripping
+ * the number off the front gives the same answer in every language this plugin
+ * ships and a wrong one wherever moment writes digits outside ASCII: Obsidian
+ * speaks Arabic where Kalendae does not, and there the `١` survives the strip
+ * and sits on the front of all twelve names.
+ *
+ * English is not here. `absolute.ts` carries it, because it is a table in code
+ * rather than anything the reader's language decides.
+ *
+ * Rebuilt on every call, deliberately. Three lists are a fraction of what
+ * one keystroke already costs — `catalogue()` reads some forty strings and
+ * `entriesFor` resolves every row through moment — and a cache would have to
+ * be keyed on `moment.locale()`, since the reader can change Obsidian's
+ * language with the app running. State to save microseconds is a bad trade.
+ */
+function monthNames(): string[][] {
+  const short = moment.monthsShort();
+  const inDate = moment.months("D MMMM");
+
+  return moment.months().map((name, month) => [name, short[month], inDate[month]]);
+}
 
 /**
  * Every named date the list offers, curated first.
@@ -357,8 +397,20 @@ function unitRows(): NamedDate[] {
 function labelFor(entry: Exclude<Entry, { kind: "invalid" }>): string {
   if (entry.kind === "named") return entry.label;
   if (entry.kind === "accept") return t("typing.accept");
+  if (entry.kind === "date") return moment.utc(entry.day).format("LL");
 
   return stepGloss(lastStep(entry.rule));
+}
+
+/**
+ * What Tab would write, or null on a row that is already whole.
+ *
+ * The Accept row is whole by definition, and a named day is whole once its year
+ * is in the text: `@nov 3` fills in the year, `@nov` fills in the day as well,
+ * and `@nov 3 2026` has nothing left to fill in.
+ */
+function completionOf(entry: Exclude<Entry, { kind: "invalid" }>): string | null {
+  return entry.kind === "accept" ? null : entry.complete;
 }
 
 /**
@@ -387,7 +439,16 @@ function capitalised(label: string): string {
   return label.charAt(0).toLocaleUpperCase() + label.slice(1);
 }
 
-/** The day on a row, short enough to sit at the end of it. */
-function dayText(day: DayKey): string {
-  return moment.utc(day).format("D MMM");
+/**
+ * The right-hand column: the day a row lands on, or its weekday where the row
+ * is the day.
+ *
+ * A named day has already said its date in the label, where every other row
+ * says a name or a step. The weekday is the one thing about it the reader
+ * cannot read off what they typed, which is what earns it the space.
+ */
+function trailingText(entry: Exclude<Entry, { kind: "invalid" }>): string {
+  const on = moment.utc(entry.day);
+
+  return entry.kind === "date" ? on.format("ddd") : on.format("D MMM");
 }

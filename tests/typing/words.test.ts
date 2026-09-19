@@ -1,4 +1,4 @@
-import { rulesFromWords } from "../../src/typing/words";
+import { countRefused, rulesFromWords } from "../../src/typing/words";
 
 /**
  * The English word table. Everything here returns rule tails — the stored
@@ -154,5 +154,34 @@ describe("rulesFromWords", () => {
     expect(rulesFromWords("the friday after the sprint review")).toEqual([]);
     expect(rulesFromWords("lunch")).toEqual([]);
     expect(rulesFromWords("in three lunches")).toEqual([]);
+  });
+});
+
+describe("countRefused", () => {
+  it("refuses a count out of range, with or without a lead", () => {
+    expect(countRefused("in 1000 days")).toBe(true);
+    expect(countRefused("1000")).toBe(true);
+  });
+
+  it("refuses a count out of range with a trail on the end", () => {
+    expect(countRefused("1000 days ago")).toBe(true);
+    expect(countRefused("1000 weeks back")).toBe(true);
+    expect(countRefused("0 days ago")).toBe(true);
+  });
+
+  it("does not refuse a trail with nothing in front of it", () => {
+    expect(countRefused("1000 back")).toBe(false);
+    expect(countRefused("1000 ago")).toBe(false);
+    expect(countRefused("0 back")).toBe(false);
+  });
+
+  it("does not mistake a day for a count", () => {
+    expect(countRefused("0 nov")).toBe(false);
+    expect(countRefused("nov 0")).toBe(false);
+  });
+
+  it("leaves an in-range number alone, whatever follows it", () => {
+    expect(countRefused("32 nov")).toBe(false);
+    expect(countRefused("in 3 weeks")).toBe(false);
   });
 });

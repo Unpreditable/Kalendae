@@ -22,6 +22,23 @@
 
 ---
 
+## Status, 2026-09-17
+
+**All three tasks are built and committed** in `cfbf27a`. What shipped differs from this plan in
+places, because it was reviewed and then tested by hand:
+
+- Names and phrases are gated on the whole head rather than word by word, so `@next friday ` is a
+  date rather than an invalid row.
+- A count with no direction offers both ways, paired subject by subject — in the token spelling too,
+  so `@2w` is two weeks on and two weeks back.
+- `this Friday` is generated only on Fridays, and two weekday rows landing on one day collapse.
+- `from now` was dropped; number words answer from two letters; a refused count says so in its own
+  row; the weekday rows run from the reader's own first day of the week.
+
+The spec is the current record of behaviour, not this file.
+
+---
+
 ### Task 1: Rows for every weekday and unit, in every language
 
 The catalogue has next Monday and next Friday and nothing for the other five days. These rows fill that in without a single new preset or string: the labels are the glosses the settings builder already reads rules back with, and the day names come from moment.
@@ -35,13 +52,13 @@ The catalogue has next Monday and next Friday and nothing for the other five day
 - Consumes: `NamedDate` and `entriesFor` as they stand.
 - Produces: no new exports. `catalogue()` returns the curated presets first and the generated rows after, and array order is what puts them there — see the note at the end of this task.
 
-- [ ] **Step 1: Confirm the assumption the whole task rests on**
+- [x] **Step 1: Confirm the assumption the whole task rests on**
 
 Open a vault, switch Obsidian's language (Settings → About → Language) to one with different day names — Russian, French or Japanese — and open the calendar. If the grid's day headings are in that language, `moment.weekdays()` follows Obsidian's setting and this task works as written.
 
 If they come back in English, **stop and report**: the generated labels would be English in every language, which is not the feature. The fallback would be `moment.locale(getLanguage())` before reading, which is a change to make deliberately rather than quietly.
 
-- [ ] **Step 2: Write the failing test for duplicate names**
+- [x] **Step 2: Write the failing test for duplicate names**
 
 Two named rows can now hold the same rule — Tomorrow is `+1d` and the generated "1 day on" is `+1d` — and nothing deduplicates named rows against each other today. Append to `tests/typing/entries.test.ts`:
 
@@ -61,12 +78,12 @@ it("lists one row when two names hold the same rule, the first one", () => {
 });
 ```
 
-- [ ] **Step 3: Run it to verify it fails**
+- [x] **Step 3: Run it to verify it fails**
 
 Run: `npx jest tests/typing/entries.test.ts -t "two names hold the same rule"`
 Expected: FAIL — three rows come back, "1 day on" among them.
 
-- [ ] **Step 4: Deduplicate named rows, and share one set across the whole list**
+- [x] **Step 4: Deduplicate named rows, and share one set across the whole list**
 
 In `src/typing/entries.ts`, replace the `claimed` handoff with a single set threaded through all three sources. `namedEntries` and `stepEntries` each take it and add to it:
 
@@ -110,12 +127,12 @@ function stepEntries(query: string, context: EntryContext, seen: Set<string>): E
 
 Delete the `const seen = new Set(claimed);` line inside it and the `claimed` construction in `entriesFor`.
 
-- [ ] **Step 5: Run the whole entries suite**
+- [x] **Step 5: Run the whole entries suite**
 
 Run: `npx jest tests/typing/entries.test.ts`
 Expected: PASS, every existing case included — the collapse of "End of this month" and `EoM` now happens through the shared set rather than the handoff, and its test should not have changed.
 
-- [ ] **Step 6: Generate the rows**
+- [x] **Step 6: Generate the rows**
 
 In `src/editor/date-suggest.ts`, replace `catalogue()`:
 
@@ -179,7 +196,7 @@ function unitRows(): NamedDate[] {
 
 Add `UNITS` and `WEEKDAYS` to the existing `../picker/quick` import.
 
-- [ ] **Step 7: Build and look**
+- [x] **Step 7: Build and look**
 
 Run: `npm run build` — clean.
 Run: `npm test` — PASS.
@@ -188,7 +205,7 @@ In the app: `@` opens with the eleven curated names and scrolls to the generated
 
 Then switch Obsidian's language and confirm the rows read in it.
 
-- [ ] **Step 8: Propose the commit**
+- [x] **Step 8: Propose the commit**
 
 ```
 feat: offer every weekday and unit in the typed date list
@@ -212,7 +229,7 @@ A closed vocabulary and a three-slot grammar, in a pure module with no wiring. N
 - Consumes: `UNITS`, `WEEKDAYS` and `DAY_WORDS` from `src/picker/quick.ts`. `DAY_WORDS` is private today — export it rather than writing the seven day names a second time.
 - Produces: `rulesFromWords(query: string): string[]` from `src/typing/words.ts`, returning canonical rule **tails** — the stored spelling without the `today ` anchor, e.g. `["+3w"]` — in a stable order, units before weekdays. Empty when the words are not a date.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/typing/words.test.ts`:
 
@@ -327,16 +344,16 @@ describe("rulesFromWords", () => {
 });
 ```
 
-- [ ] **Step 2: Run it to verify it fails**
+- [x] **Step 2: Run it to verify it fails**
 
 Run: `npx jest tests/typing/words.test.ts`
 Expected: FAIL — cannot find module `../../src/typing/words`.
 
-- [ ] **Step 3: Export the day names from quick.ts**
+- [x] **Step 3: Export the day names from quick.ts**
 
 In `src/picker/quick.ts`, `DAY_WORDS` is a private const. Change it to `export const DAY_WORDS` — the word table needs the same seven names, and a second copy is a second thing to be wrong.
 
-- [ ] **Step 4: Write the module**
+- [x] **Step 4: Write the module**
 
 Create `src/typing/words.ts`:
 
@@ -501,7 +518,7 @@ Note on trails: `ago`, `back` and `from now` are matched by prefix like every ot
 
 Note on `UNITS`: the import is there so the unit order is the language's own rather than this file's. If `UNIT_WORDS` and `UNITS` ever disagree, `UNITS` is right — add an assertion in the test rather than reordering by hand.
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `npx jest tests/typing/words.test.ts`
 Expected: PASS.
@@ -509,7 +526,7 @@ Expected: PASS.
 Run: `npm test` and `npm run build`
 Expected: PASS and clean. Nothing in the app has changed yet — this module has no caller.
 
-- [ ] **Step 6: Propose the commit**
+- [x] **Step 6: Propose the commit**
 
 ```
 feat: read English date phrases into rules
@@ -529,7 +546,7 @@ feat: read English date phrases into rules
 - Consumes: `rulesFromWords` (Task 2), the shared `seen` set (Task 1).
 - Produces: no new exports. Word rows are `kind: "step"` rows — they carry a rule, they are labelled by its gloss, and Tab writes their canonical spelling.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/typing/entries.test.ts`:
 
@@ -583,12 +600,12 @@ describe("words", () => {
 });
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 Run: `npx jest tests/typing/entries.test.ts -t words`
 Expected: FAIL — every query comes back as the invalid row.
 
-- [ ] **Step 3: Add the source**
+- [x] **Step 3: Add the source**
 
 In `src/typing/entries.ts`, import `rulesFromWords` and put the words between the names and the steps:
 
@@ -630,7 +647,7 @@ function wordEntries(query: string, context: EntryContext, seen: Set<string>): E
 }
 ```
 
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `npx jest tests/typing/entries.test.ts`
 Expected: PASS, the whole file.
@@ -638,7 +655,7 @@ Expected: PASS, the whole file.
 Run: `npm test` and `npm run build`
 Expected: PASS and clean.
 
-- [ ] **Step 5: Look at it**
+- [x] **Step 5: Look at it**
 
 In the app: `@next friday`, `@last friday`, `@in three weeks`, `@3 months ago`, `@in 200 days`, `@2 weeks from now`. Then the ones that must stay invalid: `@next 3 weeks`, `@this month`, `@week`, `@last friday ago`, `@the friday after the sprint review`.
 
@@ -646,7 +663,7 @@ Then the chain: `@next friday` → Tab → the note holds `@+1Fri ` with Accept 
 
 And the collapse: `@in a month`, `@in 1 month`, `@next month` each show one `+1M` row, while Start of next month keeps its own row as `+1M SoM`.
 
-- [ ] **Step 6: Propose the commit**
+- [x] **Step 6: Propose the commit**
 
 ```
 feat: type a date in words

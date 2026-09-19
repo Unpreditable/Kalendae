@@ -185,11 +185,20 @@ function numberWord(word: string): number | undefined {
 }
 
 /**
- * Whether the only thing wrong with these words is how big the number is.
+ * Whether the only thing wrong with these words is how big the number is —
+ * and only where what follows it is a subject a count could take.
  *
  * `in 1000 days` is a phrase the reader got right and a number the rules cannot
  * take. Saying so is worth a row of its own: "Invalid date" sends them looking
- * for a spelling mistake that is not there.
+ * for a spelling mistake that is not there. `0 nov` is a day no month has, not
+ * a count of Novembers, and the count message would send the reader hunting
+ * for a spelling mistake in a number they meant as a day.
+ *
+ * A trail on the end is dropped first, the same way `trailReadings` drops one —
+ * matched by prefix against `TRAILS` — because what is left after the count is
+ * a single word answering to a subject, not a phrase. Without this, `1000 days
+ * ago` handed `subjects()` the two words joined, which answers to nothing and
+ * reads as "Invalid date" instead of the count refusal it is.
  */
 export function countRefused(query: string): boolean {
   const words = split(query);
@@ -199,8 +208,26 @@ export function countRefused(query: string): boolean {
   if (!/^[0-9]+$/.test(head)) return false;
 
   const value = Number(head);
+  if (value >= 1 && value <= 999) return false;
 
-  return value < 1 || value > 999;
+  return subjects(dropTrail(rest.slice(1)).join(" "), false, false).length > 0;
+}
+
+/**
+ * The words with a trailing trail word removed, matched by prefix like `trailReadings`
+ * matches one.
+ *
+ * Only when there would be a word left in front of it: a trail with nothing before it is
+ * not a count phrase with a direction, it is not a phrase at all. Dropping it anyway left
+ * `subjects("")` naming every subject there is, so `1000 back`, `1000 ago` and `0 back`
+ * read as the count refusal instead of "Invalid date".
+ */
+function dropTrail(words: string[]): string[] {
+  if (words.length <= 1) return words;
+
+  const tail = words[words.length - 1];
+
+  return Object.keys(TRAILS).some((trail) => trail.startsWith(tail)) ? words.slice(0, -1) : words;
 }
 
 /**
