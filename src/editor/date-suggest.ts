@@ -58,6 +58,20 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
 
       return false;
     });
+
+    // The format character asks the third question — "this date, written which
+    // way" — and it asks it of the row the reader has arrowed to, which is why
+    // it goes through the chooser rather than reading the text. Null modifiers
+    // rather than none: `_` is shifted on most layouts, and the character Task
+    // 7 makes settable may be shifted on some and not others.
+    this.scope.register(null, FORMAT_CHAR, (event) => {
+      const chooser = this.chooser();
+      if (chooser === null) return true;
+
+      chooser.useSelectedItem(event);
+
+      return false;
+    });
   }
 
   /**
@@ -100,11 +114,32 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     const today = todayKey();
     const firstDay = firstDayOf(settings.weekStart);
 
+    // Said here rather than once in the constructor: the last row depends on
+    // how many formats are configured, and settings change under a running
+    // plugin. `setInstructions` is a method, and this is the one place the
+    // settings are already to hand on every keystroke.
+    //
+    // One word each. The four sit on a single line and the line sets the
+    // popup's width, so "to insert the date" made the list half again as wide
+    // as the rows it was describing.
+    this.setInstructions([
+      { command: "↑↓", purpose: t("typing.instructions.navigate") },
+      { command: "↵", purpose: t("typing.instructions.accept") },
+      // The word, not `⇥`: the glyph reads as an indent, where Obsidian's own
+      // suggesters happily spell `esc` out beside `↑↓` and `↵`.
+      { command: "Tab", purpose: t("typing.instructions.complete") },
+      ...(settings.formats.length < 2
+        ? []
+        : [{ command: FORMAT_CHAR, purpose: t("typing.instructions.format") }]),
+    ]);
+
     return entriesFor(context.query, {
       today,
       firstDay,
       months: monthNames(),
       names: catalogue(today, firstDay),
+      formats: settings.formats,
+      formatChar: FORMAT_CHAR,
     });
   }
 
@@ -113,6 +148,15 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       const text = entry.reason === "count" ? t("typing.countTooBig") : t("typing.invalid");
 
       el.createSpan({ cls: "kalendae-suggest-invalid", text });
+      return;
+    }
+
+    // One column, because the row is the day. A keyword column would hold the
+    // pattern, which is the thing the reader is being shown an example of
+    // instead, and a day column would say the date a second time.
+    if (entry.kind === "format") {
+      el.addClass("kalendae-suggest-row");
+      el.createSpan({ cls: "kalendae-suggest-label", text: entry.text });
       return;
     }
 
@@ -144,13 +188,21 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     const context = this.context;
     if (context === null) return;
 
+    const range = this.range;
+    if (range === null) return;
+
+    // Before the invalid row is dismissed, because the character has to reach
+    // the note even where there is no date to act on: the handler has already
+    // swallowed the keypress.
+    if (evt instanceof KeyboardEvent && evt.key === FORMAT_CHAR) {
+      this.switchFormat(entry, range);
+      return;
+    }
+
     if (entry.kind === "invalid") {
       this.close();
       return;
     }
-
-    const range = this.range;
-    if (range === null) return;
 
     // Tab completes, except on a row with nothing left to add: there is nothing
     // to put after `@Sun ` or `@nov 3 2026`, so the key writes the date rather
@@ -167,7 +219,9 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       editor.getValue(),
       from,
       editor.posToOffset(range.end),
-      this.settings().formats[0].pattern,
+      // A format row was chosen for its pattern, which is the whole point of
+      // it. Every other row takes the first format, as the insert command does.
+      entry.kind === "format" ? entry.pattern : this.settings().formats[0].pattern,
       entry.day,
     );
 
@@ -187,6 +241,27 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
    * exception that leaves none: a space invites a step, and a named day takes
    * none.
    */
+  /**
+   * Completes the highlighted row into the note and opens the formats on it.
+   *
+   * The completion is trimmed, where Tab leaves its trailing space: a space
+   * invites another step, and the format character ends the query rather than
+   * continuing it. A row with nothing left to complete — Accept, a finished
+   * named day — keeps the text as it stands, and so does a query with nothing
+   * to act on. With one format configured, or on the invalid row, the character
+   * is simply written as the ordinary character it is, and the list answers
+   * whatever that text means.
+   */
+  private switchFormat(entry: Entry, range: WriteRange): void {
+    const query = this.context?.query ?? "";
+    const completion =
+      this.settings().formats.length < 2 || entry.kind === "invalid"
+        ? query
+        : (completionOf(entry) ?? query).trimEnd();
+
+    this.complete(`${completion}${FORMAT_CHAR}`, range);
+  }
+
   private complete(completion: string, range: WriteRange): void {
     const editor = this.context?.editor;
     if (editor === undefined) return;
@@ -268,6 +343,9 @@ interface Chooser {
 
 /** Fixed until the settings land. */
 const TRIGGER = "@";
+
+/** The same, for the character that turns a date into the list of formats. */
+const FORMAT_CHAR = "_";
 
 /**
  * Every spelling each month answers to in the reader's own language, January
@@ -390,11 +468,18 @@ function unitRows(): NamedDate[] {
 }
 
 /**
+ * A row drawn in columns, which is every row but the two that are one span:
+ * the invalid row and a format, both of which `renderSuggestion` answers and
+ * returns on before it reaches any of this.
+ */
+type Drawn = Exclude<Entry, { kind: "invalid" } | { kind: "format" }>;
+
+/**
  * What a row reads as: a name says its own name, a step says the step it would
  * add, and the row that takes the date as it stands says so in words — its
  * keyword column is empty, and "Sun" alone does not read as an answer.
  */
-function labelFor(entry: Exclude<Entry, { kind: "invalid" }>): string {
+function labelFor(entry: Drawn): string {
   if (entry.kind === "named") return entry.label;
   if (entry.kind === "accept") return t("typing.accept");
   if (entry.kind === "date") return moment.utc(entry.day).format("LL");
@@ -407,10 +492,14 @@ function labelFor(entry: Exclude<Entry, { kind: "invalid" }>): string {
  *
  * The Accept row is whole by definition, and a named day is whole once its year
  * is in the text: `@nov 3` fills in the year, `@nov` fills in the day as well,
- * and `@nov 3 2026` has nothing left to fill in.
+ * and `@nov 3 2026` has nothing left to fill in. A format row is the end of the
+ * road — it is a date written out, with nothing to add to it — and the invalid
+ * row has nothing to complete either.
  */
-function completionOf(entry: Exclude<Entry, { kind: "invalid" }>): string | null {
-  return entry.kind === "accept" ? null : entry.complete;
+function completionOf(entry: Entry): string | null {
+  return entry.kind === "named" || entry.kind === "step" || entry.kind === "date"
+    ? entry.complete
+    : null;
 }
 
 /**
@@ -447,7 +536,7 @@ function capitalised(label: string): string {
  * says a name or a step. The weekday is the one thing about it the reader
  * cannot read off what they typed, which is what earns it the space.
  */
-function trailingText(entry: Exclude<Entry, { kind: "invalid" }>): string {
+function trailingText(entry: Drawn): string {
   const on = moment.utc(entry.day);
 
   return entry.kind === "date" ? on.format("ddd") : on.format("D MMM");

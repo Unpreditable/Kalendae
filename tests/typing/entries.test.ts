@@ -15,6 +15,8 @@ const context: EntryContext = {
   today: { year: 2026, month: 8, day: 13 },
   firstDay: 0,
   months: [],
+  formats: [{ id: "iso", pattern: "YYYY-MM-DD" }],
+  formatChar: "_",
   names: [
     { label: "Today", rule: null },
     { label: "Tomorrow", rule: "today +1d" },
@@ -464,5 +466,87 @@ describe("a day named outright", () => {
     // A count out of range still says so, which is the row this one borrowed.
     expect(entriesFor("in 1000 days", context)).toEqual([{ kind: "invalid", reason: "count" }]);
     expect(entriesFor("1000", context)).toEqual([{ kind: "invalid", reason: "count" }]);
+  });
+});
+
+const withFormats: EntryContext = {
+  ...context,
+  formats: [
+    { id: "iso", pattern: "YYYY-MM-DD" },
+    { id: "custom-1", pattern: "DD/MM/YYYY" },
+    { id: "custom-2", pattern: "MMM D, YYYY" },
+  ],
+};
+
+describe("the format switch", () => {
+  it("lists the day in every format, in list order", () => {
+    const day = { year: 2026, month: 8, day: 14 };
+
+    expect(entriesFor("tom_", withFormats)).toEqual([
+      { kind: "format", pattern: "YYYY-MM-DD", text: "2026-09-14", day },
+      { kind: "format", pattern: "DD/MM/YYYY", text: "14/09/2026", day },
+      { kind: "format", pattern: "MMM D, YYYY", text: "Sep 14, 2026", day },
+    ]);
+  });
+
+  it("works on a rule as well as a name", () => {
+    expect(entriesFor("2w eow_", withFormats)[0]).toEqual({
+      kind: "format",
+      pattern: "YYYY-MM-DD",
+      text: "2026-10-03",
+      day: { year: 2026, month: 9, day: 3 },
+    });
+  });
+
+  it("takes the first row where a query answers with several", () => {
+    const [first] = entriesFor("e", withFormats);
+
+    expect(first.kind).not.toBe("invalid");
+    expect(entriesFor("e_", withFormats)[0]).toMatchObject({
+      kind: "format",
+      day: first.kind === "invalid" ? null : first.day,
+    });
+  });
+
+  it("takes the nearest year forward where a named day gives two", () => {
+    expect(entriesFor("nov 3_", withFormats)[0]).toEqual({
+      kind: "format",
+      pattern: "YYYY-MM-DD",
+      text: "2026-11-03",
+      day: { year: 2026, month: 10, day: 3 },
+    });
+  });
+
+  it("reads a completed query, which is what the key handler leaves behind", () => {
+    expect(entriesFor("nov 3 2025_", withFormats)[0]).toMatchObject({ text: "2025-11-03" });
+    expect(entriesFor("1d_", withFormats)[0]).toMatchObject({ text: "2026-09-14" });
+  });
+
+  it("narrows the formats by what follows the character", () => {
+    expect(entriesFor("tom_14/", withFormats)).toEqual([
+      {
+        kind: "format",
+        pattern: "DD/MM/YYYY",
+        text: "14/09/2026",
+        day: { year: 2026, month: 8, day: 14 },
+      },
+    ]);
+  });
+
+  it("is an ordinary character when the query does not resolve", () => {
+    expect(entriesFor("nonsense_", withFormats)).toEqual([{ kind: "invalid" }]);
+  });
+
+  it("is an ordinary character when only one format is in the list", () => {
+    const single = { ...withFormats, formats: [{ id: "iso", pattern: "YYYY-MM-DD" }] };
+
+    expect(entriesFor("tom_", single)).toEqual([{ kind: "invalid" }]);
+  });
+
+  it("follows a configured character other than the default", () => {
+    const comma = { ...withFormats, formatChar: "," };
+
+    expect(entriesFor("tom,", comma)).toHaveLength(3);
+    expect(entriesFor("tom_", comma)).toEqual([{ kind: "invalid" }]);
   });
 });

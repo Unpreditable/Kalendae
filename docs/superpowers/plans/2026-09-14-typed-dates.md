@@ -25,13 +25,15 @@
 
 ---
 
-## Status, 2026-09-17
+## Status, 2026-09-18
 
 **Tasks 1-5 are built and committed** in `cfbf27a`, along with the whole of the second plan
 ([2026-09-16-typed-dates-words.md](2026-09-16-typed-dates-words.md)). Their boxes are ticked below.
+The named-day layer shipped in `e7e2d68`.
 
-**Tasks 6, 7 and 8 are outstanding**, and are the next work on this feature. Both 6 and 7 were
-amended after the code they describe had already moved — read the notes inside them rather than the
+**Tasks 6, 7 and 8 are outstanding**, and are the next work on this feature. **Task 6 was rewritten
+on 2026-09-18** against the spec's amended format switch and is the task being built now. Task 7 was
+amended after the code it describes had already moved — read the notes inside it rather than the
 first draft's assumptions.
 
 Task 8 is smaller than it reads: every string that existed on 2026-09-17 is already translated into
@@ -1014,25 +1016,33 @@ style: lay out the rows of the typed date list
 
 ### Task 6: The format switch
 
-`_` after a query that resolves turns the list into that day in each of the formats, in list order. Inert with one format, which is the default.
+The format character after a date turns the list into that day written each way you have configured.
 
-> **Superseded 2026-09-17, do not build as written.** The spec's *Naming the day itself* section
-> changed what `_` does: it acts on the row the reader has highlighted, completing that row into the
-> note first, rather than resolving the text in front of it. Every step below resolves the text and
-> tests `entriesFor("tom_", …)`, and `dayFor`'s "exactly one day" rule is gone with it. Rewrite this
-> task against the spec before touching it; the pieces that still hold are the `format` row kind,
-> `renderPattern` for the row's text, and the footer instructions.
+> **Rewritten 2026-09-18** against the spec's *Three consequences elsewhere*. The first draft read
+> the day out of the text in front of the character and went inert unless exactly one row answered.
+> It acts on the row the reader has **highlighted** instead, which is the only reading that works
+> for a query naming two days — `@nov 3` is two Novembers and the reader means the one they arrowed
+> to.
 
 **Files:**
 - Modify: `src/typing/entries.ts`
-- Modify: `src/editor/date-suggest.ts` (pass the formats and the character in; render and write a format row)
+- Modify: `src/editor/date-suggest.ts`
+- Modify: `src/i18n/locales/en.json`
 - Test: `tests/typing/entries.test.ts` (append a `describe`)
 
 **Interfaces:**
 - `EntryContext` gains `formats: readonly DateFormatEntry[]` and `formatChar: string`.
-- `Entry` gains `{ kind: "format"; pattern: string; text: string; day: DayKey }`, where `text` is the day already rendered through `pattern` — the row shows it and the write uses the pattern.
+- `Entry` gains `{ kind: "format"; pattern: string; text: string; day: DayKey }`, where `text` is
+  the day already rendered through `pattern` — the row shows it and the write uses the pattern.
 
-- [ ] **Step 1: Write the failing test**
+**Two paths to one place.** On a desktop the character is a key: the popup's scope catches it,
+completes the highlighted row into the note and puts the character after it, so `@nov 3` with the
+2025 row lit becomes `@nov 3 2025_`. That is `date-suggest.ts`, and it cannot be tested. When the
+character simply arrives as text — a mobile keyboard may fire no key event at all — it means the day
+the **first** row names. That is `entries.ts`, it is pure, and it carries every rule below. The two
+agree on a desktop, because the handler has just made the first row the highlighted one.
+
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/typing/entries.test.ts`:
 
@@ -1044,7 +1054,6 @@ const withFormats: EntryContext = {
     { id: "custom-1", pattern: "DD/MM/YYYY" },
     { id: "custom-2", pattern: "MMM D, YYYY" },
   ],
-  formatChar: "_",
 };
 
 describe("the format switch", () => {
@@ -1057,14 +1066,35 @@ describe("the format switch", () => {
   });
 
   it("works on a rule as well as a name", () => {
-    const entries = entriesFor("2w eow_", withFormats);
-
-    expect(entries[0]).toEqual({
+    expect(entriesFor("2w eow_", withFormats)[0]).toEqual({
       kind: "format",
       pattern: "YYYY-MM-DD",
       text: "2026-10-03",
       day: { year: 2026, month: 9, day: 3 },
     });
+  });
+
+  it("takes the first row where a query answers with several", () => {
+    const [first] = entriesFor("e", withFormats);
+
+    expect(entriesFor("e_", withFormats)[0]).toMatchObject({
+      kind: "format",
+      day: first.kind === "invalid" ? null : first.day,
+    });
+  });
+
+  it("takes the nearest year forward where a named day gives two", () => {
+    expect(entriesFor("nov 3_", withFormats)[0]).toEqual({
+      kind: "format",
+      pattern: "YYYY-MM-DD",
+      text: "2026-11-03",
+      day: { year: 2026, month: 10, day: 3 },
+    });
+  });
+
+  it("reads a completed query, which is what the key handler leaves behind", () => {
+    expect(entriesFor("nov 3 2025_", withFormats)[0]).toMatchObject({ text: "2025-11-03" });
+    expect(entriesFor("1d_", withFormats)[0]).toMatchObject({ text: "2026-09-14" });
   });
 
   it("narrows the formats by what follows the character", () => {
@@ -1092,26 +1122,35 @@ describe("the format switch", () => {
 });
 ```
 
-Add `formats` and `formatChar` to the shared `context` object at the top of the file — `formats: [{ id: "iso", pattern: "YYYY-MM-DD" }]` and `formatChar: "_"` — so the Task 3 tests keep compiling with the widened type, and the single-format case keeps the switch inert there.
+Add `formats: [{ id: "iso", pattern: "YYYY-MM-DD" }]` and `formatChar: "_"` to the shared `context`
+object at the top of the file, so the earlier tests keep compiling with the widened type and the
+single-format default keeps the switch inert there.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx jest tests/typing/entries.test.ts -t "format switch"`
-Expected: FAIL on the first case — the switch is not read yet, so `tom_` matches no name and produces the invalid row.
+Expected: FAIL on the first case — the switch is not read yet, so `tom_` matches no name and
+produces the invalid row.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
-In `src/typing/entries.ts`, take the switch before anything else in `entriesFor`:
+In `src/typing/entries.ts`, ask the switch first and fall through to the rows as they are today:
 
 ```ts
 export function entriesFor(query: string, context: EntryContext): Entry[] {
   const chosen = formatEntries(query, context);
   if (chosen !== null) return chosen.length === 0 ? [{ kind: "invalid" }] : chosen;
 
-  const named = namedEntries(query, context);
-  ...
+  return ordinaryEntries(query, context);
 }
+```
 
+`ordinaryEntries` is today's body, moved down unchanged. The split is what keeps a second format
+character in the query from being read as a second switch, and it is plainer than recursing with the
+formats emptied — a reader can see that nothing re-enters the switch rather than having to reason
+that it terminates.
+
+```ts
 /**
  * The day in each format, when the query asks for that, and null when it does
  * not ask.
@@ -1142,38 +1181,91 @@ function formatEntries(query: string, context: EntryContext): Entry[] | null {
 }
 
 /**
- * The day a query lands on, or null when it does not land on exactly one.
+ * The day the switch acts on: the first row the text answers with.
  *
- * **One row, not the first row.** A name matches on any of its words and a
- * phrase matches whatever it matches, so `@e` is four dates and `@in 3 ` is
- * twelve: taking the first would have `@e_` quietly offering to format End of
- * this week. The switch is for a query that has already resolved, so anything
- * still ambiguous leaves `_` an ordinary character.
+ * The first row, not the only row. On a desktop the character is a key, and by
+ * the time this reads the text the handler has already completed the
+ * highlighted row into it — so the first row is that row. Where no key event
+ * ever arrives, as on a mobile keyboard, the first row is the one Enter would
+ * have taken anyway. Either way it is a single day, which is what the earlier
+ * draft's "exactly one row" test was reaching for and refused too much to get:
+ * it left `@e_` and `@nov 3_` inert.
  */
 function dayFor(query: string, context: EntryContext): DayKey | null {
-  const rows = entriesFor(query, { ...context, formats: [] }).filter(
-    (entry) => entry.kind !== "invalid",
-  );
+  const [first] = ordinaryEntries(query, context);
 
-  return rows.length === 1 ? rows[0].day : null;
+  return first.kind === "invalid" ? null : first.day;
 }
 ```
 
-`dayFor` recurses with the formats emptied, which is what stops a second `_` in the query from being read as another switch. Import `renderPattern` and `DateFormatEntry` from `../detect/formats`.
+Import `renderPattern` and `DateFormatEntry` from `../detect/formats`.
 
-Two things this step inherits from work done since the plan was written:
-
-- **The format row is rendered before the `accepting` logic**, not after it — `renderSuggestion` now computes an `accepting` class first, and a format row is neither accepting nor a step.
-- **Tab writes on a format row**, as it does on the Accept row: there is nothing to complete. The branch at `date-suggest.ts` reads `entry.kind !== "accept"` today and wants `entry.kind === "named" || entry.kind === "step"`, which is also what `complete()` now narrows to.
-
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `npx jest tests/typing/entries.test.ts`
-Expected: PASS, Task 3's block included.
+Expected: PASS, every earlier block included.
 
-- [ ] **Step 5: Render and write a format row**
+- [x] **Step 5: The key handler**
 
-In `renderSuggestion`, a format row is one column — the rendered date — with no keyword and no day:
+In `date-suggest.ts`, beside the Tab registration:
+
+```ts
+const FORMAT_CHAR = "_";
+
+this.scope.register(null, FORMAT_CHAR, (event) => {
+  const chooser = this.chooser();
+  if (chooser === null) return true;
+
+  chooser.useSelectedItem(event);
+
+  return false;
+});
+```
+
+`null` modifiers rather than `[]`: the character is shifted on most layouts, and the one Task 7
+makes settable may be shifted on some and not others. The chooser is reused exactly as Tab reuses
+it — `useSelectedItem` hands the event to `selectSuggestion`, which is where the branch goes:
+
+```ts
+if (evt instanceof KeyboardEvent && evt.key === FORMAT_CHAR) {
+  this.switchFormat(entry, range);
+  return;
+}
+```
+
+ahead of the Tab branch, and reached on the invalid row too, so that branch moves above the
+`entry.kind === "invalid"` early return. `switchFormat` writes the row's completion and the
+character in one go, through `complete()`:
+
+```ts
+/**
+ * Completes the highlighted row into the note and opens the formats on it.
+ *
+ * The completion is trimmed, where Tab leaves it with its trailing space: a
+ * space invites another step, and the format character ends the query rather
+ * than continuing it. A row with nothing to complete — Accept, a finished named
+ * day — keeps the text as it stands, and so does a query with nothing to act
+ * on: with one format configured, or on the invalid row, the character is
+ * written as the ordinary character it is and the list answers accordingly.
+ */
+private switchFormat(entry: Entry, range: WriteRange): void {
+  const query = this.context?.query ?? "";
+  const completion =
+    this.settings().formats.length < 2 || entry.kind === "invalid"
+      ? query
+      : (completionOf(entry) ?? query).trimEnd();
+
+  this.complete(`${completion}${FORMAT_CHAR}`, range);
+}
+```
+
+- [x] **Step 6: Render and write a format row**
+
+`getSuggestions` passes the two new fields — `formats: settings.formats` and
+`formatChar: FORMAT_CHAR`.
+
+In `renderSuggestion`, ahead of the `accepting` line, a format row is one column: the rendered date,
+with no keyword and no day. The row *is* the day.
 
 ```ts
 if (entry.kind === "format") {
@@ -1183,53 +1275,53 @@ if (entry.kind === "format") {
 }
 ```
 
-In `selectSuggestion`, a format row writes through its own pattern rather than the first in the list:
+In `selectSuggestion`, the write takes the row's own pattern:
 
 ```ts
 const pattern = entry.kind === "format" ? entry.pattern : this.settings().formats[0].pattern;
 ```
 
-In `getSuggestions`, pass the two new context fields:
+`completionOf` returns null for a format row, so Tab writes rather than completes — there is nothing
+left to add. `labelFor` and `trailingText` are never reached on one.
 
-```ts
-formats: settings.formats,
-formatChar: FORMAT_CHAR,
-```
+- [x] **Step 7: The footer instructions**
 
-with `const FORMAT_CHAR = "_";` beside `TRIGGER`, fixed until Task 7.
-
-- [ ] **Step 6: Add the footer instructions**
-
-In the constructor, after `super(app)`:
+Four rows, from `getSuggestions` where the settings are to hand rather than once in the constructor,
+since the last row depends on how many formats are configured:
 
 ```ts
 this.setInstructions([
   { command: "↑↓", purpose: t("typing.instructions.navigate") },
   { command: "↵", purpose: t("typing.instructions.accept") },
-  { command: FORMAT_CHAR, purpose: t("typing.instructions.format") },
+  { command: "Tab", purpose: t("typing.instructions.complete") },
+  ...(settings.formats.length < 2
+    ? []
+    : [{ command: FORMAT_CHAR, purpose: t("typing.instructions.format") }]),
 ]);
 ```
 
-with the keys and their `_comment` siblings added under `typing` in `en.json`. **Four rows, not three** — Tab arrived after this plan was written and is the least discoverable key in the feature:
+**`Tab` is the word, not `⇥`.** The glyph reads as an indent to most people, and Obsidian's own
+suggesters already spell `esc` out beside `↑↓` and `↵`.
 
-```ts
-{ command: "⇥", purpose: t("typing.instructions.complete") },
-```
+Four strings under `typing.instructions` in `en.json`, each with its `_comment` sibling. They sit in
+a footer a few characters wide: a verb, not a sentence.
 
- Do not show the format row when `settings.formats.length < 2`; `setInstructions` is a method, so call it from `getSuggestions` where the settings are already to hand rather than only once in the constructor.
+- [x] **Step 8: Try it**
 
-- [ ] **Step 7: Try it**
+With two or more formats configured: `@tom` then `_` lists tomorrow written each way, and Enter
+writes the one highlighted. Arrow down to another row before pressing `_` and the formats are for
+**that** day — `@nov 3`, down one, `_` gives 3 November last year. `@nov 3` and `_` with nothing
+moved gives this year. Undo takes the whole thing back to the text as typed. With one format
+configured, `_` is an ordinary character and the row reads Invalid date.
 
-`@tom_` with two or more formats in settings lists the day in each. With one format it does nothing and the row reads Invalid date. Enter on a format row writes that format. Undo takes it all back.
-
-- [ ] **Step 8: Propose the commit**
+- [x] **Step 9: Propose the commit**
 
 ```
 feat: choose the format a typed date is written in
 
 - Type _ after a date to pick from the formats you have configured
+- Show the keys the list answers to in its footer
 ```
-
 ---
 
 ### Task 7: The three settings
@@ -1486,4 +1578,4 @@ chore: translate the typed date strings
 
 1. **`m` means months** in the typed spelling, where the stored grammar reserves it for minutes. There are no times yet and a case rule distinguishing `2m` from `2M` is unguessable. Revisit when TODO 3 lands.
 
-**One thing worth watching in review:** `dayFor` in Task 6 calls `entriesFor` recursively with the formats emptied. That terminates because the recursive call cannot re-enter `formatEntries` — it returns null on `formats.length < 2` — but it is the one place in this plan where a reviewer should check the reasoning rather than the tests.
+**One thing worth watching in review:** Task 6's rule that the format switch acts on the **highlighted** row lives in `date-suggest.ts`, which no test reaches. What the tests cover is the floor beneath it — the character arriving as text takes the first row — so the review checkpoint in that task is where "down one, then `_`" is actually checked.

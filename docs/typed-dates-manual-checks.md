@@ -94,3 +94,26 @@ Reload the plugin, open a scratch note, type each line at the start of a line in
 45. @s - Start of week, Start of month, Start of quarter among the rows
 
 46. @friday - Next Friday and Last Friday, with no on/back pair: pairs are for counts
+
+## The format switch
+
+Add a second date format in settings first — the switch does nothing with one, which is the
+default.
+
+47. @tom then `_` - the list becomes tomorrow written in each format, in the order settings lists them; Enter writes the highlighted one
+
+48. @nov 3, arrow down to last year's row, then `_` - the note reads `@nov 3 2025_` and the formats are for 2025
+
+49. @nov 3 then `_` with nothing moved - this year's November, the row Enter would have taken
+
+50. @e, arrow down to End of month, then `_` - the formats are for the end of the month, not the end of the week
+
+51. @tom then `_` then part of a date, e.g. `14/` - only the formats that start that way stay
+
+52. After a format row is written, Ctrl+Z - one undo brings back the text you typed, `_` and all
+
+53. With one format configured, @tom then `_` - Invalid date, and `_` sits in the note as an ordinary character
+
+54. @xyz then `_` - Invalid date, unchanged; the character goes in as text
+
+55. The footer of the list - `↑↓ navigate`, `↵ insert`, `Tab complete`, and `_ formats` only while two or more formats are configured; all four on one line, and the line no wider than the rows above it

@@ -425,7 +425,17 @@
     "accept_comment": "First row of the date list once a space has been typed after a complete date, e.g. \"@Sun \". The space asks for another step; this row is the way back, and pressing Enter on it writes the date as it already stands. The date itself is shown on the same row, so one word is enough.",
     "accept": "Accept",
     "countTooBig_comment": "The only row in the date list when a number larger than 999 has been typed, e.g. \"@in 1000 days\". It replaces the general \"Invalid date\" row so the reader can see the words were understood and only the number was refused. 999 is the largest the plugin's date rules allow.",
-    "countTooBig": "Only counts up to 999"
+    "countTooBig": "Only counts up to 999",
+    "instructions": {
+      "navigate_comment": "Footer of the date list that opens while typing, beside the up and down arrow glyphs. All four footer labels sit on one line and each one widens the list, so one word, two at the most. A label, not a phrase: no \"to\".",
+      "navigate": "navigate",
+      "accept_comment": "Footer of the date list, beside the Enter glyph: Enter writes the highlighted date into the note. One word if your language has one, two at the most.",
+      "accept": "insert",
+      "complete_comment": "Footer of the date list, beside the word Tab. Tab does not write the date: it fills in the part the reader has not typed and leaves the list open, so \"@nov 3\" becomes \"@nov 3 2026\". One word if your language has one, two at the most.",
+      "complete": "complete",
+      "format_comment": "Footer of the date list, beside the format character (\"_\" by default). Typing it turns the list into the highlighted date written in each of the date formats configured in settings, and it is shown only when two or more are configured. One word if your language has one, two at the most.",
+      "format": "formats"
+    }
   },
   "notices": {
     "noEditor_comment": "Notice shown when the Pick a date command runs somewhere there is no editor to read.",

@@ -1,3 +1,4 @@
+import { DateFormatEntry, renderPattern } from "../detect/formats";
 import { DayKey } from "../picker/month";
 import { Rule, canonicalTyped, parseTyped, resolveRule, suggestionsFor } from "../picker/quick";
 import { absoluteDates } from "./absolute";
@@ -38,6 +39,10 @@ export interface EntryContext {
    * first. Handed through to `absoluteDates`, which adds English itself.
    */
   months: readonly (readonly string[])[];
+  /** The formats a date can be written in, in the order settings lists them. */
+  formats: readonly DateFormatEntry[];
+  /** The character that turns a resolved query into the list of those formats. */
+  formatChar: string;
 }
 
 export type Entry =
@@ -58,12 +63,77 @@ export type Entry =
   // `complete` is null once nothing is missing, which is how Tab knows to write
   // rather than to fill the rest in.
   | { kind: "date"; day: DayKey; complete: string | null }
+  // One day, written one way. `text` is that day already rendered, because the
+  // row shows it and nothing else about the format is worth a column; the
+  // pattern rides along for the write.
+  | { kind: "format"; pattern: string; text: string; day: DayKey }
   // `reason` is the difference between "that is not a date" and "that is a
   // date with a number I cannot take", which are different things to be told.
   | { kind: "invalid"; reason?: "count" };
 
 /**
  * The rows for a query, never empty.
+ *
+ * The format switch is asked first and everything else falls through it, which
+ * is also what keeps a second format character from being read as a second
+ * switch: nothing below here re-enters it.
+ */
+export function entriesFor(query: string, context: EntryContext): Entry[] {
+  const chosen = formatEntries(query, context);
+  if (chosen !== null) return chosen.length === 0 ? [{ kind: "invalid" }] : chosen;
+
+  return ordinaryEntries(query, context);
+}
+
+/**
+ * The day in each format, when the query asks for that, and null when it does
+ * not ask.
+ *
+ * Null rather than an empty list, because "not asking" and "asking and getting
+ * nothing" are different answers: the first falls through to the ordinary rows
+ * and the second is an invalid row. Nothing happens at all with one format in
+ * the list, which is the default — a menu offering one choice is not a choice.
+ */
+function formatEntries(query: string, context: EntryContext): Entry[] | null {
+  if (context.formats.length < 2) return null;
+
+  const at = query.indexOf(context.formatChar);
+  if (at === -1) return null;
+
+  const day = dayFor(query.slice(0, at), context);
+  if (day === null) return null;
+
+  const wanted = query.slice(at + context.formatChar.length).toLowerCase();
+
+  return context.formats.flatMap((format): Entry[] => {
+    const text = renderPattern(format.pattern, day);
+
+    return text.toLowerCase().startsWith(wanted)
+      ? [{ kind: "format", pattern: format.pattern, text, day }]
+      : [];
+  });
+}
+
+/**
+ * The day the switch acts on: the first row the text in front of it answers
+ * with.
+ *
+ * The first row, not the only row. On a desktop the character is a key, and by
+ * the time this reads the text the handler has already completed the
+ * highlighted row into it — so the first row is that row. Where no key event
+ * arrives at all, as on a mobile keyboard, the first row is the one Enter would
+ * have taken anyway. Either way it is a single day, which is what an earlier
+ * draft's "exactly one row" test was reaching for and refused too much to get:
+ * it left the switch inert on every query that answered more than once.
+ */
+function dayFor(query: string, context: EntryContext): DayKey | null {
+  const [first] = ordinaryEntries(query, context);
+
+  return first.kind === "invalid" ? null : first.day;
+}
+
+/**
+ * Every row a query reaches that is not a format.
  *
  * Names are matched first and on the whole query, because a name may contain
  * spaces and so may a chain: `end of` is a name half-typed and `2w Eo` is a
@@ -83,7 +153,7 @@ export type Entry =
  * Nothing here closes the menu. A query that matches nothing is a row saying
  * so, which is what leaves backspace able to repair it.
  */
-export function entriesFor(query: string, context: EntryContext): Entry[] {
+function ordinaryEntries(query: string, context: EntryContext): Entry[] {
   // One set for the whole list rather than one per source. A date can be
   // reached as a name and as tokens — "End of this month" is `EoM` — and
   // whichever reaches it first is the row worth keeping, so the order never has
@@ -390,7 +460,7 @@ function withoutRepeatedWeekdays(entries: Entry[]): Entry[] {
   const taken = new Set<string>();
 
   return entries.filter((entry) => {
-    if (entry.kind === "invalid" || entry.kind === "accept" || entry.kind === "date") return true;
+    if (entry.kind !== "named" && entry.kind !== "step") return true;
     if (entry.rule === null || entry.rule.steps.length !== 1) return true;
     if (entry.rule.steps[0].kind !== "weekday") return true;
 
