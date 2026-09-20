@@ -25,23 +25,25 @@
 
 ---
 
-## Status, 2026-09-18
+## Status, 2026-09-19
 
 **Tasks 1-5 are built and committed** in `cfbf27a`, along with the whole of the second plan
 ([2026-09-16-typed-dates-words.md](2026-09-16-typed-dates-words.md)). Their boxes are ticked below.
 The named-day layer shipped in `e7e2d68`.
 
-**Tasks 6, 7 and 8 are outstanding**, and are the next work on this feature. **Task 6 was rewritten
-on 2026-09-18** against the spec's amended format switch and is the task being built now. Task 7 was
-amended after the code it describes had already moved — read the notes inside it rather than the
-first draft's assumptions.
+**Task 6, the format switch, was rewritten and built on 2026-09-18** and shipped in `45e88af`.
+
+**Tasks 7 and 8 are outstanding.** Task 7 was rewritten on 2026-09-19 after the settings were
+designed in conversation: the trigger is now a phrase of up to three characters, the rows are a
+section of their own, and `commandOnly()` is left alone. Read it rather than remembering the first
+draft.
 
 Task 8 is smaller than it reads: every string that existed on 2026-09-17 is already translated into
 all twelve locales, so it covers only what tasks 6 and 7 add.
 
-One question inside Task 7 is still open and needs Vitaly: `checkTriggerChar` refuses `[` but not
-the other characters `trigger.ts` treats as word-starts — `(`, `{`, `"` and `'`. A trigger of `"`
-would fire after a quote. Decide whether the openers are refused as a group.
+The question that stood open in Task 7 is settled: the openers `(`, `{`, `"` and `'` are **allowed**
+as triggers. They fire more often than anyone wants, but they are unwise rather than broken, and a
+reader who minds can now type two characters instead.
 
 ---
 
@@ -1324,220 +1326,392 @@ feat: choose the format a typed date is written in
 ```
 ---
 
-### Task 7: The three settings
+### Task 7: Typing a date, as a section of settings
+
+Three rows in a new section between *Calendar* and *Sections to scan*, and a reworded notice in the
+section above them.
+
+> **Rewritten 2026-09-19** against the spec's revised *Settings* section. Three things changed and
+> the first draft of this task builds all three the old way: the trigger is **one to three
+> characters**, not one; the rows are a **section of their own**, not the bottom of *Dates in a
+> note*; and `commandOnly()` is **left alone** — the notice it governs is reworded instead. A fourth
+> row, Languages, is designed into the section but belongs to TODO 14 and is not built here.
 
 **Files:**
-- Modify: `src/settings.ts` (`KalendaeSettings`, `DEFAULT_SETTINGS`, `commandOnly`, a new `checkTriggerChar`)
-- Modify: `src/settings/settings-tab.ts` (three rows in the **Dates in a note** group)
+- Modify: `src/settings.ts` (`KalendaeSettings`, `DEFAULT_SETTINGS`, `checkTrigger`, `checkFormatChar`)
+- Modify: `src/typing/trigger.ts` (a trigger of more than one character)
+- Modify: `src/settings/settings-tab.ts` (the new group and its three rows)
 - Modify: `src/editor/date-suggest.ts` (read the settings instead of the two constants)
-- Modify: `src/i18n/locales/en.json`
-- Test: `tests/settings.test.ts` (append a `describe`)
+- Modify: `src/i18n/locales/en.json` (the new strings, and the reworded notice)
+- Test: `tests/settings.test.ts`, `tests/typing/trigger.test.ts`
 
 **Interfaces:**
-- `KalendaeSettings` gains `typeToInsert: boolean`, `typeTrigger: string`, `formatTrigger: string`; defaults `true`, `"@"`, `"_"`.
-- Produces `checkTriggerChar(value: string, other: string): TriggerProblem | null` with `type TriggerProblem = "length" | "letter" | "digit" | "space" | "reserved" | "clash" | "sign"`.
+- `KalendaeSettings` gains `typeToInsert: boolean`, `typeTrigger: string`, `formatTrigger: string`;
+  defaults `true`, `"@"`, `"_"`.
+- `checkTrigger(value: string, formatChar: string): TriggerProblem | null`
+- `checkFormatChar(value: string, trigger: string): TriggerProblem | null`
+- `type TriggerProblem = "length" | "letter" | "digit" | "space" | "reserved" | "sign" | "clash"`
 
-- [ ] **Step 1: Write the failing test**
+Two functions rather than one with a flag: the two fields refuse different things, and a shared
+function taking "which field am I" reads worse than the rules do written out twice.
+
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/settings.test.ts`:
 
 ```ts
-describe("checkTriggerChar", () => {
-  it("accepts a single character that is not a letter, a digit or a space", () => {
-    expect(checkTriggerChar("@", "_")).toBeNull();
-    expect(checkTriggerChar(";", "_")).toBeNull();
-    expect(checkTriggerChar("~", "_")).toBeNull();
+describe("checkTrigger", () => {
+  it("accepts one to three characters that do not begin inside a word", () => {
+    expect(checkTrigger("@", "_")).toBeNull();
+    expect(checkTrigger("@@", "_")).toBeNull();
+    expect(checkTrigger("$%@", "_")).toBeNull();
+    expect(checkTrigger(";;", "_")).toBeNull();
   });
 
-  it("refuses an empty field and anything longer than one character", () => {
-    expect(checkTriggerChar("", "_")).toBe("length");
-    expect(checkTriggerChar("@@", "_")).toBe("length");
+  it("refuses an empty field and anything longer than three characters", () => {
+    expect(checkTrigger("", "_")).toBe("length");
+    expect(checkTrigger("@@@@", "_")).toBe("length");
   });
 
-  it("refuses a letter, in any alphabet, and a digit", () => {
-    expect(checkTriggerChar("a", "_")).toBe("letter");
-    expect(checkTriggerChar("Я", "_")).toBe("letter");
-    expect(checkTriggerChar("7", "_")).toBe("digit");
+  it("refuses a letter or a digit in first position, in any alphabet", () => {
+    expect(checkTrigger("a@", "_")).toBe("letter");
+    expect(checkTrigger("Я", "_")).toBe("letter");
+    expect(checkTrigger("7@", "_")).toBe("digit");
   });
 
-  it("refuses whitespace", () => {
-    expect(checkTriggerChar(" ", "_")).toBe("space");
+  it("allows a letter or a digit after the first character", () => {
+    expect(checkTrigger("@d", "_")).toBeNull();
+    expect(checkTrigger("@1", "_")).toBeNull();
   });
 
-  it("refuses the two characters Obsidian gives its own menu", () => {
-    expect(checkTriggerChar("#", "_")).toBe("reserved");
-    expect(checkTriggerChar("[", "_")).toBe("reserved");
+  it("refuses whitespace anywhere in it", () => {
+    expect(checkTrigger(" ", "_")).toBe("space");
+    expect(checkTrigger("@ @", "_")).toBe("space");
   });
 
-  it("refuses the character an explicit date spends", () => {
-    expect(checkTriggerChar(",", "_")).toBe("reserved");
+  it("refuses the two characters Obsidian gives its own menu, in first position only", () => {
+    expect(checkTrigger("#", "_")).toBe("reserved");
+    expect(checkTrigger("[", "_")).toBe("reserved");
+    expect(checkTrigger("@#", "_")).toBeNull();
   });
 
-  it("refuses a sign, which begins a step", () => {
-    expect(checkTriggerChar("+", "_")).toBe("sign");
-    expect(checkTriggerChar("-", "_")).toBe("sign");
+  it("refuses a trigger that uses the format character", () => {
+    expect(checkTrigger("_", "_")).toBe("clash");
+    expect(checkTrigger("@_", "_")).toBe("clash");
   });
 
-  it("refuses the character the other field is already set to", () => {
-    expect(checkTriggerChar("_", "_")).toBe("clash");
-    expect(checkTriggerChar("@", "@")).toBe("clash");
+  it("allows the openers, which are unwise rather than broken", () => {
+    expect(checkTrigger('"', "_")).toBeNull();
+    expect(checkTrigger("(", "_")).toBeNull();
   });
 });
 
-describe("commandOnly", () => {
-  it("counts typing as a way in", () => {
-    const off = { ...DEFAULT_SETTINGS, doubleClick: false, hoverIcon: "off" as const, taskEmoji: false };
+describe("checkFormatChar", () => {
+  it("accepts a single character that is none of the reserved ones", () => {
+    expect(checkFormatChar("_", "@")).toBeNull();
+    expect(checkFormatChar("~", "@")).toBeNull();
+  });
 
-    expect(commandOnly({ ...off, typeToInsert: true })).toBe(false);
-    expect(commandOnly({ ...off, typeToInsert: false })).toBe(true);
+  it("refuses anything but exactly one character", () => {
+    expect(checkFormatChar("", "@")).toBe("length");
+    expect(checkFormatChar("__", "@")).toBe("length");
+  });
+
+  it("refuses a letter, a digit and whitespace", () => {
+    expect(checkFormatChar("a", "@")).toBe("letter");
+    expect(checkFormatChar("7", "@")).toBe("digit");
+    expect(checkFormatChar(" ", "@")).toBe("space");
+  });
+
+  it("refuses the characters Obsidian and the date grammar have already spent", () => {
+    expect(checkFormatChar("#", "@")).toBe("reserved");
+    expect(checkFormatChar("[", "@")).toBe("reserved");
+    expect(checkFormatChar(",", "@")).toBe("reserved");
+    expect(checkFormatChar("+", "@")).toBe("sign");
+    expect(checkFormatChar("-", "@")).toBe("sign");
+  });
+
+  it("refuses a character the trigger is made of, wherever it sits in it", () => {
+    expect(checkFormatChar("@", "@")).toBe("clash");
+    expect(checkFormatChar("%", "$%@")).toBe("clash");
   });
 });
 ```
 
-- [ ] **Step 2: Run it**
-
-Run: `npx jest tests/settings.test.ts`
-Expected: FAIL, `checkTriggerChar is not a function`.
-
-- [ ] **Step 3: Implement**
-
-In `src/settings.ts`:
+And to `tests/typing/trigger.test.ts`:
 
 ```ts
-export type TriggerProblem = "length" | "letter" | "digit" | "space" | "reserved" | "clash" | "sign";
+describe("a trigger of more than one character", () => {
+  it("opens on the whole phrase and reads the query after it", () => {
+    expect(triggerAt("due @@tom", 9, "@@")).toEqual({ from: 4, query: "tom" });
+  });
+
+  it("does not open on a part of it", () => {
+    expect(triggerAt("due @tom", 8, "@@")).toBeNull();
+  });
+
+  it("holds the word-start rule against the first character only", () => {
+    expect(triggerAt("@@tom", 5, "@@")).toEqual({ from: 0, query: "tom" });
+    expect(triggerAt("mail@@tom", 9, "@@")).toBeNull();
+  });
+
+  it("reads a trigger whose later characters are ordinary word characters", () => {
+    expect(triggerAt("due @d3d", 8, "@d")).toEqual({ from: 4, query: "3d" });
+  });
+
+  it("takes the last trigger on the line, not the first", () => {
+    expect(triggerAt("@@one @@two", 11, "@@")).toEqual({ from: 6, query: "two" });
+  });
+});
+```
+
+- [x] **Step 2: Run them**
+
+Run: `npx jest tests/settings.test.ts tests/typing/trigger.test.ts`
+Expected: FAIL, `checkTrigger is not a function`, and the multi-character cases returning null
+because `triggerAt` refuses a trigger that is not exactly one character.
+
+- [x] **Step 3: The settings and their rules**
+
+In `src/settings.ts`, the three fields and their defaults, then:
+
+```ts
+export type TriggerProblem = "length" | "letter" | "digit" | "space" | "reserved" | "sign" | "clash";
 
 /**
- * Whether a character can open something while you type, and why not.
+ * Whether a phrase can open the list while you type, and why not.
  *
- * Letters and digits are out because a trigger inside ordinary words and
- * numbers is noise no word-start rule can clean up. `#` and `[` are out because
- * Obsidian gives both their own menu while you type, and two menus over one
- * caret is a defect rather than a preference. A sign is out because `+` and `-`
- * begin a step. `,` is out because a named day tolerates a comma after its day,
- * so the two cannot both have it. And neither field may hold what the other one
- * holds, which is the only rule here about a pair of settings rather than one.
+ * One to three characters: a trigger is a keystroke or two, not a word. The
+ * rules that matter are all about the **first** character, because that is the
+ * only one the word-start rule ever looks at — a letter or a digit there lands
+ * the trigger inside ordinary words and numbers, which no filtering afterwards
+ * cleans up, and `#` or `[` there collides with a menu Obsidian opens itself.
+ * Later positions are free: the `d` in `@d` and the `#` in `@#` can only ever
+ * appear where `@` already did.
+ *
+ * `(`, `{`, `"` and `'` are allowed although `trigger.ts` treats them as
+ * word-starts, so a trigger of `"` fires after every opening quote. That is
+ * unwise rather than broken, and a field that refuses every unwise value argues
+ * with the reader — who can now type `""` instead.
  */
-export function checkTriggerChar(value: string, other: string): TriggerProblem | null {
+export function checkTrigger(value: string, formatChar: string): TriggerProblem | null {
+  const characters = [...value];
+
+  if (characters.length === 0 || characters.length > 3) return "length";
+  if (/\s/.test(value)) return "space";
+  if (/\p{L}/u.test(characters[0])) return "letter";
+  if (/\p{N}/u.test(characters[0])) return "digit";
+  if (characters[0] === "#" || characters[0] === "[") return "reserved";
+  if (characters.includes(formatChar)) return "clash";
+
+  return null;
+}
+
+/**
+ * Whether a character can turn the open list into the formats, and why not.
+ *
+ * One character, and none of the ones already spoken for. `+` and `-` begin a
+ * step; `,` is tolerated after the day of a named date, so the two cannot both
+ * have it; `#` and `[` are Obsidian's. It also may not be any character the
+ * trigger is made of — stricter than position alone requires, and one sentence
+ * instead of three.
+ */
+export function checkFormatChar(value: string, trigger: string): TriggerProblem | null {
   if ([...value].length !== 1) return "length";
   if (/\s/.test(value)) return "space";
   if (/\p{L}/u.test(value)) return "letter";
   if (/\p{N}/u.test(value)) return "digit";
   if (value === "#" || value === "[" || value === ",") return "reserved";
   if (value === "+" || value === "-") return "sign";
-  if (value === other) return "clash";
+  if ([...trigger].includes(value)) return "clash";
 
   return null;
 }
 ```
 
-`commandOnly` gains one clause:
+**`commandOnly` is not touched.** Its notice is reworded instead — see Step 6. Typing never opens
+the calendar, so counting it as a fourth way in would hide a true notice from someone who switched
+off every way to edit a date and left typing on.
+
+- [x] **Step 4: A trigger of more than one character**
+
+In `src/typing/trigger.ts`, `triggerAt` drops its one-character guard and measures the phrase:
 
 ```ts
-export function commandOnly(settings: KalendaeSettings): boolean {
-  return (
-    !settings.doubleClick &&
-    settings.hoverIcon === "off" &&
-    !settings.taskEmoji &&
-    !settings.typeToInsert
-  );
-}
+if (trigger.length === 0 || caret <= 0) return null;
+
+const from = line.lastIndexOf(trigger, caret - trigger.length);
+if (from === -1) return null;
 ```
 
-Update the comment above `commandOnly` and the `commandOnly` translator comment in `en.json`, both of which name three switches today.
+with the query sliced from `from + trigger.length`. The word-start check is unchanged and still
+reads the character before `from`, which is the rule holding against the phrase's first character
+and nothing else.
 
-- [ ] **Step 4: Add the rows**
+`lastIndexOf` is given `caret - trigger.length` rather than `caret - 1`, so a trigger only counts
+when the whole of it sits before the caret: with `@@` and only `@` typed, there is no trigger yet.
 
-In `src/settings/settings-tab.ts`, in the first group, after the `taskEmoji` row and before `showHoverFrame`:
+- [x] **Step 5: The section and its rows**
+
+In `src/settings/settings-tab.ts`, a new group between the `calendar` group and the `scopes` group:
 
 ```ts
 {
-  name: t("settings.typing.name"),
-  desc: t("settings.typing.desc"),
-  control: {
-    type: "toggle",
-    key: "typeToInsert",
-    defaultValue: DEFAULT_SETTINGS.typeToInsert,
-  },
-},
-{
-  name: t("settings.typeTrigger.name"),
-  desc: t("settings.typeTrigger.desc"),
-  control: {
-    type: "text",
-    key: "typeTrigger",
-    defaultValue: DEFAULT_SETTINGS.typeTrigger,
-    disabled: () => !this.kalendae.settings.typeToInsert,
-    validate: (value: string) => triggerError(value, this.kalendae.settings.formatTrigger),
-  },
-},
-{
-  name: t("settings.formatTrigger.name"),
-  desc: t("settings.formatTrigger.desc"),
-  control: {
-    type: "text",
-    key: "formatTrigger",
-    defaultValue: DEFAULT_SETTINGS.formatTrigger,
-    disabled: () => !this.kalendae.settings.typeToInsert,
-    validate: (value: string) => triggerError(value, this.kalendae.settings.typeTrigger),
-  },
+  type: "group",
+  cls: "kalendae-group",
+  heading: t("settings.typing.heading"),
+  items: [
+    {
+      name: t("settings.typeToInsert.name"),
+      desc: t("settings.typeToInsert.desc", { trigger: this.kalendae.settings.typeTrigger }),
+      control: {
+        type: "toggle",
+        key: "typeToInsert",
+        defaultValue: DEFAULT_SETTINGS.typeToInsert,
+      },
+    },
+    {
+      name: t("settings.typeTrigger.name"),
+      desc: t("settings.typeTrigger.desc"),
+      control: {
+        type: "text",
+        key: "typeTrigger",
+        defaultValue: DEFAULT_SETTINGS.typeTrigger,
+        disabled: () => !this.kalendae.settings.typeToInsert,
+        validate: (value: string) =>
+          problemText(checkTrigger(value, this.kalendae.settings.formatTrigger)),
+      },
+    },
+    {
+      name: t("settings.formatTrigger.name"),
+      desc: t("settings.formatTrigger.desc"),
+      control: {
+        type: "text",
+        key: "formatTrigger",
+        defaultValue: DEFAULT_SETTINGS.formatTrigger,
+        disabled: () => !this.kalendae.settings.typeToInsert,
+        validate: (value: string) =>
+          problemText(checkFormatChar(value, this.kalendae.settings.typeTrigger)),
+      },
+    },
+  ],
 },
 ```
 
 with a module-level helper in the same file:
 
 ```ts
-/** A rejected character, said in the terms the reader can act on. */
-function triggerError(value: string, other: string): string | void {
-  const problem = checkTriggerChar(value, other);
-
+/** A rejected value, said in terms the reader can act on. */
+function problemText(problem: TriggerProblem | null): string | void {
   return problem === null ? undefined : t(`settings.triggerError.${problem}`);
 }
 ```
 
-`validate` returning a non-empty string rejects the change and shows it under the field; returning undefined accepts and persists it. Obsidian also runs `validate` once on mount, so a bad value already in `data.json` shows its message without being rewritten — which is why the suggester validates again when it reads the setting, in the next step.
+`validate` returning a non-empty string rejects the change and shows it under the field; returning
+undefined accepts and persists it. Obsidian runs it once on mount as well, so a bad value already in
+`data.json` shows its message without being rewritten — which is why the suggester validates again
+when it reads the setting, in the next step.
 
-Toggling `typeToInsert` has to re-evaluate `disabled`, so override `setControlValue` the way the tab already does for `commandOnly`: it currently calls `update()` when `commandOnly()` flips, and `typeToInsert` is now one of the four inputs to that, so the existing branch covers it — confirm rather than add a second one.
+**The Languages row is not built here.** It belongs at the end of this group, as a `page` row like
+Quick dates and Sections; TODO 14 is where it is designed.
 
-- [ ] **Step 5: Read the settings in the suggester**
+Toggling `typeToInsert` has to re-evaluate `disabled` on the two fields below it, so the tab's
+`setControlValue` override calls `update()` when that key changes, the way it already does when
+`commandOnly()` flips.
+
+- [x] **Step 6: Read the settings in the suggester**
 
 Replace the two constants in `src/editor/date-suggest.ts`:
 
 ```ts
-/** A character a hand-edited data.json put there is not to be trusted. */
-function triggerChar(settings: KalendaeSettings): string {
-  return checkTriggerChar(settings.typeTrigger, settings.formatTrigger) === null
+/** A value a hand-edited data.json put there is not to be trusted. */
+function triggerOf(settings: KalendaeSettings): string {
+  return checkTrigger(settings.typeTrigger, settings.formatTrigger) === null
     ? settings.typeTrigger
     : DEFAULT_SETTINGS.typeTrigger;
 }
 ```
 
-and the same for the format character, against `DEFAULT_SETTINGS.formatTrigger`.
+and the same shape for the format character against `DEFAULT_SETTINGS.formatTrigger`.
 
-Three details the plan predates:
+Three details:
 
-- **`TRIGGER` has two callers**, not one: `onTrigger` reads it, and `complete()` writes it back into the note. Both must take the validated value, or Tab would write a character the menu no longer opens on.
-- **`onTrigger` must null `this.range`** when `typeToInsert` is off, the same as its other early returns. Leaving a stale range behind is a write aimed at text that has moved.
-- **`checkTriggerChar` refuses `[` but not the other openers.** `trigger.ts` treats `(`, `{`, `"` and `'` as word-starts too, so a trigger of `"` fires after a quote. Decide whether the openers are refused as a group; if they are, the plan's validation test gains one case.
+- **The trigger has two callers**, not one: `onTrigger` reads it, and `complete()` writes it back
+  into the note. Both take the validated value, or Tab would write a phrase the list no longer
+  opens on.
+- **`onTrigger` must null `this.range`** when `typeToInsert` is off, the same as its other early
+  returns. A stale range is a write aimed at text that has moved.
+- **The format character is registered on the popup's scope in the constructor**, where the
+  settings are not yet read on every keystroke, so the registration has to follow the setting.
+  **Rebound, not registered against every key.** This step first proposed a handler on a `null`
+  key comparing the character inside, as the shorter of the two; that handler matches every
+  keypress in the popup, the arrows and Enter that Obsidian's own chooser wants included, and
+  putting that in the way of a working list is not worth the lines it saves. `bindFormatKey` keeps
+  the `KeymapEventHandler` it registered and swaps it when the character changes, from
+  `getSuggestions` — the popup is open there, so no key can have been pressed since the last call.
 
-- [ ] **Step 6: Add the strings**
+- [x] **Step 7: The page of instructions**
 
-`settings.typing.name`/`desc`, `settings.typeTrigger.name`/`desc`, `settings.formatTrigger.name`/`desc`, and `settings.triggerError.length` / `.letter` / `.digit` / `.space` / `.reserved` / `.clash` / `.sign`, each with a `_comment` sibling. The error strings say which rule was broken in plain words, not in the terms of the code: "Letters cannot open the list — they would fire inside ordinary words", and so on.
+Added 2026-09-19, after the rest of the task was built: `@` on its own teaches its own keywords, but
+nothing in the list says that words and named days are read at all.
 
-- [ ] **Step 7: Run everything**
+`src/settings/typing-help-page.ts`, a `SettingPage` like `SectionsPage`, reached from a `page` row
+at the foot of the group. Four numbered steps, the second carrying three example blocks — Shorthand,
+In words, Name the day — and three keys at the foot.
+
+Every example resolves as the page opens, through `parseTyped` and `resolveRule`, so it cannot drift
+from the suggester. The named-day examples cannot go that route — naming a day is not a rule — so
+they compute their own year and take their month names from `moment.monthsShort()`. The trigger and
+the format character come from `triggerOf`/`formatCharOf`, which moved to `settings.ts` so this file
+and `date-suggest.ts` can share them.
+
+The example block is `display: table` on plain divs, **not** a grid. `subgrid` and `display: contents`
+are what a grid would need to line three columns up across rows, and `styles.css` already carries a
+comment saying Obsidian's Chromium supports neither — the format token table hit this first.
+
+Three things the first build of this page got wrong, all found in review and all worth keeping
+written down:
+
+- **A heading's border needs `border-radius: 0` beside it.** `.setting-item` carries
+  `--setting-items-radius`, so a border on a row Obsidian has not squared draws a rounded box
+  rather than a rule. The stylesheet documents this above the settings groups and the page did not
+  follow it.
+- **The examples must hang inside a `Setting`**, not beside one, or they miss the side padding
+  every row has and sit outdented from the heading they belong to.
+- **A named day's row has to show every answer it has.** `@Nov 3` resolves to two dates, and one
+  answer in that column was a lie about a choice the reader still has to make.
+
+- [x] **Step 8: The strings**
+
+New: `settings.typing.heading`, `settings.typeToInsert.name`/`desc`, `settings.typeTrigger.name`/`desc`,
+`settings.formatTrigger.name`/`desc`, and `settings.triggerError.length` / `.letter` / `.digit` /
+`.space` / `.reserved` / `.sign` / `.clash`. Each with a `_comment` sibling. The error strings say
+which rule was broken in plain words — "Letters would open the list inside ordinary words" — not in
+the terms of the code.
+
+Reworded: `settings.commandOnly.name`, which gains "on an existing date" so it stays true beside a
+section that inserts new ones. Its `_comment` is updated to say why the words are there, since a
+translator dropping them makes the sentence wrong rather than clumsy.
+
+- [x] **Step 9: Run everything**
 
 Run: `npm test` — PASS.
 Run: `npm run build` — clean.
 
-In the app: the switch hides the menu entirely; changing the trigger to `;` makes `;tom` work and `@tom` inert; typing a letter into either field shows the message and does not save; setting one field to the other's character is refused from both sides.
+In the app: the switch hides the list entirely and greys the two fields; a trigger of `;;` makes
+`;;tom` work and `@tom` inert; `@@` likewise; typing a letter into either field shows the message
+and does not save, and closing settings leaves the last saved value in force; setting one field to
+collide with the other is refused from both sides.
 
-- [ ] **Step 8: Propose the commit**
+- [ ] **Step 10: Propose the commit**
 
 ```
 feat: settings for typing a date
 
-- Switch typing on or off, and choose the characters that open the list and the formats
+- Switch typing on or off, and set the phrase that opens the list
+- Choose the character that lists a date in your other formats
+- Read how to type a date, with worked examples of all three ways
 ```
-
 ---
 
 ### Task 8: The other twelve locales

@@ -9,8 +9,8 @@
       "heading": "Dates in a note"
     },
     "commandOnly": {
-      "name_comment": "Small line at the top of the 'Dates in a note' section, shown only when both the double-click and the hover icon are switched off, so nothing in a note opens the calendar any more. {{command}} is replaced by the name of the Pick a date command, taken from commands.pickDate so it matches the command palette whatever the command is called — keep the marker, and quote it with your language's quotation marks. Keep 'Note:', or your language's equivalent, as an opener. For 'command palette', use the words your language's Obsidian uses for it. The reader chose this, so word it as a fact, not a warning.",
-      "name": "Note: Only “{{command}}” from the command palette opens the calendar"
+      "name_comment": "Small line at the top of the 'Dates in a note' section, shown only when the double-click, the hover icon and the Tasks emoji are all switched off, so nothing in a note opens the calendar any more. {{command}} is replaced by the name of the Pick a date command, taken from commands.pickDate so it matches the command palette whatever the command is called — keep the marker, and quote it with your language's quotation marks. Keep 'Note:', or your language's equivalent, as an opener. For 'command palette', use the words your language's Obsidian uses for it. 'on an existing date' is load-bearing and must be kept: typing a date is a separate setting that still works, and without those words the sentence is untrue. The reader chose this, so word it as a fact, not a warning.",
+      "name": "Note: Only “{{command}}” from the command palette opens the calendar on an existing date"
     },
     "calendar": {
       "calendar_comment": "Heading of the settings section covering what the calendar itself shows once open.",
@@ -364,6 +364,139 @@
         "cancel": "Cancel",
         "save_comment": "Button that keeps the custom format and closes the dialog. Unavailable while a required part is missing.",
         "save": "Save"
+      }
+    },
+    "typing": {
+      "heading_comment": "Heading of the settings section covering the list of dates that opens while you type. Its own section because it is about writing a date that is not in the note yet, where the 'Dates in a note' section above is about opening the calendar on one already written.",
+      "heading": "Typing a date"
+    },
+    "typeToInsert": {
+      "name_comment": "Settings row label for the switch that turns the typed date list on and off.",
+      "name": "Type to insert",
+      "desc_comment": "Description under that switch. {{trigger}} is replaced by whatever the reader has set as their trigger, which is '@' out of the box — keep the marker. 'at the start of a word' is the rule that keeps the list out of email addresses, so keep it.",
+      "desc": "Type {{trigger}} at the start of a word to pick a date from a list."
+    },
+    "typeTrigger": {
+      "name_comment": "Settings row label for the text field holding the characters that open the list. Deliberately not 'trigger character': it takes up to three.",
+      "name": "Trigger",
+      "desc_comment": "Description under that field. Says what it takes, not what it refuses — the refusals have messages of their own, under settings.triggerError.trigger.",
+      "desc": "Use the trigger to write your date. One to three characters."
+    },
+    "formatTrigger": {
+      "name_comment": "Settings row label for the text field holding the single character that turns the open list into the highlighted date written in each of the configured date formats.",
+      "name": "Format character",
+      "desc_comment": "Description under that field. {{formats}} is replaced by the name of the Date formats section further down the settings, taken from settings.formats.heading so the two always match — keep the marker. The character does nothing while only one format is configured, which is the out-of-the-box state, and the row is shown anyway so it does not appear and vanish as formats are added.",
+      "desc": "Pick one of your {{formats}} for the date you are writing."
+    },
+    "triggerError": {
+      "trigger_comment": "Messages shown under the Trigger field when a value is refused. Each one names what to type instead, so keep the examples: @ ; and // are all valid triggers. One short line — it sits under the field.",
+      "trigger": {
+        "length": "Use one to three characters, like @ or @@",
+        "letter_comment": "The value starts with a letter. The reason, left out of the message: a trigger that starts with a letter would open the list inside ordinary words.",
+        "letter": "Letters cannot start a trigger. Try @ ; or //",
+        "digit_comment": "The value starts with a digit, refused for the same reason as a letter.",
+        "digit": "Digits cannot start a trigger. Try @ ; or //",
+        "space": "Leave out the space",
+        "reserved_comment": "The value starts with # or [, on which Obsidian opens its own tag and link menus while you type. Two menus over one cursor is a defect, so those two are the only characters refused for being Obsidian's.",
+        "reserved": "Obsidian's own menus open on # and [. Try @ ; or //",
+        "clash_comment": "The trigger would use a character the format character is set to. Shown on whichever field is being edited; the same wording appears under the other field.",
+        "clash": "The trigger and the format character cannot share a character"
+      },
+      "format_comment": "Messages shown under the Format character field when a value is refused. Keep the examples: _ ~ and ! are all valid format characters.",
+      "format": {
+        "single": "Use one character, like _ ~ or !",
+        "letter_comment": "The value is a letter, which would be read as part of the date being typed rather than as the character that ends it.",
+        "letter": "A letter would be read as part of the date. Try _ ~ or !",
+        "digit_comment": "The value is a digit, refused for the same reason as a letter.",
+        "digit": "A digit would be read as part of the date. Try _ ~ or !",
+        "space": "Leave out the space",
+        "comma_comment": "The value is a comma, which a typed date may carry after its day — 'Nov 3, 2027' — so the comma cannot also open the format list.",
+        "comma": "A date can carry a comma after its day. Try _ ~ or !",
+        "sign_comment": "The value is + or -, both of which begin a step in the plugin's date language, e.g. '+3d' for three days on.",
+        "sign": "A step in a date starts with + or -. Try _ ~ or !",
+        "clash": "The trigger and the format character cannot share a character"
+      }
+    },
+    "typingHelp": {
+      "heading_comment": "Title of the page explaining how to type a date, and the label of the row that opens it from the Typing a date section.",
+      "heading": "How to type a date",
+      "start": {
+        "name_comment": "Heading of the first step. {{trigger}} is replaced by whatever the reader has set as their trigger, '@' out of the box — keep the marker. Number the steps in your language the way a recipe would.",
+        "name": "Step 1 · Type {{trigger}} to start",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence.",
+        "desc": "a list of suggestions opens, and updates as you type.",
+        "note_comment": "Middle column of the single example under step 1, describing what the trigger on its own does.",
+        "note": "opens the list"
+      },
+      "say": {
+        "name_comment": "Heading of the second step. The three ways it mentions are the three blocks that follow it.",
+        "name": "Step 2 · Specify the date",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence.",
+        "desc": "three ways to do so."
+      },
+      "shorthand": {
+        "name_comment": "Sub-heading over the first of the three ways: the plugin's own compact notation, where 1d is tomorrow and 2w is a fortnight on. Keep it short. Avoid naming it a 'language' — it is a handful of codes.",
+        "name": "Shorthand",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. 'steps chain' means several can follow one another, applied left to right.",
+        "desc": "specify a date via multiple steps.",
+        "eom_comment": "Middle column of the third shorthand example, reading the code 'eom' back in words.",
+        "eom": "end of this month",
+        "chain_comment": "Middle column of the fourth shorthand example, reading '2w EoW' back in words: two weeks forward, then the end of the week that lands in.",
+        "chain": "two weeks on, then the end of that week"
+      },
+      "words": {
+        "name_comment": "Sub-heading over the second of the three ways: ordinary words rather than codes.",
+        "name": "In words",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. The vocabulary is a fixed list, not free text, and saying so keeps a reader from typing a sentence and concluding the feature is broken. The words themselves are English in every language for now.",
+        "desc": "use common phrases. English only."
+      },
+      "named": {
+        "name_comment": "Sub-heading over the third of the three ways: naming the day outright, rather than counting to it.",
+        "name": "By name",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. With no year typed, the plugin offers the nearest such day ahead and the nearest behind.",
+        "desc": "type the date.",
+        "two_comment": "Middle column of the first Name-by-name example, e.g. '@Nov 3'. With no year typed the plugin offers two dates — the nearest 3 November ahead and the nearest behind — and the right-hand column shows both. Say it plainly: this is the one place the page admits the reader still has to choose.",
+        "two": "suggestions will show two dates",
+        "one_comment": "Middle column of the second example, e.g. '@3 Nov 2027'. Typing the year is what reduces the two suggestions above to one, and nothing else on the page says so.",
+        "one": "one date, because you typed the year",
+        "prefix_comment": "Middle column of the third example, e.g. '@ma 13', where the month is only half typed. 'ma' names March and May, so four suggestions appear: two months, each with a year ahead and a year behind. The right-hand column is empty on this row, because four dates do not fit and this line is the answer. 'turned on' refers to the languages setting; write it as the reader's own choice.",
+        "prefix": "a date for each month starting this way, in every language you have turned on"
+      },
+      "format": {
+        "name_comment": "Heading of the third step, which is optional. {{character}} is replaced by whatever the reader has set as their format character, '_' out of the box — keep the marker.",
+        "name": "Step 3 · (Optional) Type {{character}} to write in another date format",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence.",
+        "desc": "the suggestions show you the options."
+      },
+      "accept": {
+        "name_comment": "Heading of the fourth and last step.",
+        "name": "Step 4 · Press Enter",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. 'highlighted' is the row the reader has arrowed to, which is the first row until they move.",
+        "desc": "selects the highlighted row and writes it into your note."
+      },
+      "tips": {
+        "name_comment": "Heading over the short list of keys at the foot of the page.",
+        "name": "Tips",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. It is the one line on the page that says the list is safe to experiment with: what is typed stays text, nothing reaches the note until Enter. 'Enter' is the same key named in step 4 — use the same word.",
+        "desc": "experiment freely, nothing is written until Enter.",
+        "tab": {
+          "key_comment": "Name of the key, in the left column. Use the word your language's Obsidian uses for the Tab key.",
+          "key": "Tab",
+          "text_comment": "What Tab does. It does not write the date: it completes what the reader has typed so far — '@nov 3' becomes '@nov 3 2026' — and the list stays open. Enter is what writes.",
+          "text": "Picks the highlighted value and moves on to the next step."
+        },
+        "escape": {
+          "key_comment": "Name of the Escape key, as your language's Obsidian writes it.",
+          "key": "Esc",
+          "text_comment": "What Escape does. Nothing is inserted and nothing already typed is taken away, which is worth saying because a reader may expect it to undo.",
+          "text": "Closes the list and leaves your text alone."
+        },
+        "backspace": {
+          "key_comment": "Name of the Backspace key, as your language's Obsidian writes it.",
+          "key": "Backspace",
+          "text_comment": "Why the list stays open on a query it cannot read: deleting the bad character brings the suggestions back, so a typo costs one key rather than starting over.",
+          "text": "Brings the list back after a wrong character."
+        }
       }
     },
     "scopes": {

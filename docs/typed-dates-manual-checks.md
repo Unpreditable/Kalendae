@@ -117,3 +117,68 @@ default.
 54. @xyz then `_` - Invalid date, unchanged; the character goes in as text
 
 55. The footer of the list - `↑↓ navigate`, `↵ insert`, `Tab complete`, and `_ formats` only while two or more formats are configured; all four on one line, and the line no wider than the rows above it
+
+## Settings
+
+Settings, Kalendae — the section reads "Typing a date" and sits between Calendar and Sections to
+scan.
+
+56. Switch "Type to insert" off - @tom opens nothing; the two fields below grey out
+
+57. Switch it back on - the list works again, and the switch's own description quotes whatever the trigger is set to
+
+58. Set the trigger to `;;` - `;;tom` opens the list and writes the date; `@tom` does nothing; Tab on a row writes `;;` back into the note, not `@`
+
+59. Set the trigger to `@@` - `@@tom` works, and a lone `@` opens nothing
+
+60. Type a letter into the trigger field - the message appears under it and the value is not saved
+
+61. With a bad value showing, close settings and reopen - the field shows the last saved trigger, not the default and not the bad text
+
+62. Set the trigger to `@_` while the format character is `_` - refused from this side
+
+63. Set the format character to `@` while the trigger is `@` - refused from that side too
+
+64. Set the format character to `~`, then `@tom~` with two formats configured - the format list opens on `~`
+
+65. Turn typing off and check the notice in "Dates in a note" - it is unchanged; typing is not one of the ways it counts
+
+## How to type a date
+
+66. Open the page from the section - four numbered steps, three example blocks under step 2, three keys at the foot
+
+67. Every date in the right-hand column - today's answers, not stale ones; check one against typing it
+
+68. Change the trigger to `;;`, reopen the page - step 1 and every example read `;;`, not `@`
+
+69. Change the format character to `~`, reopen - step 3 reads `~`
+
+70. Switch Obsidian's language to Russian, reopen - the Name the day examples read `@ноя 3`, and the words examples stay English
+
+71. Narrow the settings window - the three example columns stay lined up and nothing overflows
+
+72. The lines between steps - full-width rules above each heading, not rounded boxes, and none above Step 1
+
+73. Every heading - its explanation on the same line after an em dash, muted
+
+74. The example columns - lined up with the headings above them, not outdented to the page edge
+
+75. Tips - a rule above the heading, and the keys in the same two columns the examples use
+
+76. The examples - indented under their headings, and the typed column styled as inline code
+
+77. Every answer carries a year, including the shorthand ones a week away
+
+78. `@Nov 3` - two dates in the right column, nearest ahead first, with the note saying two will be suggested
+
+79. `@3 Nov 2027` - one date, and the note says the year is why
+
+80. The third By-name example - a half-typed month, no dates in the right column, and the note about languages
+
+81. Switch Obsidian to German, reopen - that example reads `@ju 13`; Russian gives `@ма 13`; Japanese falls back to `@ma 13`
+
+82. Trigger `$`, format character `@`, then set the trigger to `@` - refused, and the message names the clash
+
+83. With that message showing, change the format character to `_` - the trigger message clears on its own, and the field shows the value that is actually saved
+
+84. The Tips heading - carries its own line like every other heading: "Tips — experiment freely, nothing is written until Enter."

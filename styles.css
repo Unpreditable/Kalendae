@@ -1069,3 +1069,116 @@
 .suggestion-item .kalendae-suggest-accepting {
   color: var(--text-accent);
 }
+
+/* How to type a date.
+
+   The separator is the heading's own border, the pattern this stylesheet
+   already documents above the settings groups: `--setting-items-divider-width`
+   zeroes Obsidian's per-row rules, and each heading carries one instead, so a
+   line always sits above a title rather than floating in a gap.
+
+   `border-radius: 0` is load-bearing and was missed the first time. The base
+   `.setting-item` rule sets `--setting-items-radius`, so a border on a row
+   Obsidian has not already squared draws a rounded box rather than a rule —
+   which is exactly what it looked like. */
+.kalendae-typing-help {
+  --setting-items-divider-width: 0;
+}
+
+.kalendae-typing-help .setting-item.kalendae-help-step {
+  border-radius: 0;
+  border-top: var(--border-width) solid var(--background-modifier-border);
+  padding-block: var(--size-4-3) var(--size-2-2);
+}
+
+/* The page title is above it, so the first step needs nothing of its own. */
+.kalendae-typing-help .setting-item.kalendae-help-step:first-child {
+  border-top: none;
+  padding-block-start: 0;
+}
+
+/* One of the three ways, subordinate to the step above it: no line, and a name
+   that reads as a sub-heading rather than a heading. */
+.kalendae-typing-help .setting-item.kalendae-help-way {
+  border-top: none;
+  padding-block: var(--size-4-2) var(--size-2-1);
+}
+
+.kalendae-typing-help .kalendae-help-way .setting-item-name {
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-semibold);
+}
+
+/* The explanation, on the heading's own line and muted so the heading still
+   reads as one. Normal weight, since a heading's name element is bold. */
+.kalendae-help-aside {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  font-weight: normal;
+}
+
+/* The examples hang inside a settings row so they take its side padding and
+   line up with the headings. The row itself contributes nothing else. */
+.kalendae-typing-help .setting-item.kalendae-help-block {
+  border-top: none;
+  display: block;
+  padding-block: 0;
+}
+
+/* Table display values on plain divs, the same answer the token table above
+   reached and for the same reason: a grid would want `subgrid` or
+   `display: contents` to line three columns up across rows, and Obsidian's
+   Chromium supports neither reliably. Spacing is cell padding rather than a
+   gap. */
+.kalendae-help-examples {
+  border-spacing: 0;
+  display: table;
+  /* Indented under the heading they belong to, rather than flush with it: the
+     examples are what the heading is about, and the step above reads as their
+     title only while they sit inside it. */
+  margin-inline-start: var(--size-4-4);
+  padding-block-end: var(--size-4-2);
+}
+
+.kalendae-help-example {
+  display: table-row;
+}
+
+.kalendae-help-typed,
+.kalendae-help-note,
+.kalendae-help-result {
+  display: table-cell;
+  font-size: var(--font-ui-smaller);
+  padding-block: var(--size-2-1);
+  padding-inline-end: var(--size-4-4);
+  vertical-align: baseline;
+}
+
+/* The one column a reader copies with their fingers, so it reads as input
+   rather than as prose — inline code, through the variables a theme sets for
+   it, so it matches the code in the reader's own notes. */
+.kalendae-help-typed {
+  white-space: nowrap;
+}
+
+.kalendae-help-typed code {
+  background-color: var(--code-background);
+  border-radius: var(--radius-s);
+  color: var(--code-normal);
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+  padding: var(--size-2-1) var(--size-2-2);
+}
+
+.kalendae-help-note {
+  color: var(--text-muted);
+  width: 100%;
+}
+
+/* Last column, so nothing follows it to be pushed along. */
+.kalendae-help-result {
+  color: var(--text-accent);
+  padding-inline-end: 0;
+  text-align: end;
+  white-space: nowrap;
+}

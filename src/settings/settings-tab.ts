@@ -14,6 +14,9 @@ import {
   DEFAULT_SETTINGS,
   HOVER_ICONS,
   WEEK_STARTS,
+  TriggerProblem,
+  checkFormatChar,
+  checkTrigger,
   commandOnly,
   reorderById,
 } from "../settings";
@@ -23,6 +26,7 @@ import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./f
 import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
 import { SectionsPage, scopeSummary } from "./sections-page";
+import { TypingHelpPage } from "./typing-help-page";
 import { t } from "../i18n/i18n";
 
 /**
@@ -168,6 +172,64 @@ export class KalendaeSettingTab extends PluginSettingTab {
         ],
       },
       {
+        // Typing is not one of the ways into the calendar above: those all act
+        // on a date already written, and this one writes a date that is not
+        // there yet. Its own section, and it sits beside the scopes because the
+        // list obeys them.
+        type: "group",
+        cls: "kalendae-group",
+        heading: t("settings.typing.heading"),
+        items: [
+          {
+            name: t("settings.typeToInsert.name"),
+            desc: t("settings.typeToInsert.desc", {
+              trigger: this.kalendae.settings.typeTrigger,
+            }),
+            control: {
+              type: "toggle",
+              key: "typeToInsert",
+              defaultValue: DEFAULT_SETTINGS.typeToInsert,
+            },
+          },
+          {
+            name: t("settings.typeTrigger.name"),
+            desc: t("settings.typeTrigger.desc"),
+            control: {
+              type: "text",
+              key: "typeTrigger",
+              defaultValue: DEFAULT_SETTINGS.typeTrigger,
+              // Greyed rather than hidden. A row that vanishes as a switch
+              // above it is thrown is a worse surprise than one visibly
+              // inactive, and the reader is looking straight at the switch.
+              disabled: () => !this.kalendae.settings.typeToInsert,
+              validate: (value: string) =>
+                problemText(checkTrigger(value, this.kalendae.settings.formatTrigger), "trigger"),
+            },
+          },
+          {
+            name: t("settings.formatTrigger.name"),
+            desc: t("settings.formatTrigger.desc", { formats: t("settings.formats.heading") }),
+            control: {
+              type: "text",
+              key: "formatTrigger",
+              defaultValue: DEFAULT_SETTINGS.formatTrigger,
+              disabled: () => !this.kalendae.settings.typeToInsert,
+              validate: (value: string) =>
+                problemText(checkFormatChar(value, this.kalendae.settings.typeTrigger), "format"),
+            },
+          },
+          {
+            // Last, and a page rather than a paragraph. The list teaches its
+            // own keywords — every row carries one — but nothing in it says
+            // that words and named days are read at all, and that is three
+            // grammars' worth of examples, which is a page.
+            name: t("settings.typingHelp.heading"),
+            type: "page",
+            page: () => new TypingHelpPage(() => this.kalendae.settings),
+          },
+        ],
+      },
+      {
         // A heading with one row under it, rather than a row that carries both
         // its own name and its value. The heading names the thing once; the row
         // then has nothing left to say but what is currently scanned.
@@ -249,6 +311,22 @@ export class KalendaeSettingTab extends PluginSettingTab {
   async setControlValue(key: string, value: unknown): Promise<void> {
     const before = commandOnly(this.kalendae.settings);
     await super.setControlValue(key, value);
+
+    // All three typing settings, because each one changes how the others are
+    // drawn or judged. The switch greys the two fields below it; the trigger is
+    // quoted in the switch's own description; and the two fields validate
+    // against each other, so accepting a value in one settles a verdict already
+    // shown under the other.
+    //
+    // That last one is why `formatTrigger` belongs here and was the bug when it
+    // did not: Obsidian runs `validate` on the field being edited and on every
+    // field it mounts, never on a neighbour. Fixing the clash from the other
+    // side left the first field showing a message about a collision that no
+    // longer existed, and no way to clear it but retyping.
+    if (TYPING_KEYS.has(key)) {
+      this.update();
+      return;
+    }
 
     if (commandOnly(this.kalendae.settings) !== before) this.update();
   }
@@ -369,6 +447,31 @@ function renderCommandOnly(setting: Setting): void {
  */
 function commandOnlyText(): string {
   return t("settings.commandOnly.name", { command: t("commands.pickDate") });
+}
+
+/**
+ * The settings whose rows have to be built again when any of them changes.
+ *
+ * A set rather than a chain of comparisons, so adding the fourth row this
+ * section is designed for — the languages page — is one entry rather than one
+ * more `||` on a line already carrying three.
+ */
+const TYPING_KEYS = new Set<string>(["typeToInsert", "typeTrigger", "formatTrigger"]);
+
+/**
+ * A rejected value, said in terms the reader can act on.
+ *
+ * Undefined is the accepting answer Obsidian wants: a non-empty string rejects
+ * the change and shows itself under the field, and the value is never stored.
+ * So a reader who closes the tab mid-edit keeps whatever was last valid.
+ *
+ * A message per field, not per problem. Every message names what to type
+ * instead, and what to type instead is different in the two fields: `@ ; //`
+ * opens a list and `_ ~ !` picks a format. A shared string could only say the
+ * vague half of that.
+ */
+function problemText(problem: TriggerProblem | null, field: "trigger" | "format"): string | void {
+  return problem === null ? undefined : t(`settings.triggerError.${field}.${problem}`);
 }
 
 /**

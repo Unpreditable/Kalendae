@@ -3,6 +3,8 @@ import {
   HOVER_ICONS,
   KalendaeSettings,
   WEEK_STARTS,
+  checkFormatChar,
+  checkTrigger,
   commandOnly,
   commandScopes,
   migrateTriggers,
@@ -240,5 +242,89 @@ describe("commandScopes", () => {
       scopeFrontmatter: false,
       scopeWikilinks: false,
     }).toEqual(allOff);
+  });
+});
+
+describe("checkTrigger", () => {
+  it("accepts one to three characters that cannot begin inside a word", () => {
+    expect(checkTrigger("@", "_")).toBeNull();
+    expect(checkTrigger("@@", "_")).toBeNull();
+    expect(checkTrigger("$%@", "_")).toBeNull();
+    expect(checkTrigger(";;", "_")).toBeNull();
+  });
+
+  it("refuses an empty field and anything longer than three characters", () => {
+    expect(checkTrigger("", "_")).toBe("length");
+    expect(checkTrigger("@@@@", "_")).toBe("length");
+  });
+
+  it("refuses a letter or a digit in first position, in any alphabet", () => {
+    expect(checkTrigger("a@", "_")).toBe("letter");
+    expect(checkTrigger("Я", "_")).toBe("letter");
+    expect(checkTrigger("7@", "_")).toBe("digit");
+  });
+
+  it("allows a letter or a digit after the first character", () => {
+    // They can only ever appear where the first character already did, so the
+    // word-start rule has nothing to say about them.
+    expect(checkTrigger("@d", "_")).toBeNull();
+    expect(checkTrigger("@1", "_")).toBeNull();
+  });
+
+  it("refuses whitespace anywhere in it", () => {
+    expect(checkTrigger(" ", "_")).toBe("space");
+    expect(checkTrigger("@ @", "_")).toBe("space");
+  });
+
+  it("refuses the two characters Obsidian gives its own menu, in first position only", () => {
+    expect(checkTrigger("#", "_")).toBe("reserved");
+    expect(checkTrigger("[", "_")).toBe("reserved");
+    expect(checkTrigger("@#", "_")).toBeNull();
+  });
+
+  it("refuses a trigger that uses the format character", () => {
+    expect(checkTrigger("_", "_")).toBe("clash");
+    expect(checkTrigger("@_", "_")).toBe("clash");
+  });
+
+  it("allows the openers, which are unwise rather than broken", () => {
+    expect(checkTrigger('"', "_")).toBeNull();
+    expect(checkTrigger("(", "_")).toBeNull();
+  });
+});
+
+describe("checkFormatChar", () => {
+  it("accepts a single character that is none of the ones already spoken for", () => {
+    expect(checkFormatChar("_", "@")).toBeNull();
+    expect(checkFormatChar("~", "@")).toBeNull();
+  });
+
+  it("refuses anything but exactly one character", () => {
+    expect(checkFormatChar("", "@")).toBe("single");
+    expect(checkFormatChar("__", "@")).toBe("single");
+  });
+
+  it("refuses a letter, a digit and whitespace", () => {
+    expect(checkFormatChar("a", "@")).toBe("letter");
+    expect(checkFormatChar("7", "@")).toBe("digit");
+    expect(checkFormatChar(" ", "@")).toBe("space");
+  });
+
+  it("refuses the characters the date language has already spent", () => {
+    expect(checkFormatChar(",", "@")).toBe("comma");
+    expect(checkFormatChar("+", "@")).toBe("sign");
+    expect(checkFormatChar("-", "@")).toBe("sign");
+  });
+
+  it("allows the two Obsidian claims, which it only claims at a word start", () => {
+    // The caret is mid-query by the time this character is pressed, and
+    // Obsidian's tag and link menus open at a word start. Nothing collides.
+    expect(checkFormatChar("#", "@")).toBeNull();
+    expect(checkFormatChar("[", "@")).toBeNull();
+  });
+
+  it("refuses a character the trigger is made of, wherever it sits in it", () => {
+    expect(checkFormatChar("@", "@")).toBe("clash");
+    expect(checkFormatChar("%", "$%@")).toBe("clash");
   });
 });

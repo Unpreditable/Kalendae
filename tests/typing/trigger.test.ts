@@ -52,8 +52,34 @@ describe("triggerAt", () => {
     expect(triggerAt("due ;eom", 8, "@")).toBeNull();
   });
 
-  it("refuses a trigger that is not one character", () => {
+  it("refuses an empty trigger, which would match everywhere", () => {
     expect(triggerAt("due @eom", 8, "")).toBeNull();
-    expect(triggerAt("due @@eom", 9, "@@")).toBeNull();
+  });
+});
+
+describe("a trigger of more than one character", () => {
+  it("opens on the whole phrase and reads the query after it", () => {
+    expect(triggerAt("due @@tom", 9, "@@")).toEqual({ from: 4, query: "tom" });
+  });
+
+  it("does not open on a part of it", () => {
+    expect(triggerAt("due @tom", 8, "@@")).toBeNull();
+  });
+
+  it("holds the word-start rule against the first character only", () => {
+    expect(triggerAt("@@tom", 5, "@@")).toEqual({ from: 0, query: "tom" });
+    expect(triggerAt("mail@@tom", 9, "@@")).toBeNull();
+  });
+
+  it("reads a trigger whose later characters are ordinary word characters", () => {
+    expect(triggerAt("due @d3d", 8, "@d")).toEqual({ from: 4, query: "3d" });
+  });
+
+  it("takes the last trigger on the line, not the first", () => {
+    expect(triggerAt("@@one @@two", 11, "@@")).toEqual({ from: 6, query: "two" });
+  });
+
+  it("waits until the whole phrase is typed", () => {
+    expect(triggerAt("due @", 5, "@@")).toBeNull();
   });
 });

@@ -108,6 +108,19 @@ export interface KalendaeSettings {
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
   showWritesPreview: boolean;
+  /** Whether the list of dates opens while you type at all. */
+  typeToInsert: boolean;
+  /**
+   * The phrase that opens it: one to three characters, at the start of a word.
+   *
+   * A phrase rather than a character because a single one fires where nobody
+   * meant it to — `@channel` opens the list and leaves it saying Invalid date
+   * to the end of the line — and two characters end that whole class of it.
+   * See `checkTrigger` for what a field will accept.
+   */
+  typeTrigger: string;
+  /** The single character that turns the open list into that day in each format. */
+  formatTrigger: string;
   /** Whether the quick-date row is drawn at all; the slots are kept either way. */
   showQuickDates: boolean;
   /** Exactly QUICK_SLOTS entries, in the order they appear under the calendar. */
@@ -128,6 +141,9 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,
+  typeToInsert: true,
+  typeTrigger: "@",
+  formatTrigger: "_",
   showQuickDates: true,
   quickDates: [
     { preset: "tomorrow" },
@@ -159,6 +175,86 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
  */
 export function commandOnly(settings: KalendaeSettings): boolean {
   return !settings.doubleClick && settings.hoverIcon === "off" && !settings.taskEmoji;
+}
+
+/** What is wrong with a character somebody typed into one of the two fields. */
+export type TriggerProblem =
+  // "length" is the trigger's one-to-three rule and "single" the format
+  // character's exactly-one. Two problems rather than one, because a single
+  // message cannot tell a reader both at once and each field has only one of
+  // them to say.
+  | "length"
+  | "single"
+  | "letter"
+  | "digit"
+  | "space"
+  | "reserved"
+  | "comma"
+  | "sign"
+  | "clash";
+
+/**
+ * Whether a phrase can open the list while you type, and why not.
+ *
+ * One to three characters: a trigger is a keystroke or two, not a word. Every
+ * rule but the length is about the **first** character, because that is the
+ * only one the word-start rule ever looks at. A letter or a digit there puts
+ * the trigger inside ordinary words and numbers, which no filtering afterwards
+ * cleans up; `#` or `[` there collides with a menu Obsidian opens itself, and
+ * two menus over one caret is a defect rather than a preference. Later
+ * positions are free, because they can only ever appear where the first
+ * character already did: the `d` in `@d` and the `#` in `@#` fire nothing.
+ *
+ * `(`, `{`, `"` and `'` are allowed, although `trigger.ts` counts them as
+ * word-starts, so a trigger of `"` fires after every opening quote. That is
+ * unwise rather than broken, and a field that refuses every unwise value argues
+ * with the reader — who can type `""` instead now that a trigger may be two
+ * characters.
+ */
+export function checkTrigger(value: string, formatChar: string): TriggerProblem | null {
+  const characters = [...value];
+
+  if (characters.length === 0 || characters.length > 3) return "length";
+  if (/\s/.test(value)) return "space";
+  if (/\p{L}/u.test(characters[0])) return "letter";
+  if (/\p{N}/u.test(characters[0])) return "digit";
+  if (characters[0] === "#" || characters[0] === "[") return "reserved";
+  if (characters.includes(formatChar)) return "clash";
+
+  return null;
+}
+
+/**
+ * Whether a character can turn the open list into the formats, and why not.
+ *
+ * One character, and none of those the date language has already spent. `+`
+ * and `-` begin a step. `,` is tolerated after the day of a named date —
+ * `@Nov 3, 2027` has to be typable — so the two cannot both have it. A letter
+ * or a digit would be read as part of the query in front of it: with `d` here,
+ * `@2d` could never be typed.
+ *
+ * **`#` and `[` are fine.** They are refused as the first character of a
+ * trigger, where Obsidian opens its own tag and link menus, and that reason
+ * does not reach this far: by the time this character is pressed the caret is
+ * mid-query, Obsidian's menus start at a word start, and nothing of ours is
+ * competing.
+ *
+ * It may not be a character the trigger is made of, and that one is concrete
+ * rather than tidy-minded: `triggerAt` finds the trigger by looking back for
+ * the last one before the caret, so with `@` in both fields `@tom@` finds the
+ * second `@`, fails the word-start test against the `m` in front of it, and
+ * the list closes rather than offering anything.
+ */
+export function checkFormatChar(value: string, trigger: string): TriggerProblem | null {
+  if ([...value].length !== 1) return "single";
+  if (/\s/.test(value)) return "space";
+  if (/\p{L}/u.test(value)) return "letter";
+  if (/\p{N}/u.test(value)) return "digit";
+  if (value === ",") return "comma";
+  if (value === "+" || value === "-") return "sign";
+  if ([...trigger].includes(value)) return "clash";
+
+  return null;
 }
 
 /**
@@ -343,4 +439,25 @@ function readSlot(value: unknown): QuickSlot {
   }
 
   return null;
+}
+
+/**
+ * The phrase that opens the list, and the character that lists the formats,
+ * both refusing a value a hand-edited `data.json` put there.
+ *
+ * Obsidian shows a stored value that fails validation without rewriting it, so
+ * a setting can hold something unusable and this is where that stops. The
+ * fallback is the default rather than nothing, because a trigger of `""` would
+ * match at every offset in a line.
+ */
+export function triggerOf(settings: KalendaeSettings): string {
+  return checkTrigger(settings.typeTrigger, settings.formatTrigger) === null
+    ? settings.typeTrigger
+    : DEFAULT_SETTINGS.typeTrigger;
+}
+
+export function formatCharOf(settings: KalendaeSettings): string {
+  return checkFormatChar(settings.formatTrigger, settings.typeTrigger) === null
+    ? settings.formatTrigger
+    : DEFAULT_SETTINGS.formatTrigger;
 }

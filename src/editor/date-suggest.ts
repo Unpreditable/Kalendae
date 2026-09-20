@@ -5,6 +5,7 @@ import {
   EditorSuggest,
   EditorSuggestContext,
   EditorSuggestTriggerInfo,
+  KeymapEventHandler,
   MarkdownView,
   TFile,
   moment,
@@ -16,7 +17,7 @@ import { DayKey, firstDayOf, todayKey } from "../picker/month";
 import { Rule, Step, UNITS, WEEKDAYS, presetsAnchoredOn } from "../picker/quick";
 import { stepGloss } from "../picker/quick-text";
 import { insertionFor } from "../picker/write";
-import { KalendaeSettings } from "../settings";
+import { KalendaeSettings, formatCharOf, triggerOf } from "../settings";
 import { Entry, NamedDate, entriesFor } from "../typing/entries";
 import { triggerAt } from "../typing/trigger";
 import { t } from "../i18n/i18n";
@@ -59,19 +60,40 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       return false;
     });
 
-    // The format character asks the third question — "this date, written which
-    // way" — and it asks it of the row the reader has arrowed to, which is why
-    // it goes through the chooser rather than reading the text. Null modifiers
-    // rather than none: `_` is shifted on most layouts, and the character Task
-    // 7 makes settable may be shifted on some and not others.
-    this.scope.register(null, FORMAT_CHAR, (event) => {
-      const chooser = this.chooser();
-      if (chooser === null) return true;
+    this.bindFormatKey(formatCharOf(this.settings()));
+  }
 
-      chooser.useSelectedItem(event);
+  /**
+   * The key that opens the formats, rebound when the setting changes.
+   *
+   * The format character asks the third question — "this date, written which
+   * way" — and it asks it of the row the reader has arrowed to, which is why
+   * it goes through the chooser rather than reading the text. Null modifiers
+   * rather than none: `_` is shifted on most layouts and a character someone
+   * else sets may not be.
+   *
+   * Rebound rather than registered once against every key. A handler on a null
+   * key matches every keypress in the popup, including the arrows and Enter
+   * that Obsidian's own chooser is listening for, and that is too much to put
+   * in the way of a list that already works.
+   */
+  private formatKey: { character: string; handler: KeymapEventHandler } | null = null;
 
-      return false;
-    });
+  private bindFormatKey(character: string): void {
+    if (this.formatKey?.character === character) return;
+    if (this.formatKey !== null) this.scope.unregister(this.formatKey.handler);
+
+    this.formatKey = {
+      character,
+      handler: this.scope.register(null, character, (event) => {
+        const chooser = this.chooser();
+        if (chooser === null) return true;
+
+        chooser.useSelectedItem(event);
+
+        return false;
+      }),
+    };
   }
 
   /**
@@ -91,7 +113,15 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     editor: Editor,
     _file: TFile | null,
   ): EditorSuggestTriggerInfo | null {
-    const found = triggerAt(editor.getLine(cursor.line), cursor.ch, TRIGGER);
+    const settings = this.settings();
+    if (!settings.typeToInsert) {
+      // Nulled like every other early return: a range left behind is a write
+      // aimed at text that has since moved.
+      this.range = null;
+      return null;
+    }
+
+    const found = triggerAt(editor.getLine(cursor.line), cursor.ch, triggerOf(settings));
     if (found === null) {
       this.range = null;
       return null;
@@ -110,6 +140,12 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
 
   getSuggestions(context: EditorSuggestContext): Entry[] {
     const settings = this.settings();
+    const formatChar = formatCharOf(settings);
+
+    // The popup is open, so no key can have been pressed in it since the last
+    // time this ran: rebinding here is early enough, and it is the one place
+    // the settings are read on every keystroke.
+    this.bindFormatKey(formatChar);
 
     const today = todayKey();
     const firstDay = firstDayOf(settings.weekStart);
@@ -130,7 +166,7 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       { command: "Tab", purpose: t("typing.instructions.complete") },
       ...(settings.formats.length < 2
         ? []
-        : [{ command: FORMAT_CHAR, purpose: t("typing.instructions.format") }]),
+        : [{ command: formatChar, purpose: t("typing.instructions.format") }]),
     ]);
 
     return entriesFor(context.query, {
@@ -139,7 +175,7 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       months: monthNames(),
       names: catalogue(today, firstDay),
       formats: settings.formats,
-      formatChar: FORMAT_CHAR,
+      formatChar,
     });
   }
 
@@ -194,7 +230,7 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     // Before the invalid row is dismissed, because the character has to reach
     // the note even where there is no date to act on: the handler has already
     // swallowed the keypress.
-    if (evt instanceof KeyboardEvent && evt.key === FORMAT_CHAR) {
+    if (evt instanceof KeyboardEvent && evt.key === formatCharOf(this.settings())) {
       this.switchFormat(entry, range);
       return;
     }
@@ -253,20 +289,21 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
    * whatever that text means.
    */
   private switchFormat(entry: Entry, range: WriteRange): void {
+    const settings = this.settings();
     const query = this.context?.query ?? "";
     const completion =
-      this.settings().formats.length < 2 || entry.kind === "invalid"
+      settings.formats.length < 2 || entry.kind === "invalid"
         ? query
         : (completionOf(entry) ?? query).trimEnd();
 
-    this.complete(`${completion}${FORMAT_CHAR}`, range);
+    this.complete(`${completion}${formatCharOf(settings)}`, range);
   }
 
   private complete(completion: string, range: WriteRange): void {
     const editor = this.context?.editor;
     if (editor === undefined) return;
 
-    const text = `${TRIGGER}${completion}`;
+    const text = `${triggerOf(this.settings())}${completion}`;
     const from = editor.posToOffset(range.start);
 
     editor.replaceRange(text, range.start, range.end);
@@ -341,11 +378,6 @@ interface Chooser {
   useSelectedItem(event: KeyboardEvent): void;
 }
 
-/** Fixed until the settings land. */
-const TRIGGER = "@";
-
-/** The same, for the character that turns a date into the list of formats. */
-const FORMAT_CHAR = "_";
 
 /**
  * Every spelling each month answers to in the reader's own language, January

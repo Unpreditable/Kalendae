@@ -1,7 +1,8 @@
 # Typed dates — design
 
 Status: drafted 2026-09-13, revised 2026-09-14 with the menu's owner and a settable format switch, revised 2026-09-16
-with the words layer, revised 2026-09-17 with explicit dates; one topic still open
+with the words layer, revised 2026-09-17 with explicit dates, revised 2026-09-19 with the settings
+section and a trigger of up to three characters; one topic still open
 Raised: 2026-09-13, in conversation. No TODO item yet.
 
 ## What this delivers
@@ -9,10 +10,10 @@ Raised: 2026-09-13, in conversation. No TODO item yet.
 Today a date is inserted from the command palette: invoke *Pick a date*, choose a day, get a date.
 That is three steps and a mode change in the middle of a sentence you were already typing.
 
-This adds a second way in. Type one character — `@` by default — at the start of a word and a list
-of dates opens under the caret. Keep typing to narrow it, press Enter, and the trigger and
-everything after it is replaced by the date, written in the same format the insert command uses
-unless you ask for another.
+This adds a second way in. Type the trigger — `@` by default, and up to three characters — at the
+start of a word and a list of dates opens under the caret. Keep typing to narrow it, press Enter,
+and the trigger and everything after it is replaced by the date, written in the same format the
+insert command uses unless you ask for another.
 
 ```
 Standup moved to @tom            →  Standup moved to 2026-09-14
@@ -83,9 +84,9 @@ writes nothing at all would mean building the popup ourselves — see *Out of sc
 
 ### When it opens
 
-The trigger character opens the menu when it **starts a word**: at the start of a line, or after
-whitespace or an opening bracket. Never mid-word, which is what keeps `dvitaly@gmail.com` from
-opening a date menu on every address ever typed.
+The trigger opens the menu when it **starts a word**, which is a fact about its first character: at
+the start of a line, or after whitespace or an opening bracket. Never mid-word, which is what keeps
+`dvitaly@gmail.com` from opening a date menu on every address ever typed.
 
 It does not open inside code blocks, inline code, or frontmatter, subject to the same scope
 settings that govern detection. `@property`, `@media` and `@Override` are the common false fires
@@ -651,32 +652,156 @@ One transaction, so one undo takes the whole thing back to the text as typed.
 
 ## Settings
 
-Three new settings, in **Dates in a note**, beneath the existing triggers:
+**Revised 2026-09-19.** The first draft put three rows at the bottom of *Dates in a note*, made the
+trigger a single character, and asked the command-only notice to count a fourth switch. All three
+have changed; what follows is the current design, and the reasoning that replaced each is kept where
+it reads as the answer to an obvious question.
 
-- **Type a date** (switch, default on). Whether the menu opens at all.
-- **Trigger character** (text, default `@`). One character, the one that opens the menu.
-- **Format character** (text, default `_`). One character, the one that turns an open menu into the
-  list of formats.
+### A section of its own
 
-Both fields take exactly one character and refuse a letter, a digit, whitespace, `#` and `[`, saying
-which rule was broken. Letters and digits are out because a character that lands inside ordinary
-words and numbers is noise no word-start rule can clean up. `#` and `[` are out because Obsidian
-gives both their own menu while you type, and two menus over one caret is a defect, not a
-preference. *(That last pair is a call made here, not one you have ruled on.)*
+**Typing a date** is its own section, between *Calendar* and *Sections to scan*.
 
-The format character carries two rules of its own, both from the language it sits inside. It cannot
-be `+` or `-`, which begin a step, and it cannot be the trigger character, which would make `@@`
-mean two different things in one query. The second is a rule about a pair of fields rather than one
-field, so it is checked on both: changing either one to collide reports it on the field being
-edited.
+Not the bottom of *Dates in a note*, where this was first put. Every row in that section answers one
+question — what opens the calendar on a date already written — and typing answers a different one:
+how a date that is not there yet gets written. The heading earns its clarity by being narrow. The
+place it sits earns something too: the typed list obeys the scope settings, so it stands next to the
+section that sets them.
 
-The format character is offered whether or not a second format is enabled. Hiding it would make the
-row appear and vanish as formats are added and removed in a different section of settings, which is
-a worse surprise than a row that does nothing yet.
+Five rows, the last of them later:
 
-The **command-only notice** already in that section reads three switches today. It should read four:
-with double-click, the hover icon, the Tasks emoji **and** typing all off, the command palette
-really is the only way in, and `commandOnly()` in `settings.ts` is the one place that decides it.
+- **Type to insert** (switch, default on). Whether the list opens while you type at all.
+- **Trigger** (text, default `@`). One to three characters, typed at the start of a word, that open
+  the list.
+- **Format character** (text, default `_`). The single character that turns an open list into that
+  day written each way.
+- **How to type a date** (a page, `>`). Four steps and a worked example of each grammar — see
+  below.
+- **Languages** (a page, `>`). The languages whose month and weekday names can be typed. Not built
+  here: it is [TODO 14](../../../TODO.md), and only its place in this section is settled.
+
+### The page of instructions
+
+Four numbered steps, the second of them carrying the three ways to say a day, and three keys at the
+foot.
+
+```
+Step 1 · Type @ to start          a list of suggestions opens
+Step 2 · Specify the date
+          Shorthand                 @1d  @2w  @eom  @2w EoW
+          In words                  @next friday  @in three weeks  @3 months ago
+          By name                   @Nov 3  @3 Nov 2027  @ma 13
+Step 3 · (Optional) Type _ to write in another date format
+Step 4 · Press Enter
+Tips      Tab picks and moves on · Esc leaves your text · Backspace repairs
+```
+
+**Every heading carries its explanation on its own line**, joined with an em dash. Seven headings is
+seven lines of description otherwise, and a reference page is read by scanning down its left edge.
+
+**The three ways are not numbered.** The steps are sequential and the ways are alternatives;
+numbering them inside a numbered step would read as "now do all three".
+
+**A named day shows every answer it has.** `@Nov 3` resolves to two dates, not one, and a single
+answer there was the page's one outright lie — the list offers the November ahead and the one
+behind, and showing the forward one alone made a choice look settled. The row carries both, nearest
+ahead first. `@3 Nov 2027` sits under it to say what buys a single answer, which nothing else on the
+page states. The third row is a half-typed month, whose four answers do not fit a column, so its
+note is the answer instead.
+
+**That third example's prefix is computed from the reader's language.** Two letters that name more
+than one month: `ma` in English, Spanish, French, Portuguese and Latvian; `ju` in German and
+Estonian; `ма` in Russian, `ли` in Ukrainian, `ru` in Lithuanian. Japanese, Korean and Chinese number
+their months, and a prefix of digits alone is deliberately not read as one, so those three fall back
+to English — which is typable in every language and so demonstrates the rule anyway.
+
+The page exists because the list teaches only half of itself. Open it on the trigger alone and every
+row carries the keyword that produces it, so `1d` and `EoW` are discoverable by looking. That words
+are read at all, and that a day can be named outright, is discoverable by nothing.
+
+**Every example resolves as the page is opened**, through the same `parseTyped` the suggester uses,
+so the page cannot drift from the plugin and a date on it is never stale. The named-day examples
+take their month names from moment, so a Russian vault reads `@ноя 3` — an example the reader can
+type back. The trigger and the format character in the headings are the reader's own.
+
+**"Shorthand" is the name for the token grammar**, chosen over *language* or *codes*: it says
+compact-and-learnable without claiming more than a dozen tokens deserve.
+
+The two text fields grey out while the switch is off rather than disappearing, because a row that
+vanishes is a worse surprise than one visibly inactive. The format field shows whether or not a
+second format is configured, for the same reason in the other direction: formats are added in a
+different section, and a row that came and went while the reader worked there would be baffling.
+
+### The trigger is a phrase, not a character
+
+One to three characters. `@@`, `;;` and `$%@` are all triggers a reader can set, and the rule that
+governs them is the one that already governs `@`: **the phrase starts a word**, which is a fact
+about its first character and nothing else.
+
+This is the answer to a false fire the design had no other answer for. `@channel please review this`
+opens the list and leaves it sitting there saying *Invalid date* to the end of the line — check 41
+in `docs/typed-dates-manual-checks.md`, left open on purpose. A two-character trigger ends that
+whole class of it, and it lets the reader who has the problem fix it, rather than this document
+guessing which single characters are safe in a language it cannot see.
+
+What the trigger field refuses:
+
+- **Nothing, and more than three characters.** A trigger is a keystroke or two, not a word.
+- **Whitespace, anywhere in it.** The query is read up to the caret and a space inside the trigger
+  cannot be told from the space that ends a step.
+- **A letter or a digit in first position.** This is the whole of the word-start rule's safety: a
+  trigger that can land inside ordinary words and numbers is noise no filtering afterwards cleans
+  up. Later positions are unconstrained — `@d` only ever begins where `@` does.
+- **`#` or `[` in first position.** Obsidian opens its own menu on both, and two menus over one
+  caret is a defect rather than a preference. Later positions are fine for the same reason letters
+  are: Obsidian's menus start at a word start too, so the `#` in `@#` fires nothing.
+
+And what it does not refuse: `(`, `{`, `"` and `'`, which `trigger.ts` treats as word-starts, so a
+trigger of `"` fires after every opening quote. That is unwise rather than broken, and a field that
+refuses every unwise value argues with the reader. The phrase is what makes this affordable —
+someone who wants a quiet trigger types `""` instead of being told `"` is not allowed.
+
+### The format character
+
+A single character, and none of those the date language has already spent: not `+` or `-`, which
+begin a step, and not `,`, which an explicit date tolerates after its day. A letter, a digit or a
+space would be read as part of the query in front of it — with `d` here, `@2d` could never be typed.
+
+**`#` and `[` are allowed**, unlike in the trigger's first position. The first draft refused them
+there too, and the reason it gave does not reach: Obsidian opens its tag and link menus at a *word
+start*, and by the time this character is pressed the caret is mid-query. Nothing collides.
+
+It may not be a character the trigger is made of, and that rule is concrete rather than tidy-minded.
+`triggerAt` finds the trigger by looking back for the last one before the caret, so with `@` in both
+fields `@tom@` finds the second `@`, fails the word-start test against the `m` in front of it, and
+the list closes rather than offering anything.
+
+The clash rule is about a pair of fields rather than one field, so it is checked from both sides:
+changing either one to collide reports it on the field being edited.
+
+### A rejected value is never stored
+
+Obsidian's `validate` rejects the change and shows the message under the field; it does not write
+the value. So the stored trigger stays whatever it last was, and closing settings on a bad value
+leaves the last good one in force — not the default, which is only reached by a fresh install.
+
+That is also why nothing here warns without refusing. Two states, not three: refuse what breaks,
+save everything else without comment. A field that lectures the reader about a legal value is worse
+than one that says nothing.
+
+The framework runs `validate` once on mount and shows the message without rewriting the stored
+value, so a hand-edited `data.json` can hold something unusable. The suggester therefore checks
+again when it reads the setting and falls back to the default rather than trusting it.
+
+### The command-only notice
+
+The notice already in *Dates in a note* is reworded rather than rewired. It reads:
+
+> Note: Only "Pick a date" from the command palette opens the calendar **on an existing date**
+
+The draft asked `commandOnly()` to count typing as a fourth way in and fall silent when it was on.
+That is wrong: typing never opens the calendar, it writes a date. Counting it would hide a true
+notice from someone who had turned off every way to *edit* a date and left typing on. Three switches
+still, and four words of accuracy instead.
 
 ## Open topic — your own named dates
 
