@@ -7,7 +7,7 @@
       "heading": "Datumsangaben in einer Notiz"
     },
     "commandOnly": {
-      "name": "Hinweis: Nur „{{command}}“ über die Befehlspalette öffnet den Kalender"
+      "name": "Hinweis: Nur „{{command}}“ über die Befehlspalette öffnet den Kalender bei einem vorhandenen Datum"
     },
     "calendar": {
       "heading": "Kalender"
@@ -220,6 +220,102 @@
         "save": "Speichern"
       }
     },
+    "typing": {
+      "heading": "Datum tippen"
+    },
+    "typeToInsert": {
+      "name": "Tippen zum Einfügen",
+      "desc": "Tippe {{trigger}} am Wortanfang, um ein Datum aus einer Liste zu wählen."
+    },
+    "typeTrigger": {
+      "name": "Auslöser",
+      "desc": "Mit dem Auslöser schreibst du dein Datum. Ein bis drei Zeichen."
+    },
+    "formatTrigger": {
+      "name": "Formatzeichen",
+      "desc": "Wähle eines deiner {{formats}} für das Datum, das du gerade schreibst."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Verwende ein bis drei Zeichen, etwa @ oder @@",
+        "letter": "Ein Auslöser darf nicht mit einem Buchstaben beginnen. Versuche @ ; oder //",
+        "digit": "Ein Auslöser darf nicht mit einer Ziffer beginnen. Versuche @ ; oder //",
+        "space": "Lass das Leerzeichen weg",
+        "reserved": "Obsidian reagiert beim Tippen auf # ( [ { \" und '. Versuche @ ; oder //",
+        "clash": "Auslöser und Formatzeichen dürfen kein Zeichen gemeinsam haben"
+      },
+      "format": {
+        "single": "Verwende ein einzelnes Zeichen, etwa _ ~ oder !",
+        "letter": "Ein Buchstabe würde als Teil des Datums gelesen. Versuche _ ~ oder !",
+        "digit": "Eine Ziffer würde als Teil des Datums gelesen. Versuche _ ~ oder !",
+        "space": "Lass das Leerzeichen weg",
+        "comma": "Nach dem Tag eines Datums kann ein Komma stehen. Versuche _ ~ oder !",
+        "sign": "Ein Schritt im Datum beginnt mit + oder -. Versuche _ ~ oder !",
+        "clash": "Auslöser und Formatzeichen dürfen kein Zeichen gemeinsam haben"
+      }
+    },
+    "typingHelp": {
+      "heading": "So tippst du ein Datum",
+      "start": {
+        "name": "Schritt 1 · Tippe {{trigger}} zum Starten",
+        "desc": "eine Vorschlagsliste öffnet sich und aktualisiert sich beim Tippen.",
+        "note": "öffnet die Liste"
+      },
+      "say": {
+        "name": "Schritt 2 · Gib das Datum an",
+        "desc": "auf drei Arten möglich."
+      },
+      "shorthand": {
+        "name": "Kurzschrift",
+        "desc": "ein Datum über mehrere Schritte angeben.",
+        "eom": "Ende dieses Monats",
+        "chain": "zwei Wochen weiter, dann das Ende jener Woche"
+      },
+      "words": {
+        "name": "In Worten",
+        "desc": "gängige Wendungen verwenden. Nur Englisch."
+      },
+      "named": {
+        "name": "Nach Namen",
+        "desc": "das Datum tippen, in jeder Sprache, die du aktiviert hast.",
+        "two": "die Vorschläge zeigen zwei Daten",
+        "one": "ein Datum, weil du das Jahr getippt hast",
+        "prefix": "ein Datum für jeden Monat, der so beginnt, in jeder Sprache, die du aktiviert hast"
+      },
+      "format": {
+        "name": "Schritt 3 · (Optional) Tippe {{character}} für ein anderes Datumsformat",
+        "desc": "die Vorschläge zeigen dir die Möglichkeiten."
+      },
+      "accept": {
+        "name": "Schritt 4 · Drücke Enter",
+        "desc": "übernimmt die markierte Zeile und schreibt sie in deine Notiz."
+      },
+      "tips": {
+        "name": "Tipps",
+        "desc": "probiere ruhig herum, erst Enter schreibt etwas.",
+        "tab": {
+          "key": "Tab",
+          "text": "Übernimmt den markierten Wert und geht zum nächsten Schritt."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Schließt die Liste und lässt deinen Text unverändert."
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "Holt die Liste nach einem falschen Zeichen zurück."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Daten erkennen"
+    },
+    "languages": {
+      "heading": "Sprachen",
+      "description": "Wähle die Sprachen, in denen Monats- und Wochentagsnamen erkannt werden sollen.",
+      "search": "Suchen",
+      "none": "Keine Sprache passt dazu."
+    },
     "scopes": {
       "heading": "Zu durchsuchende Bereiche",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "Ungültiges Datum",
     "accept": "Übernehmen",
-    "countTooBig": "Zählt nur bis 999"
+    "countTooBig": "Zählt nur bis 999",
+    "instructions": {
+      "navigate": "navigieren",
+      "accept": "einfügen",
+      "complete": "vervollständigen",
+      "format": "Formate"
+    }
   },
   "notices": {
     "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht."

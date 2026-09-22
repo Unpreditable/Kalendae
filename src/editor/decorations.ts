@@ -34,6 +34,8 @@ export interface DateTarget {
   to: number;
   text: string;
   pattern: string;
+  /** The language that read this date, carried from detection. */
+  locale?: string;
 }
 
 class IconWidget extends WidgetType {
@@ -158,6 +160,7 @@ function build(
               to: detection.to,
               text: detection.text,
               pattern: detection.pattern,
+              locale: detection.locale,
             },
             settings.hoverIcon,
             detection.from === hot,

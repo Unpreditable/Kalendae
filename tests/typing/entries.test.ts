@@ -1,4 +1,4 @@
-import { Entry, EntryContext, entriesFor } from "../../src/typing/entries";
+import { Entry, EntryContext, entriesFor, localeOf } from "../../src/typing/entries";
 
 /**
  * What a query puts in the list. Weekday numbers are moment's — Sunday 0 —
@@ -384,15 +384,15 @@ describe("a day named outright", () => {
     const entries = entriesFor("nov 3", context);
 
     expect(entries).toEqual([
-      { kind: "date", day: { year: 2026, month: 10, day: 3 }, complete: "nov 3 2026" },
-      { kind: "date", day: { year: 2025, month: 10, day: 3 }, complete: "nov 3 2025" },
+      { kind: "date", day: { year: 2026, month: 10, day: 3 }, complete: "nov 3 2026", locale: "en" },
+      { kind: "date", day: { year: 2025, month: 10, day: 3 }, complete: "nov 3 2025", locale: "en" },
     ]);
     expect(entries.map(keywordOf)).toEqual(["", ""]);
   });
 
   it("takes the year as typed, and offers nothing to chain", () => {
     expect(entriesFor("nov 3 2027", context)).toEqual([
-      { kind: "date", day: { year: 2027, month: 10, day: 3 }, complete: null },
+      { kind: "date", day: { year: 2027, month: 10, day: 3 }, complete: null, locale: "en" },
     ]);
     expect(entriesFor("nov 3 ", context)).toEqual(entriesFor("nov 3", context));
   });
@@ -404,8 +404,8 @@ describe("a day named outright", () => {
 
     expect(entries[0]).toEqual(expect.objectContaining({ kind: "step", keyword: "+3d" }));
     expect(entries.filter((entry) => entry.kind === "date")).toEqual([
-      { kind: "date", day: { year: 2026, month: 11, day: 3 }, complete: "3 d 2026" },
-      { kind: "date", day: { year: 2025, month: 11, day: 3 }, complete: "3 d 2025" },
+      { kind: "date", day: { year: 2026, month: 11, day: 3 }, complete: "3 d 2026", locale: "en" },
+      { kind: "date", day: { year: 2025, month: 11, day: 3 }, complete: "3 d 2025", locale: "en" },
     ]);
     expect(entries[entries.length - 1]).toEqual(
       expect.objectContaining({ kind: "date", day: { year: 2025, month: 11, day: 3 } }),
@@ -417,8 +417,8 @@ describe("a day named outright", () => {
 
     expect(entries[0].kind).not.toBe("date");
     expect(entries.filter((entry) => entry.kind === "date")).toEqual([
-      { kind: "date", day: { year: 2027, month: 1, day: 1 }, complete: "f 1 2027" },
-      { kind: "date", day: { year: 2026, month: 1, day: 1 }, complete: "f 1 2026" },
+      { kind: "date", day: { year: 2027, month: 1, day: 1 }, complete: "f 1 2027", locale: "en" },
+      { kind: "date", day: { year: 2026, month: 1, day: 1 }, complete: "f 1 2026", locale: "en" },
     ]);
   });
 
@@ -449,7 +449,7 @@ describe("a day named outright", () => {
       [],
       [],
       [],
-    ];
+    ].map((names) => names.map((text) => ({ text, locale: "lt" })));
     const entries = entriesFor("3 sa", { ...context, months });
     const dates = entries.filter((entry) => entry.kind === "date");
 
@@ -514,6 +514,7 @@ describe("the format switch", () => {
       pattern: "YYYY-MM-DD",
       text: "2026-11-03",
       day: { year: 2026, month: 10, day: 3 },
+      locale: "en",
     });
   });
 
@@ -548,5 +549,120 @@ describe("the format switch", () => {
 
     expect(entriesFor("tom,", comma)).toHaveLength(3);
     expect(entriesFor("tom_", comma)).toEqual([{ kind: "invalid" }]);
+  });
+});
+
+describe("a row reached by an alias", () => {
+  const withAlias: EntryContext = {
+    ...context,
+    names: [
+      {
+        label: "Next Friday",
+        rule: "today +1Fri",
+        aliases: [
+          { text: "viernes", locale: "es" },
+          { text: "vie.", locale: "es" },
+        ],
+      },
+      { label: "Tomorrow", rule: "today +1d" },
+    ],
+  };
+
+  it("finds the row by a spelling that is not in its label", () => {
+    expect(entriesFor("viernes", withAlias)[0]).toEqual(
+      expect.objectContaining({ kind: "named", label: "Next Friday", keyword: "+1Fri" }),
+    );
+  });
+
+  it("matches an alias on a prefix, as it matches a label", () => {
+    expect(entriesFor("vier", withAlias)[0]).toEqual(
+      expect.objectContaining({ kind: "named", label: "Next Friday" }),
+    );
+  });
+
+  it("ignores case in an alias", () => {
+    expect(entriesFor("VIERNES", withAlias)[0]).toEqual(
+      expect.objectContaining({ kind: "named", label: "Next Friday" }),
+    );
+  });
+
+  it("produces one row where the label and an alias both match", () => {
+    const both = {
+      ...context,
+      names: [
+        { label: "Next Friday", rule: "today +1Fri", aliases: [{ text: "friday", locale: "en" }] },
+      ],
+    };
+
+    expect(entriesFor("frid", both)).toHaveLength(1);
+  });
+
+  it("never shows the alias", () => {
+    expect(JSON.stringify(entriesFor("viernes", withAlias)[0])).not.toContain("viernes");
+  });
+
+  it("leaves a row with no aliases matching exactly as before", () => {
+    expect(entriesFor("tom", withAlias)[0]).toEqual(
+      expect.objectContaining({ kind: "named", label: "Tomorrow" }),
+    );
+  });
+});
+
+describe("the language a row is written in", () => {
+  const russianMonths = [
+    ["январь"], ["февраль"], ["март"], ["апрель"], ["май"], ["июнь"],
+    ["июль"], ["август"], ["сентябрь"], ["октябрь"], ["ноябрь", "ноября"], ["декабрь"],
+  ].map((names) => names.map((text) => ({ text, locale: "ru" })));
+
+  const russian: EntryContext = {
+    ...context,
+    months: russianMonths,
+    formats: [
+      { id: "iso", pattern: "YYYY-MM-DD" },
+      { id: "custom-1", pattern: "D MMMM YYYY" },
+    ],
+    names: [
+      {
+        label: "Next Friday",
+        rule: "today +1Fri",
+        aliases: [
+          { text: "Friday", locale: "en" },
+          { text: "пятница", locale: "ru" },
+        ],
+      },
+    ],
+  };
+
+  it("is carried on a named day, from the month's spelling", () => {
+    expect(entriesFor("ноя 3", russian).map(localeOf)).toEqual(["ru", "ru"]);
+    expect(entriesFor("nov 3", russian).map(localeOf)).toEqual(["en", "en"]);
+  });
+
+  it("renders the formats in that language, and carries it to the write", () => {
+    const [iso, words] = entriesFor("ноя 3_", russian);
+
+    expect(iso).toMatchObject({ kind: "format", text: "2026-11-03", locale: "ru" });
+    expect(words).toMatchObject({ kind: "format", text: "3 ноября 2026", locale: "ru" });
+  });
+
+  it("narrows the formats on the text as that language writes it", () => {
+    expect(entriesFor("ноя 3_3 ноя", russian)).toEqual([
+      expect.objectContaining({ pattern: "D MMMM YYYY", text: "3 ноября 2026" }),
+    ]);
+  });
+
+  it("is the alias's language where an alias reached the row", () => {
+    expect(localeOf(entriesFor("пятн", russian)[0])).toBe("ru");
+  });
+
+  it("is left to the app where the label reached the row", () => {
+    // The label is already in the app's own language, and saying nothing is
+    // how a row asks to be written in it.
+    expect(localeOf(entriesFor("next", russian)[0])).toBeUndefined();
+  });
+
+  it("is left to the app where nothing named a language", () => {
+    expect(entriesFor("2w", russian).map(localeOf).every((code) => code === undefined)).toBe(true);
+    expect(localeOf(entriesFor("tom_", withFormats)[0])).toBeUndefined();
   });
 });

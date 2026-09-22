@@ -17,8 +17,9 @@ import { DayKey, firstDayOf, todayKey } from "../picker/month";
 import { Rule, Step, UNITS, WEEKDAYS, presetsAnchoredOn } from "../picker/quick";
 import { stepGloss } from "../picker/quick-text";
 import { insertionFor } from "../picker/write";
-import { KalendaeSettings, formatCharOf, triggerOf } from "../settings";
-import { Entry, NamedDate, entriesFor } from "../typing/entries";
+import { KalendaeSettings, enabledLocales, formatCharOf, triggerOf } from "../settings";
+import { Spelling } from "../typing/absolute";
+import { Entry, NamedDate, entriesFor, localeOf } from "../typing/entries";
 import { triggerAt } from "../typing/trigger";
 import { t } from "../i18n/i18n";
 import { editorViewIn } from "./DatePickerExtension";
@@ -61,6 +62,13 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     });
 
     this.bindFormatKey(formatCharOf(this.settings()));
+
+    // The popup's own box, marked so `styles.css` can cap its height without
+    // touching any other suggester's. Not public API, so the shape is checked:
+    // a build that renames it leaves the list at Obsidian's own height, which
+    // is longer rather than broken — the same bargain `chooser()` makes.
+    const box = (this as unknown as { suggestEl?: unknown }).suggestEl;
+    if (box instanceof HTMLElement) box.addClass("kalendae-suggest");
   }
 
   /**
@@ -149,6 +157,11 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
 
     const today = todayKey();
     const firstDay = firstDayOf(settings.weekStart);
+    // The app's own language first. Where two languages read what was typed —
+    // `ma` is March in English and marts in Latvian — the one listed first is
+    // the one the date is written in, and a reader's own language should win.
+    const app = moment.locale();
+    const locales = [app, ...enabledLocales(settings, app).filter((code) => code !== app)];
 
     // Said here rather than once in the constructor: the last row depends on
     // how many formats are configured, and settings change under a running
@@ -172,8 +185,8 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
     return entriesFor(context.query, {
       today,
       firstDay,
-      months: monthNames(),
-      names: catalogue(today, firstDay),
+      months: monthNames(locales),
+      names: catalogue(today, firstDay, weekdayNames(locales)),
       formats: settings.formats,
       formatChar,
     });
@@ -259,6 +272,9 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       // it. Every other row takes the first format, as the insert command does.
       entry.kind === "format" ? entry.pattern : this.settings().formats[0].pattern,
       entry.day,
+      // In the language the reader typed the month or weekday in, so `@ноя 3`
+      // writes Russian into an English vault.
+      localeOf(entry),
     );
 
     editor.replaceRange(insert, range.start, range.end);
@@ -398,18 +414,76 @@ interface Chooser {
  * English is not here. `absolute.ts` carries it, because it is a table in code
  * rather than anything the reader's language decides.
  *
- * Rebuilt on every call, deliberately. Three lists are a fraction of what
- * one keystroke already costs — `catalogue()` reads some forty strings and
+ * Read through `moment.localeData(code)` rather than by switching locales:
+ * `moment.locale(code)` changes what Obsidian itself formats dates with, which
+ * is not a plugin's to change even for an instant.
+ *
+ * Rebuilt on every call, deliberately. A few lists are a fraction of what one
+ * keystroke already costs — `catalogue()` reads some forty strings and
  * `entriesFor` resolves every row through moment — and a cache would have to
- * be keyed on `moment.locale()`, since the reader can change Obsidian's
- * language with the app running. State to save microseconds is a bad trade.
+ * be keyed on the enabled set and on `moment.locale()`, since the reader can
+ * change either with the app running. State to save microseconds is a bad
+ * trade.
  */
-function monthNames(): string[][] {
-  const short = moment.monthsShort();
-  const inDate = moment.months("D MMMM");
+function monthNames(locales: readonly string[]): Spelling[][] {
+  const when = moment.utc({ year: 2026, month: 0, day: 1 });
 
-  return moment.months().map((name, month) => [name, short[month], inDate[month]]);
+  return MONTH_INDEXES.map((month) => {
+    const on = when.clone().month(month);
+
+    return spellings(locales, (data) => [
+      data.months(on),
+      data.monthsShort(on),
+      data.months(on, "D MMMM"),
+    ]);
+  });
 }
+
+/**
+ * Every spelling each weekday answers to, beyond the row's own label.
+ *
+ * Two forms, not the months' three: no locale moment carries writes a weekday
+ * differently inside a date — checked element by element across all of them.
+ * The declined Russian `в среду` is reachable only through a format carrying
+ * a bracketed preposition, and `checkFormat()` refuses a bracket outright.
+ *
+ * Indexed by moment's day number, Sunday first, which is what `weekdayRows`
+ * indexes its own names by.
+ */
+function weekdayNames(locales: readonly string[]): Spelling[][] {
+  const when = moment.utc({ year: 2026, month: 0, day: 1 });
+
+  return WEEKDAY_INDEXES.map((day) => {
+    const on = when.clone().day(day);
+
+    return spellings(locales, (data) => [data.weekdays(on), data.weekdaysShort(on)]);
+  });
+}
+
+/**
+ * One unit's names across the languages in force, without repeats.
+ *
+ * A spelling two languages share keeps the first one's code, which is why the
+ * order `locales` arrives in matters: `septembris` is Latvian alone, but `Sep`
+ * is English and Latvian both, and the one listed first writes the date.
+ */
+function spellings(
+  locales: readonly string[],
+  read: (data: ReturnType<typeof moment.localeData>) => string[],
+): Spelling[] {
+  const byText = new Map<string, string>();
+
+  for (const locale of locales) {
+    for (const text of read(moment.localeData(locale))) {
+      if (!byText.has(text)) byText.set(text, locale);
+    }
+  }
+
+  return [...byText].map(([text, locale]) => ({ text, locale }));
+}
+
+const MONTH_INDEXES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const WEEKDAY_INDEXES = [0, 1, 2, 3, 4, 5, 6];
 
 /**
  * Every named date the list offers, curated first.
@@ -430,14 +504,14 @@ function monthNames(): string[][] {
  * moment's, which is where the calendar grid gets its own — so a reader in any
  * language types their own words at a list nobody translated for this.
  */
-function catalogue(today: DayKey, firstDay: number): NamedDate[] {
+function catalogue(today: DayKey, firstDay: number, aliases: Spelling[][]): NamedDate[] {
   return [
     { label: t("picker.today"), rule: null },
     ...presetsAnchoredOn("today").map((preset) => ({
       label: t(`settings.quickDates.presets.${preset.id}`),
       rule: preset.rule,
     })),
-    ...weekdayRows(today, firstDay),
+    ...weekdayRows(today, firstDay, aliases),
     ...unitRows(),
   ];
 }
@@ -458,7 +532,7 @@ function catalogue(today: DayKey, firstDay: number): NamedDate[] {
  * The days run from the reader's own first day of the week, not from moment's
  * Sunday, so the list reads in the order their calendar does.
  */
-function weekdayRows(today: DayKey, firstDay: number): NamedDate[] {
+function weekdayRows(today: DayKey, firstDay: number, aliases: Spelling[][]): NamedDate[] {
   const names = moment.weekdays();
   const todayIndex = moment.utc(today).day();
   const fromFirstDay = WEEKDAYS.map((_, offset) => (firstDay + offset) % WEEKDAYS.length);
@@ -467,6 +541,9 @@ function weekdayRows(today: DayKey, firstDay: number): NamedDate[] {
     const row = (gloss: string, step: string): NamedDate => ({
       label: capitalised(t(`settings.quickDates.steps.${gloss}`, { day: names[index] })),
       rule: `today ${step}`,
+      // Every enabled language's names for this day. The label is the app's
+      // own; these are the other ways to reach the row it names.
+      aliases: aliases[index],
     });
     const short = WEEKDAYS[index];
     const rows = [row("weekdayNext", `+1${short}`), row("weekdayPrevious", `-1${short}`)];
@@ -514,7 +591,7 @@ type Drawn = Exclude<Entry, { kind: "invalid" } | { kind: "format" }>;
 function labelFor(entry: Drawn): string {
   if (entry.kind === "named") return entry.label;
   if (entry.kind === "accept") return t("typing.accept");
-  if (entry.kind === "date") return moment.utc(entry.day).format("LL");
+  if (entry.kind === "date") return dateIn(entry.day, entry.locale).format("LL");
 
   return stepGloss(lastStep(entry.rule));
 }
@@ -569,7 +646,18 @@ function capitalised(label: string): string {
  * cannot read off what they typed, which is what earns it the space.
  */
 function trailingText(entry: Drawn): string {
-  const on = moment.utc(entry.day);
+  return entry.kind === "date"
+    ? dateIn(entry.day, entry.locale).format("ddd")
+    : moment.utc(entry.day).format("D MMM");
+}
 
-  return entry.kind === "date" ? on.format("ddd") : on.format("D MMM");
+/**
+ * A day to show on a named-day row, in the language it will be written in.
+ *
+ * The row is a preview of what Enter writes, so `@ноя 3` reads as a Russian
+ * date before it becomes one. `.locale()` on this moment only, never the global
+ * one Obsidian formats its own dates with.
+ */
+function dateIn(day: DayKey, locale: string): moment.Moment {
+  return moment.utc(day).locale(locale);
 }

@@ -126,3 +126,23 @@ describe("insertionFor", () => {
     }
   });
 });
+
+describe("writing back in the language a date was read in", () => {
+  it("keeps Russian rather than translating the note into the app's language", () => {
+    const day = { year: 2026, month: 9, day: 7 };
+
+    // No locale: the app's language, which is what every caller wanted before
+    // a date could be read in some other one.
+    expect(replacementFor("D MMMM YYYY", day)).toBe("7 October 2026");
+    // Read in Russian, written in Russian — and declined, as Russian writes a
+    // month inside a date.
+    expect(replacementFor("D MMMM YYYY", day, "ru")).toBe("7 октября 2026");
+    expect(replacementFor("D MMMM YYYY", day, "lv")).toBe("7 oktobris 2026");
+  });
+
+  it("leaves a pattern with no month name alone", () => {
+    const day = { year: 2026, month: 9, day: 7 };
+
+    expect(replacementFor("YYYY-MM-DD", day, "ru")).toBe("2026-10-07");
+  });
+});

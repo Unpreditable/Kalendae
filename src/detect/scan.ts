@@ -1,5 +1,4 @@
-import { moment } from "obsidian";
-import { DateFormatEntry, checkFormat, compileFormat } from "./formats";
+import { DateFormatEntry, checkFormat, compileFormat, readIn } from "./formats";
 import { markerBefore } from "./markers";
 
 /**
@@ -38,6 +37,14 @@ export interface Candidate {
    * here: a rejection carries the reason it was rejected for and nothing less.
    */
   markerFrom?: number;
+  /**
+   * The language that read this date, where one did.
+   *
+   * Carried so the calendar can open on the right day and the write-back can
+   * keep the note's own language: `6 сентября 2026` edited in an English
+   * vault has to come back Russian, not `7 September 2026`.
+   */
+  locale?: string;
   accepted: boolean;
   reason?: RejectReason;
 }
@@ -76,18 +83,18 @@ function reasonFor(
   to: number,
   matched: string,
   pattern: string,
-): Pick<Candidate, "accepted" | "reason"> {
+): Pick<Candidate, "accepted" | "reason" | "locale"> {
   if (!hasCleanBoundaries(text, from, to)) return { accepted: false, reason: "boundary" };
   // moment's strict mode is the authority on whether this is a real date, so
-  // the compiled regex never has to be more than a fast pre-filter. `utc`
-  // rather than a bare `moment()` call for two reasons: validity is a question
-  // about the calendar, not about the reader's timezone, and the namespace
-  // member stays callable under esModuleInterop, which the Jest tsconfig sets
-  // and the build tsconfig does not.
-  if (!moment.utc(matched, pattern, true).isValid()) {
+  // the compiled regex never has to be more than a fast pre-filter. Which
+  // language did the reading is `readIn`'s own business, next to the lists the
+  // spellings come from — and it is kept, because the calendar has to open on
+  // this day and the write-back has to answer in this language.
+  const locale = readIn(matched, pattern);
+  if (locale === null) {
     return { accepted: false, reason: "not-a-date" };
   }
-  return { accepted: true };
+  return { accepted: true, locale };
 }
 
 /**

@@ -92,6 +92,16 @@ export interface KalendaeSettings {
   /** Ordered and never empty; the first format that matches a range claims it. */
   formats: DateFormatEntry[];
   /**
+   * Locale codes whose month and weekday names can be typed, and are looked
+   * for in a note.
+   *
+   * English is not in here and never is: it is always in force, so storing it
+   * would invite a `data.json` that says otherwise. Seeded on first run with
+   * the app's own language — see `loadSettings` — so a Russian vault goes on
+   * typing `@ноя 3` without anyone having to visit settings for it.
+   */
+  languages: string[];
+  /**
    * On by default, unlike the rest. A dated heading in a log or daily note is
    * an ordinary thing to want to edit — but editing one rewrites the heading,
    * which breaks any [[note#2026-09-06]] link pointing at it, so it is worth
@@ -132,6 +142,7 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   hoverIcon: "left",
   taskEmoji: true,
   formats: [{ id: "iso", pattern: "YYYY-MM-DD" }],
+  languages: [],
   scopeHeadings: true,
   scopeInlineCode: false,
   scopeCodeBlocks: false,
@@ -177,6 +188,43 @@ export function commandOnly(settings: KalendaeSettings): boolean {
   return !settings.doubleClick && settings.hoverIcon === "off" && !settings.taskEmoji;
 }
 
+/**
+ * The characters Obsidian pairs for you, which a trigger therefore cannot be.
+ *
+ * Typing one of these puts two in the note with the caret between them, so the
+ * text that arrives is never the text that was typed. `[` is here for that
+ * reason as well as for the link menu it opens.
+ */
+const OPENERS = new Set(["(", "[", "{", '"', "'"]);
+
+/** The one language always in force, whatever `languages` holds. */
+export const BASE_LOCALE = "en";
+
+/**
+ * The locale codes whose names are typable and detectable, English first.
+ *
+ * English leads because it is the universal fallback: every other language's
+ * names are additions to it, and the three languages that number their months
+ * — Japanese, Korean, Chinese — have no letter prefix to type at all without
+ * it. The reader's own order is kept after that, since it is the order the
+ * page shows them in.
+ *
+ * **The app's own language is in force too, and is not stored.** Before this
+ * list existed, month names followed `moment.locale()`, so switching Obsidian
+ * to Latvian made Latvian dates work at once. Seeding the list on first run
+ * alone took that away: a reader who switched afterwards found their own
+ * language missing and nothing explaining why. It behaves exactly as English
+ * does — always present, shown on the page and immovable.
+ */
+export function enabledLocales(settings: KalendaeSettings, appLocale: string): string[] {
+  return [...new Set([BASE_LOCALE, appLocale, ...settings.languages])];
+}
+
+/** Whether a language is in force whatever the list says, so cannot be removed. */
+export function alwaysOn(code: string, appLocale: string): boolean {
+  return code === BASE_LOCALE || code === appLocale;
+}
+
 /** What is wrong with a character somebody typed into one of the two fields. */
 export type TriggerProblem =
   // "length" is the trigger's one-to-three rule and "single" the format
@@ -205,11 +253,11 @@ export type TriggerProblem =
  * positions are free, because they can only ever appear where the first
  * character already did: the `d` in `@d` and the `#` in `@#` fire nothing.
  *
- * `(`, `{`, `"` and `'` are allowed, although `trigger.ts` counts them as
- * word-starts, so a trigger of `"` fires after every opening quote. That is
- * unwise rather than broken, and a field that refuses every unwise value argues
- * with the reader — who can type `""` instead now that a trigger may be two
- * characters.
+ * The openers `(`, `[`, `{`, `"` and `'` are refused in first position too, and
+ * this replaces an earlier reading that allowed them as merely unwise. They are
+ * broken: Obsidian auto-pairs every one of them, so typing `"` puts `""` in the
+ * note with the caret between, and the trigger the reader meant to type is not
+ * the text that arrives. A trigger that cannot be typed is not a preference.
  */
 export function checkTrigger(value: string, formatChar: string): TriggerProblem | null {
   const characters = [...value];
@@ -218,7 +266,7 @@ export function checkTrigger(value: string, formatChar: string): TriggerProblem 
   if (/\s/.test(value)) return "space";
   if (/\p{L}/u.test(characters[0])) return "letter";
   if (/\p{N}/u.test(characters[0])) return "digit";
-  if (characters[0] === "#" || characters[0] === "[") return "reserved";
+  if (OPENERS.has(characters[0]) || characters[0] === "#") return "reserved";
   if (characters.includes(formatChar)) return "clash";
 
   return null;

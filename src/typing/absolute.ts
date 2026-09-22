@@ -1,5 +1,6 @@
 import { moment } from "obsidian";
 import { DayKey } from "../picker/month";
+import { BASE_LOCALE } from "../settings";
 
 /**
  * A day named outright, rather than counted from today.
@@ -16,13 +17,25 @@ import { DayKey } from "../picker/month";
  * file that asks moment what language it is in stays `date-suggest.ts`.
  */
 
+/** A name something answers to, and the language it is a name in. */
+export interface Spelling {
+  text: string;
+  /** moment's locale code, which is what the date is then written in. */
+  locale: string;
+}
+
 export interface AbsoluteContext {
   today: DayKey;
   /**
-   * Every spelling each month answers to in the reader's language, January
+   * Every spelling each month answers to in the languages in force, January
    * first. Empty is legal and means English alone.
+   *
+   * **The order is the tie-break.** Where two languages both read what was
+   * typed, the one listed first is the one the date is written in — so the
+   * caller lists the app's own language first, and `ma` in a Latvian vault is
+   * marts or maijs rather than March or May.
    */
-  months: readonly (readonly string[])[];
+  months: readonly (readonly Spelling[])[];
 }
 
 export interface AbsoluteRow {
@@ -32,6 +45,8 @@ export interface AbsoluteRow {
    * null where nothing is missing — the row Tab writes rather than completes.
    */
   complete: string | null;
+  /** The language the month was read in, and so the one to write it in. */
+  locale: string;
 }
 
 /** The months in English, which every reader can type whatever their language. */
@@ -77,10 +92,11 @@ export function absoluteDates(query: string, context: AbsoluteContext): Absolute
   const read = readTokens(tokens);
   if (read === null) return [];
 
-  return monthsNamed(read.month, context.months).flatMap((month) =>
+  return monthsNamed(read.month, context.months).flatMap(({ month, locale }) =>
     daysIn(read, month, context.today).map((day) => ({
       day,
       complete: completion(read, day.year),
+      locale,
     })),
   );
 }
@@ -145,18 +161,30 @@ function dayIn(token: string, comma: boolean): number | null {
  * A name with a space in it cannot be typed at all, since the grammar splits on
  * spaces — Vietnamese `tháng 11` is the case, and it is not one of the thirteen
  * locales. Dropping it here is what keeps it from matching a bare `tháng`.
+ *
+ * Each month takes the language of the first spelling that matched, so the
+ * answer can differ month by month within one query. The module's own English
+ * table goes last: it exists so English is always typable, not to outrank a
+ * language the caller put first.
  */
-function monthsNamed(prefix: string, reader: readonly (readonly string[])[]): number[] {
+function monthsNamed(
+  prefix: string,
+  reader: readonly (readonly Spelling[])[],
+): { month: number; locale: string }[] {
   const wanted = prefix.toLowerCase();
   if (wanted === "" || DIGITS.test(wanted)) return [];
 
-  return ENGLISH.flatMap((english, month) =>
-    [...english, ...(reader[month] ?? [])].some(
-      (name) => !/\s/.test(name) && name.toLowerCase().startsWith(wanted),
-    )
-      ? [month]
-      : [],
-  );
+  return ENGLISH.flatMap((english, month) => {
+    const spellings = [
+      ...(reader[month] ?? []),
+      ...english.map((text) => ({ text, locale: BASE_LOCALE })),
+    ];
+    const matched = spellings.find(
+      (name) => !/\s/.test(name.text) && name.text.toLowerCase().startsWith(wanted),
+    );
+
+    return matched === undefined ? [] : [{ month, locale: matched.locale }];
+  });
 }
 
 /**

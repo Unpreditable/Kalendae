@@ -7,7 +7,7 @@
       "heading": "Dates dans une note"
     },
     "commandOnly": {
-      "name": "Note : seul « {{command}} » dans la palette de commandes ouvre le calendrier"
+      "name": "Note : seul « {{command}} » dans la palette de commandes ouvre le calendrier sur une date déjà écrite"
     },
     "calendar": {
       "heading": "Calendrier"
@@ -220,6 +220,102 @@
         "save": "Enregistrer"
       }
     },
+    "typing": {
+      "heading": "Saisir une date"
+    },
+    "typeToInsert": {
+      "name": "Saisir pour insérer",
+      "desc": "Tapez {{trigger}} en début de mot pour choisir une date dans une liste."
+    },
+    "typeTrigger": {
+      "name": "Déclencheur",
+      "desc": "Utilisez le déclencheur pour écrire votre date. De un à trois caractères."
+    },
+    "formatTrigger": {
+      "name": "Caractère de format",
+      "desc": "Choisissez l'un de vos {{formats}} pour la date que vous écrivez."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Utilisez de un à trois caractères, comme @ ou @@",
+        "letter": "Un déclencheur ne peut pas commencer par une lettre. Essayez @ ; ou //",
+        "digit": "Un déclencheur ne peut pas commencer par un chiffre. Essayez @ ; ou //",
+        "space": "Retirez l'espace",
+        "reserved": "Obsidian réagit à # ( [ { \" et ' dès leur saisie. Essayez @ ; ou //",
+        "clash": "Le déclencheur et le caractère de format ne peuvent pas partager un caractère"
+      },
+      "format": {
+        "single": "Utilisez un seul caractère, comme _ ~ ou !",
+        "letter": "Une lettre serait lue comme faisant partie de la date. Essayez _ ~ ou !",
+        "digit": "Un chiffre serait lu comme faisant partie de la date. Essayez _ ~ ou !",
+        "space": "Retirez l'espace",
+        "comma": "Une date peut porter une virgule après le jour. Essayez _ ~ ou !",
+        "sign": "Une étape de date commence par + ou -. Essayez _ ~ ou !",
+        "clash": "Le déclencheur et le caractère de format ne peuvent pas partager un caractère"
+      }
+    },
+    "typingHelp": {
+      "heading": "Comment saisir une date",
+      "start": {
+        "name": "Étape 1 · Tapez {{trigger}} pour commencer",
+        "desc": "une liste de suggestions s'ouvre et se met à jour au fil de la saisie.",
+        "note": "ouvre la liste"
+      },
+      "say": {
+        "name": "Étape 2 · Indiquez la date",
+        "desc": "trois façons de le faire."
+      },
+      "shorthand": {
+        "name": "Abrégé",
+        "desc": "indiquez une date en plusieurs étapes.",
+        "eom": "fin de ce mois",
+        "chain": "deux semaines plus tard, puis la fin de cette semaine"
+      },
+      "words": {
+        "name": "En mots",
+        "desc": "utilisez des expressions courantes. En anglais uniquement."
+      },
+      "named": {
+        "name": "Par nom",
+        "desc": "tapez la date, dans toutes les langues que vous avez activées.",
+        "two": "les suggestions afficheront deux dates",
+        "one": "une seule date, parce que vous avez tapé l'année",
+        "prefix": "une date pour chaque mois commençant ainsi, dans toutes les langues que vous avez activées"
+      },
+      "format": {
+        "name": "Étape 3 · (Facultatif) Tapez {{character}} pour un autre format de date",
+        "desc": "les suggestions vous montrent les possibilités."
+      },
+      "accept": {
+        "name": "Étape 4 · Appuyez sur Entrée",
+        "desc": "sélectionne la ligne en surbrillance et l'écrit dans votre note."
+      },
+      "tips": {
+        "name": "Astuces",
+        "desc": "essayez librement, rien n'est écrit avant Entrée.",
+        "tab": {
+          "key": "Tab",
+          "text": "Prend la valeur sélectionnée et passe à l'étape suivante."
+        },
+        "escape": {
+          "key": "Échap",
+          "text": "Ferme la liste et laisse votre texte intact."
+        },
+        "backspace": {
+          "key": "Retour arrière",
+          "text": "Fait revenir la liste après un caractère erroné."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Reconnaissance des dates"
+    },
+    "languages": {
+      "heading": "Langues",
+      "description": "Choisissez les langues dont les noms de mois et de jours doivent être détectés.",
+      "search": "Rechercher",
+      "none": "Aucune langue ne correspond."
+    },
     "scopes": {
       "heading": "Sections à analyser",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "Date invalide",
     "accept": "Accepter",
-    "countTooBig": "Ne compte que jusqu'à 999"
+    "countTooBig": "Ne compte que jusqu'à 999",
+    "instructions": {
+      "navigate": "naviguer",
+      "accept": "insérer",
+      "complete": "compléter",
+      "format": "formats"
+    }
   },
   "notices": {
     "noEditor": "Ouvrez d'abord une note en mode édition."

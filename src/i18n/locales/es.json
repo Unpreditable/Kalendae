@@ -7,7 +7,7 @@
       "heading": "Fechas en una nota"
     },
     "commandOnly": {
-      "name": "Nota: solo «{{command}}» desde la paleta de comandos abre el calendario"
+      "name": "Nota: solo «{{command}}» desde la paleta de comandos abre el calendario en una fecha ya escrita"
     },
     "calendar": {
       "heading": "Calendario"
@@ -220,6 +220,102 @@
         "save": "Guardar"
       }
     },
+    "typing": {
+      "heading": "Escribir una fecha"
+    },
+    "typeToInsert": {
+      "name": "Escribir para insertar",
+      "desc": "Escribe {{trigger}} al principio de una palabra para elegir una fecha de una lista."
+    },
+    "typeTrigger": {
+      "name": "Disparador",
+      "desc": "Usa el disparador para escribir tu fecha. De uno a tres caracteres."
+    },
+    "formatTrigger": {
+      "name": "Carácter de formato",
+      "desc": "Elige uno de tus {{formats}} para la fecha que estás escribiendo."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Usa de uno a tres caracteres, como @ o @@",
+        "letter": "Un disparador no puede empezar por una letra. Prueba @ ; o //",
+        "digit": "Un disparador no puede empezar por un número. Prueba @ ; o //",
+        "space": "Quita el espacio",
+        "reserved": "Obsidian actúa sobre # ( [ { \" y ' al escribirlos. Prueba @ ; o //",
+        "clash": "El disparador y el carácter de formato no pueden compartir un carácter"
+      },
+      "format": {
+        "single": "Usa un solo carácter, como _ ~ o !",
+        "letter": "Una letra se leería como parte de la fecha. Prueba _ ~ o !",
+        "digit": "Un número se leería como parte de la fecha. Prueba _ ~ o !",
+        "space": "Quita el espacio",
+        "comma": "Una fecha puede llevar una coma tras el día. Prueba _ ~ o !",
+        "sign": "Un paso de una fecha empieza por + o -. Prueba _ ~ o !",
+        "clash": "El disparador y el carácter de formato no pueden compartir un carácter"
+      }
+    },
+    "typingHelp": {
+      "heading": "Cómo escribir una fecha",
+      "start": {
+        "name": "Paso 1 · Escribe {{trigger}} para empezar",
+        "desc": "se abre una lista de sugerencias y se actualiza mientras escribes.",
+        "note": "abre la lista"
+      },
+      "say": {
+        "name": "Paso 2 · Indica la fecha",
+        "desc": "hay tres maneras de hacerlo."
+      },
+      "shorthand": {
+        "name": "Abreviado",
+        "desc": "indica una fecha mediante varios pasos.",
+        "eom": "fin de este mes",
+        "chain": "dos semanas más y el fin de esa semana"
+      },
+      "words": {
+        "name": "En palabras",
+        "desc": "usa expresiones habituales. Solo en inglés."
+      },
+      "named": {
+        "name": "Por nombre",
+        "desc": "escribe la fecha, en cualquier idioma que hayas activado.",
+        "two": "las sugerencias mostrarán dos fechas",
+        "one": "una sola fecha, porque escribiste el año",
+        "prefix": "una fecha por cada mes que empiece así, en todos los idiomas que hayas activado"
+      },
+      "format": {
+        "name": "Paso 3 · (Opcional) Escribe {{character}} para usar otro formato de fecha",
+        "desc": "las sugerencias te muestran las opciones."
+      },
+      "accept": {
+        "name": "Paso 4 · Pulsa Intro",
+        "desc": "toma la fila resaltada y la escribe en tu nota."
+      },
+      "tips": {
+        "name": "Consejos",
+        "desc": "prueba sin miedo, no se escribe nada hasta pulsar Intro.",
+        "tab": {
+          "key": "Tab",
+          "text": "Toma el valor resaltado y pasa al siguiente paso."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Cierra la lista y deja tu texto tal cual."
+        },
+        "backspace": {
+          "key": "Retroceso",
+          "text": "Recupera la lista tras un carácter equivocado."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Reconocer fechas"
+    },
+    "languages": {
+      "heading": "Idiomas",
+      "description": "Elige los idiomas en los que deben detectarse los nombres de meses y días.",
+      "search": "Buscar",
+      "none": "Ningún idioma coincide."
+    },
     "scopes": {
       "heading": "Secciones que analizar",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "Fecha no válida",
     "accept": "Aceptar",
-    "countTooBig": "Solo cuenta hasta 999"
+    "countTooBig": "Solo cuenta hasta 999",
+    "instructions": {
+      "navigate": "navegar",
+      "accept": "insertar",
+      "complete": "completar",
+      "format": "formatos"
+    }
   },
   "notices": {
     "noEditor": "Abre primero una nota en vista de edición."

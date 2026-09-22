@@ -1,7 +1,7 @@
 import { Setting, SettingPage, moment } from "obsidian";
 import { renderPattern } from "../detect/formats";
 import { DayKey, firstDayOf, todayKey } from "../picker/month";
-import { KalendaeSettings, formatCharOf, triggerOf } from "../settings";
+import { KalendaeSettings, enabledLocales, formatCharOf, triggerOf } from "../settings";
 import { parseTyped, resolveRule } from "../picker/quick";
 import { t } from "../i18n/i18n";
 
@@ -62,7 +62,12 @@ export class TypingHelpPage extends SettingPage {
     );
 
     this.way("named");
-    this.block(namedExamples(trigger, today));
+    // The app's own language first, as the suggester orders them: the example
+    // prefix is the first one found, and a Russian reader should see `@ма 13`
+    // rather than the English `@ma 13` that every vault lists ahead of it.
+    const app = moment.locale();
+    const locales = [app, ...enabledLocales(settings, app).filter((code) => code !== app)];
+    this.block(namedExamples(trigger, today, monthSpellings(locales)));
 
     this.step("format", { character: formatCharOf(settings) });
     this.step("accept");
@@ -192,7 +197,7 @@ function headingText(key: string, vars: Record<string, string> = {}): DocumentFr
  * The month names come from moment, so a Russian vault reads `@ноя 3` and the
  * example is one the reader can type back.
  */
-function namedExamples(trigger: string, today: DayKey): ExampleRow[] {
+function namedExamples(trigger: string, today: DayKey, months: readonly (readonly string[])[]): ExampleRow[] {
   const short = moment.monthsShort();
   const forward = yearFor(today, 10, 3);
   const typed = today.year + 1;
@@ -214,7 +219,7 @@ function namedExamples(trigger: string, today: DayKey): ExampleRow[] {
       result: renderPattern("D MMM YYYY", { year: typed, month: 10, day: 3 }),
     },
     {
-      typed: `${trigger}${sharedMonthPrefix(moment.months()) ?? ENGLISH_PREFIX} 13`,
+      typed: `${trigger}${sharedMonthPrefix(months) ?? ENGLISH_PREFIX} 13`,
       note: t("settings.typingHelp.named.prefix"),
       // No dates. A prefix naming two months answers with four rows, which will
       // not fit the column, and the note is the answer in any case.
@@ -249,17 +254,55 @@ const ENGLISH_PREFIX = "ma";
  * to English, which is typable in every language and so demonstrates the rule
  * even where the reader's own months cannot.
  */
-function sharedMonthPrefix(months: string[]): string | null {
-  for (const name of months) {
-    const prefix = name.slice(0, 2).toLowerCase();
-    if (!/\p{L}/u.test(prefix)) continue;
+function sharedMonthPrefix(months: readonly (readonly string[])[]): string | null {
+  const reached = new Map<string, Set<number>>();
 
-    const named = months.filter((month) => month.toLowerCase().startsWith(prefix));
-    if (named.length > 1) return prefix;
+  months.forEach((spellings, month) => {
+    for (const name of spellings) {
+      const prefix = name.slice(0, 2).toLowerCase();
+      if (!/\p{L}/u.test(prefix)) continue;
+
+      const already = reached.get(prefix) ?? new Set<number>();
+      already.add(month);
+      reached.set(prefix, already);
+    }
+  });
+
+  // Months, not names. With two languages on, `ma` reaches marzo, mayo, March
+  // and May — four spellings of two months, and two is what the row promises.
+  for (const [prefix, named] of reached) {
+    if (named.size > 1) return prefix;
   }
 
   return null;
 }
+
+/**
+ * Every spelling each month answers to, across the languages in force.
+ *
+ * The same three forms the suggester gathers, read the same way — through
+ * `moment.localeData(code)`, never by switching the global locale, which is
+ * what Obsidian formats its own dates with.
+ */
+function monthSpellings(locales: readonly string[]): string[][] {
+  const when = moment.utc({ year: 2026, month: 0, day: 1 });
+
+  return MONTH_INDEXES.map((month) => {
+    const on = when.clone().month(month);
+
+    return [
+      ...new Set(
+        locales.flatMap((code) => {
+          const data = moment.localeData(code);
+
+          return [data.months(on), data.monthsShort(on), data.months(on, "D MMMM")];
+        }),
+      ),
+    ];
+  });
+}
+
+const MONTH_INDEXES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
 /** The nearest year forward in which that day falls, today counting. */
 function yearFor(today: DayKey, month: number, day: number): number {

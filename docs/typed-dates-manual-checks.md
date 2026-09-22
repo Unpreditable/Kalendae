@@ -182,3 +182,33 @@ scan.
 83. With that message showing, change the format character to `_` - the trigger message clears on its own, and the field shows the value that is actually saved
 
 84. The Tips heading - carries its own line like every other heading: "Tips — experiment freely, nothing is written until Enter."
+
+## Languages
+
+85. Settings - the section between Calendar and Date formats reads "Recognising dates", with two rows: Sections to scan, and Languages
+
+86. The Languages row - shows the names in force, e.g. `English`, and `English · Spanish` once Spanish is on
+
+87. Open Languages - English is first, on, and its toggle cannot be moved
+
+88. Type `spa` in the search - the list narrows to Spanish; type `pt-b` - it finds Portuguese by code
+
+89. Type nonsense in the search - "No language matches that."
+
+90. Turn Spanish on - it moves up under English and stays there when you search again
+
+91. With Spanish on, `@viernes` - the Friday rows; `@septiembre 6` - 6 September
+
+92. With Spanish on, `@vier` - narrows the same way `@frid` does, rather than waiting for the whole word
+
+93. Turn Spanish off, `@viernes` - Invalid date
+
+94. Add a `D MMMM YYYY` format, Spanish on, a note reading `6 septiembre 2026` - outlined, and the calendar opens on it
+
+95. Turn Spanish off, reopen that note - nothing is outlined, and no reload is needed
+
+96. How to type a date - By name reads "in any language you have turned on"; In words still reads "English only"
+
+97. With Spanish on in an English vault, the third By-name example - a prefix reaching months in both languages
+
+98. A fresh vault in Russian - Languages already lists Russian, and `@ноя 3` works without visiting settings

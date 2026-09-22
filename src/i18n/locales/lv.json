@@ -7,7 +7,7 @@
       "heading": "Datumi piezīmē"
     },
     "commandOnly": {
-      "name": "Piezīme: kalendāru atver tikai „{{command}}” komandu paletē"
+      "name": "Piezīme: jau uzrakstītam datumam kalendāru atver tikai „{{command}}” komandu paletē"
     },
     "calendar": {
       "heading": "Kalendārs"
@@ -130,14 +130,7 @@
         "weekdayNth_other": "{{count}} {{day}} uz priekšu",
         "weekdayNthBack_one": "{{count}} {{day}} atpakaļ",
         "weekdayNthBack_other": "{{count}} {{day}} atpakaļ",
-        "weekdayThis": "šī {{day}}",
-        "amount_d_zero": "{{count}} dienu",
-        "amount_w_zero": "{{count}} nedēļu",
-        "amount_M_zero": "{{count}} mēnešu",
-        "amount_Q_zero": "{{count}} ceturkšņu",
-        "amount_y_zero": "{{count}} gadu",
-        "weekdayNth_zero": "{{count}} {{day}} uz priekšu",
-        "weekdayNthBack_zero": "{{count}} {{day}} atpakaļ"
+        "weekdayThis": "šī {{day}}"
       },
       "edges": {
         "SoW": "Nedēļas sākums",
@@ -227,6 +220,102 @@
         "save": "Saglabāt"
       }
     },
+    "typing": {
+      "heading": "Datuma rakstīšana"
+    },
+    "typeToInsert": {
+      "name": "Raksti, lai ievietotu",
+      "desc": "Vārda sākumā ieraksti {{trigger}}, lai izvēlētos datumu no saraksta."
+    },
+    "typeTrigger": {
+      "name": "Ierosinātājs",
+      "desc": "Datumu raksti ar ierosinātāju. No viena līdz trim rakstzīmēm."
+    },
+    "formatTrigger": {
+      "name": "Formāta rakstzīme",
+      "desc": "Izvēlies rakstāmajam datumam vienu no saviem {{formats}}."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Izmanto no vienas līdz trim rakstzīmēm, piemēram @ vai @@",
+        "letter": "Ierosinātājs nevar sākties ar burtu. Pamēģini @ ; vai //",
+        "digit": "Ierosinātājs nevar sākties ar ciparu. Pamēģini @ ; vai //",
+        "space": "Izņem atstarpi",
+        "reserved": "Obsidian reaģē uz # ( [ { \" un ', tiklīdz tos ieraksti. Mēģini @ ; vai //",
+        "clash": "Ierosinātājam un formāta rakstzīmei nedrīkst būt kopīga rakstzīme"
+      },
+      "format": {
+        "single": "Izmanto vienu rakstzīmi, piemēram _ ~ vai !",
+        "letter": "Burtu nolasītu kā datuma daļu. Pamēģini _ ~ vai !",
+        "digit": "Ciparu nolasītu kā datuma daļu. Pamēģini _ ~ vai !",
+        "space": "Izņem atstarpi",
+        "comma": "Datumam aiz dienas var būt komats. Pamēģini _ ~ vai !",
+        "sign": "Datuma solis sākas ar + vai -. Pamēģini _ ~ vai !",
+        "clash": "Ierosinātājam un formāta rakstzīmei nedrīkst būt kopīga rakstzīme"
+      }
+    },
+    "typingHelp": {
+      "heading": "Kā uzrakstīt datumu",
+      "start": {
+        "name": "1. solis · Sāc, ierakstot {{trigger}}",
+        "desc": "atveras ieteikumu saraksts un atjaunojas, tev rakstot.",
+        "note": "atver sarakstu"
+      },
+      "say": {
+        "name": "2. solis · Norādi datumu",
+        "desc": "to var izdarīt trīs veidos."
+      },
+      "shorthand": {
+        "name": "Saīsinājumi",
+        "desc": "norādi datumu vairākos soļos.",
+        "eom": "šī mēneša beigas",
+        "chain": "divas nedēļas uz priekšu, tad tās nedēļas beigas"
+      },
+      "words": {
+        "name": "Vārdiem",
+        "desc": "izmanto ierastus izteicienus. Tikai angliski."
+      },
+      "named": {
+        "name": "Pēc nosaukuma",
+        "desc": "ieraksti datumu jebkurā valodā, ko esi ieslēdzis.",
+        "two": "ieteikumos būs divi datumi",
+        "one": "viens datums, jo ierakstīji gadu",
+        "prefix": "pa datumam katram mēnesim, kas tā sākas, visās valodās, ko esi ieslēdzis"
+      },
+      "format": {
+        "name": "3. solis · (Pēc izvēles) Ieraksti {{character}} citam datuma formātam",
+        "desc": "ieteikumi parāda iespējas."
+      },
+      "accept": {
+        "name": "4. solis · Nospied Enter",
+        "desc": "paņem izcelto rindu un ieraksta to tavā piezīmē."
+      },
+      "tips": {
+        "name": "Padomi",
+        "desc": "mēģini droši, līdz Enter nekas netiek ierakstīts.",
+        "tab": {
+          "key": "Tab",
+          "text": "Paņem izcelto vērtību un pāriet uz nākamo soli."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Aizver sarakstu un atstāj tavu tekstu neskartu."
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "Atgriež sarakstu pēc nepareizas rakstzīmes."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Datumu atpazīšana"
+    },
+    "languages": {
+      "heading": "Valodas",
+      "description": "Izvēlies valodas, kurās jāatpazīst mēnešu un nedēļas dienu nosaukumi.",
+      "search": "Meklēt",
+      "none": "Neviena valoda neatbilst."
+    },
     "scopes": {
       "heading": "Pārmeklējamās daļas",
       "text": {
@@ -266,7 +355,13 @@
   "typing": {
     "invalid": "Nederīgs datums",
     "accept": "Apstiprināt",
-    "countTooBig": "Skaita tikai līdz 999"
+    "countTooBig": "Skaita tikai līdz 999",
+    "instructions": {
+      "navigate": "pārvietoties",
+      "accept": "ievietot",
+      "complete": "pabeigt",
+      "format": "formāti"
+    }
   },
   "notices": {
     "noEditor": "Vispirms atver piezīmi rediģēšanas skatā."

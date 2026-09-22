@@ -83,6 +83,7 @@ function targetOf(detection: Detection): DateTarget {
     to: detection.to,
     text: detection.text,
     pattern: detection.pattern,
+    locale: detection.locale,
   };
 }
 
@@ -158,7 +159,7 @@ function tooltipFor(target: DateTarget, settings: KalendaeSettings): Tooltip {
     arrow: false,
     create: (view) => {
       const panel = createPanel({
-        value: dayFor(target.text, target.pattern),
+        value: dayFor(target.text, target.pattern, target.locale),
         pattern: target.pattern,
         settings,
         onPick: (day) => write(view, target, day),
@@ -200,7 +201,9 @@ function write(view: EditorView, target: DateTarget, day: DayKey): void {
     return;
   }
 
-  const insert = insertionFor(doc, target.from, target.to, target.pattern, day);
+  // In the language the date was read in, so a Russian date edited in an
+  // English vault comes back Russian rather than being quietly translated.
+  const insert = insertionFor(doc, target.from, target.to, target.pattern, day, target.locale);
 
   view.dispatch({
     changes: { from: target.from, to: target.to, insert },

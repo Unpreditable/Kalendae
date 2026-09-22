@@ -1,7 +1,10 @@
 import {
   checkFormat,
   compileFormat,
+  parsesStrictly,
+  setDetectionLocales,
   renderExample,
+  renderPattern,
   tokenGroupsPresent,
   warnFormat,
 } from "../../src/detect/formats";
@@ -295,26 +298,235 @@ describe("Do, in a locale whose ordinals are not plain numbers", () => {
   it.each(["ru", "uk", "ja", "ko"])("compiles in %s rather than throwing", (language) => {
     moment.locale(language);
 
-    expect(() => compileFormat("Do MM.YYYY")).not.toThrow();
-    expect(checkFormat("Do MM.YYYY")).toBeNull();
+    expect(() => compileFormat("Do MMMM YYYY")).not.toThrow();
+    expect(checkFormat("Do MMMM YYYY")).toBeNull();
   });
 
   it("matches the ordinal moment actually writes", () => {
     moment.locale("ru");
+    // The ordinal follows the app's language; the month follows the enabled
+    // list, and this case needs both to be Russian.
+    setDetectionLocales(["en", "ru"]);
 
-    // Month names are left out of this one on purpose: Russian writes a date's
-    // month in the genitive — `сентября` — where `moment.months()` lists the
-    // nominative `сентябрь`, so `MMMM` has a mismatch of its own that this fix
-    // does not touch.
-    const written = moment.utc({ year: 2026, month: 8, day: 16 }).format("Do MM.YYYY");
+    const written = moment.utc({ year: 2026, month: 8, day: 16 }).format("Do MMMM YYYY");
 
-    expect(written).toBe("16-го 09.2026");
-    expect(firstMatch("Do MM.YYYY", written)).toBe(written);
+    expect(written).toBe("16-го сентября 2026");
+    expect(firstMatch("Do MMMM YYYY", written)).toBe(written);
   });
 
   it("still matches a plain English ordinal", () => {
     moment.locale("en");
 
     expect(firstMatch("Do MMMM YYYY", "16th September 2026")).toBe("16th September 2026");
+  });
+});
+
+/**
+ * A language that declines its months spells one month two ways, and a note may
+ * hold either. `moment.months()` lists the standalone name — the one a reader
+ * sees in a calendar and may well type — while a date written out carries the
+ * in-date name, which is a different word: Russian lists `сентябрь` and writes
+ * `6 сентября 2026`. The compiled alternation used to carry the standalone
+ * list alone, so `D MMMM YYYY` found nothing at all in ru, uk and lt — silently,
+ * a format matching nothing looking exactly like a note with no dates in it.
+ *
+ * lv is here because it is the language that proves the fix is not a Slavic
+ * special case: it declines nothing in a date, so both spellings are one word
+ * and the test must still pass.
+ */
+describe("month names, in a language that declines them", () => {
+  const locale = moment.locale();
+  const day = { year: 2026, month: 8, day: 6 };
+
+  afterEach(() => {
+    moment.locale(locale);
+    setDetectionLocales(["en"]);
+  });
+
+  /**
+   * Detection reads the languages that are turned on, not the app's own, so a
+   * case about Ukrainian months has to turn Ukrainian on. In a real vault the
+   * two coincide: `languages` is seeded with the app's language on first run.
+   */
+  const reading = (language: string) => {
+    moment.locale(language);
+    setDetectionLocales(["en", language]);
+  };
+
+  it("is two different words in Russian, so nothing below is vacuous", () => {
+    moment.locale("ru");
+
+    expect(moment.months()[8]).toBe("сентябрь");
+    expect(moment.months("D MMMM")[8]).toBe("сентября");
+    expect(moment.monthsShort()[4]).toBe("май");
+    expect(moment.monthsShort("D MMM")[4]).toBe("мая");
+  });
+
+  it.each(["ru", "uk", "lt", "lv"])("matches a date as %s writes one", (language) => {
+    reading(language);
+
+    for (const pattern of ["D MMMM YYYY", "D MMM YYYY"]) {
+      const written = moment.utc(day).format(pattern);
+
+      expect(firstMatch(pattern, written)).toBe(written);
+    }
+  });
+
+  it.each(["ru", "uk", "lt", "lv"])("matches the listed spelling in %s too", (language) => {
+    reading(language);
+
+    // renderPattern formats each token on its own, so a month name comes back
+    // in the standalone spelling — the one a reader copying the calendar would
+    // type. Whichever spelling is written, detection has to find it again.
+    for (const pattern of ["D MMMM YYYY", "D MMM YYYY"]) {
+      const written = renderPattern(pattern, day);
+
+      expect(firstMatch(pattern, written)).toBe(written);
+    }
+  });
+
+  it("still matches an English month name, which has one spelling", () => {
+    moment.locale("en");
+
+    expect(firstMatch("D MMMM YYYY", "6 September 2026")).toBe("6 September 2026");
+    expect(firstMatch("D MMM YYYY", "6 Sep 2026")).toBe("6 Sep 2026");
+  });
+});
+
+/**
+ * The other half of the same problem, and the half that reaches the note:
+ * moment writes the in-date spelling only when it can see a day token beside
+ * the month, so a pattern rendered a token at a time came back in the
+ * standalone spelling and Kalendae wrote `6 сентябрь 2026` into a Russian
+ * note — a date no Russian speaker would write.
+ */
+describe("renderPattern, where the spelling depends on the whole pattern", () => {
+  const locale = moment.locale();
+  const day = { year: 2026, month: 8, day: 6 };
+
+  afterEach(() => {
+    moment.locale(locale);
+  });
+
+  it.each(["ru", "uk", "lt", "lv"])("writes what moment itself writes in %s", (language) => {
+    moment.locale(language);
+
+    // Patterns moment reads the same way we do, so its own output is the
+    // answer to compare against: every letter in them is a token.
+    for (const pattern of ["D MMMM YYYY", "DD MMMM YYYY", "Do MMMM YYYY", "D MMM YYYY"]) {
+      expect(renderPattern(pattern, day)).toBe(moment.utc(day).format(pattern));
+    }
+  });
+
+  it("writes the standalone spelling where the month stands alone", () => {
+    moment.locale("ru");
+
+    // Not a hedge — `сентябрь 2026` is the correct Russian for a month and a
+    // year with no day in them, and it is moment's rule about a neighbouring
+    // day token that gets it right. Rewriting every month name to the in-date
+    // spelling would have written `сентября 2026` here.
+    expect(renderPattern("MMMM YYYY", day)).toBe("сентябрь 2026");
+    expect(renderPattern("D MMMM YYYY", day)).toBe("6 сентября 2026");
+  });
+
+  it("keeps every literal exactly as typed", () => {
+    moment.locale("en");
+
+    expect(renderPattern("DD.MM.YYYY", day)).toBe("06.09.2026");
+    expect(renderPattern("#DD.MM.YYYY#", day)).toBe("#06.09.2026#");
+    expect(renderPattern("(week) DD/MM/YYYY", day)).toBe("(week) 06/09/2026");
+  });
+
+  it("leaves a letter Kalendae does not compile standing, as it always has", () => {
+    moment.locale("en");
+
+    expect(renderPattern("yyyy-MM-DD", day)).toBe("yyyy-09-06");
+    expect(renderPattern("", day)).toBe("");
+  });
+});
+
+/**
+ * Which languages detection reads.
+ *
+ * Set back to English after each case: the locales are module state, the way
+ * the compiled-pattern cache beside them is, so a case that left one on would
+ * change what the next one sees.
+ */
+describe("month names from a language that was turned on", () => {
+  afterEach(() => {
+    setDetectionLocales(["en"]);
+  });
+
+  it("matches a Spanish month once Spanish is on, and not before", () => {
+    setDetectionLocales(["en"]);
+    expect(firstMatch("D MMMM YYYY", "6 septiembre 2026")).toBeNull();
+
+    setDetectionLocales(["en", "es"]);
+    expect(firstMatch("D MMMM YYYY", "6 septiembre 2026")).toBe("6 septiembre 2026");
+  });
+
+  it("keeps English matching when another language is added", () => {
+    setDetectionLocales(["en", "es"]);
+
+    expect(firstMatch("D MMMM YYYY", "6 September 2026")).toBe("6 September 2026");
+  });
+
+  it("takes both spellings of a language that declines its months", () => {
+    setDetectionLocales(["en", "uk"]);
+
+    expect(firstMatch("D MMMM YYYY", "6 вересня 2026")).toBe("6 вересня 2026");
+    expect(firstMatch("D MMMM YYYY", "6 вересень 2026")).toBe("6 вересень 2026");
+  });
+
+  it("rebuilds when the set changes rather than serving a stale regex", () => {
+    setDetectionLocales(["en", "es"]);
+    expect(firstMatch("D MMMM YYYY", "6 septiembre 2026")).not.toBeNull();
+
+    setDetectionLocales(["en"]);
+    expect(firstMatch("D MMMM YYYY", "6 septiembre 2026")).toBeNull();
+  });
+
+  it("takes weekday names from an enabled language too", () => {
+    setDetectionLocales(["en", "es"]);
+
+    expect(firstMatch("dddd, D MMMM YYYY", "domingo, 6 septiembre 2026")).toBe(
+      "domingo, 6 septiembre 2026",
+    );
+  });
+});
+
+describe("parsesStrictly, across the enabled languages", () => {
+  afterEach(() => {
+    setDetectionLocales(["en"]);
+  });
+
+  it("accepts a date written in a language that is on", () => {
+    setDetectionLocales(["en", "fr"]);
+
+    expect(parsesStrictly("6 septembre 2026", "D MMMM YYYY")).toBe(true);
+  });
+
+  it("refuses the same date when that language is off", () => {
+    setDetectionLocales(["en"]);
+
+    expect(parsesStrictly("6 septembre 2026", "D MMMM YYYY")).toBe(false);
+  });
+
+  it("still accepts the declined spelling a locale writes", () => {
+    setDetectionLocales(["en", "uk"]);
+
+    expect(parsesStrictly("6 вересня 2026", "D MMMM YYYY")).toBe(true);
+  });
+
+  it("refuses a day the month does not have, in any language", () => {
+    setDetectionLocales(["en", "fr"]);
+
+    expect(parsesStrictly("31 septembre 2026", "D MMMM YYYY")).toBe(false);
+  });
+
+  it("keeps English working when a language is on", () => {
+    setDetectionLocales(["en", "fr"]);
+
+    expect(parsesStrictly("6 September 2026", "D MMMM YYYY")).toBe(true);
   });
 });

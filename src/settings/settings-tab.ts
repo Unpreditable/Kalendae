@@ -25,6 +25,7 @@ import { shadowedFormats } from "../detect/shadow";
 import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
 import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
+import { LanguagesPage, languagesSummary } from "./languages-page";
 import { SectionsPage, scopeSummary } from "./sections-page";
 import { TypingHelpPage } from "./typing-help-page";
 import { t } from "../i18n/i18n";
@@ -230,22 +231,34 @@ export class KalendaeSettingTab extends PluginSettingTab {
         ],
       },
       {
-        // A heading with one row under it, rather than a row that carries both
-        // its own name and its value. The heading names the thing once; the row
-        // then has nothing left to say but what is currently scanned.
+        // Two rows that govern both halves of the plugin, which is what earns
+        // them one heading. The scope toggles are not detection-only —
+        // `date-suggest.ts` reads them too, which is why `@tom` opens nothing
+        // inside a code block — and a language is read by the typed list and
+        // the scanner alike.
+        //
+        // Sections had this heading to itself and a nameless row beneath it,
+        // on the reasoning that the heading named the thing once. A second row
+        // ends that arrangement, so the row takes its name back.
         type: "group",
         cls: "kalendae-scope-group",
-        heading: t("settings.scopes.heading"),
+        heading: t("settings.recognising.heading"),
         items: [
           {
-            // No name of its own. The heading above has already said what this
-            // is, so the row is left with nothing but the value — which is what
-            // `displayValue` is for, and it keeps the value out of the page
-            // title the row's name would otherwise supply.
-            name: "",
+            name: t("settings.scopes.heading"),
             type: "page",
             displayValue: () => scopeSummary(this.kalendae.settings),
             page: () => new SectionsPage(this.kalendae, () => this.update()),
+          },
+          {
+            // Directly above Date formats, and the adjacency earns its keep: a
+            // language changes nothing for a format carrying no month or
+            // weekday token, so the two rows are read together by exactly the
+            // people they affect.
+            name: t("settings.languages.heading"),
+            type: "page",
+            displayValue: () => languagesSummary(this.kalendae.settings, moment.locale()),
+            page: () => new LanguagesPage(this.kalendae, () => this.update()),
           },
         ],
       },
@@ -350,11 +363,16 @@ export class KalendaeSettingTab extends PluginSettingTab {
 
     for (const entry of BUILT_IN_FORMATS) {
       if (present.has(entry.pattern)) continue;
-      menu.addItem((item) =>
-        item
-          .setTitle(`${entry.pattern}   ${renderExample(entry.pattern)}`)
-          .onClick(() => void this.addFormat({ ...entry })),
-      );
+      menu.addItem((item) => {
+        const title = formatOption(entry.pattern);
+        const row = title.firstElementChild;
+        item.setTitle(title).onClick(() => void this.addFormat({ ...entry }));
+        // The row now sits in the item's title element, which sizes to its
+        // content. Marked so `styles.css` can let it fill the item: the menu
+        // offers no class of its own, and reaching up with `:has()` is what the
+        // linter refuses.
+        row?.parentElement?.addClass("kalendae-format-title");
+      });
     }
 
     menu.addSeparator();
@@ -457,6 +475,24 @@ function commandOnlyText(): string {
  * more `||` on a line already carrying three.
  */
 const TYPING_KEYS = new Set<string>(["typeToInsert", "typeTrigger", "formatTrigger"]);
+
+/**
+ * One format in the add menu: the pattern, and today in it over on the right.
+ *
+ * The same two classes the format rows use, so the menu a format is picked
+ * from and the list it lands in read alike — monospace for what you type,
+ * muted for what it writes. Two spans rather than one string with spaces in
+ * it: spaces cannot line a column up in a proportional font, and the example
+ * is the half a reader is actually choosing between.
+ */
+function formatOption(pattern: string): DocumentFragment {
+  return createFragment((fragment) => {
+    const row = fragment.createSpan({ cls: "kalendae-format-option" });
+
+    row.createSpan({ cls: "kalendae-format-pattern", text: pattern });
+    row.createSpan({ cls: "kalendae-format-example", text: renderExample(pattern) });
+  });
+}
 
 /**
  * A rejected value, said in terms the reader can act on.

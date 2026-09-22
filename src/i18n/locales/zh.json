@@ -7,7 +7,7 @@
       "heading": "笔记中的日期"
     },
     "commandOnly": {
-      "name": "注意：只有命令面板中的“{{command}}”才能打开日历"
+      "name": "注意：对已写好的日期，只有命令面板中的“{{command}}”才能打开日历"
     },
     "calendar": {
       "heading": "日历"
@@ -220,6 +220,102 @@
         "save": "保存"
       }
     },
+    "typing": {
+      "heading": "输入日期"
+    },
+    "typeToInsert": {
+      "name": "输入以插入",
+      "desc": "在词首输入 {{trigger}}，即可从列表中选择日期。"
+    },
+    "typeTrigger": {
+      "name": "触发字符",
+      "desc": "用触发字符来写日期。一到三个字符。"
+    },
+    "formatTrigger": {
+      "name": "格式字符",
+      "desc": "为正在写的日期选择一种{{formats}}。"
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "请使用一到三个字符，例如 @ 或 @@",
+        "letter": "触发字符不能以字母开头。试试 @ ; 或 //",
+        "digit": "触发字符不能以数字开头。试试 @ ; 或 //",
+        "space": "去掉空格",
+        "reserved": "输入 # ( [ { \" ' 时，Obsidian 会立即处理它们。试试 @ ; 或 //",
+        "clash": "触发字符和格式字符不能使用同一个字符"
+      },
+      "format": {
+        "single": "请使用单个字符，例如 _ ~ 或 !",
+        "letter": "字母会被当作日期的一部分。试试 _ ~ 或 !",
+        "digit": "数字会被当作日期的一部分。试试 _ ~ 或 !",
+        "space": "去掉空格",
+        "comma": "日期的日后面可以跟逗号。试试 _ ~ 或 !",
+        "sign": "日期中的步骤以 + 或 - 开头。试试 _ ~ 或 !",
+        "clash": "触发字符和格式字符不能使用同一个字符"
+      }
+    },
+    "typingHelp": {
+      "heading": "如何输入日期",
+      "start": {
+        "name": "第 1 步 · 输入 {{trigger}} 开始",
+        "desc": "会打开建议列表，并随输入更新。",
+        "note": "打开列表"
+      },
+      "say": {
+        "name": "第 2 步 · 指定日期",
+        "desc": "有三种方式。"
+      },
+      "shorthand": {
+        "name": "简写",
+        "desc": "用多个步骤指定日期。",
+        "eom": "本月末",
+        "chain": "两周之后，再取那一周的末尾"
+      },
+      "words": {
+        "name": "用词语",
+        "desc": "使用常见说法。仅限英文。"
+      },
+      "named": {
+        "name": "按名称",
+        "desc": "用你启用的任何语言直接输入日期。",
+        "two": "建议中会出现两个日期",
+        "one": "只有一个日期，因为你输入了年份",
+        "prefix": "以此开头的每个月各一个日期，涵盖你启用的所有语言"
+      },
+      "format": {
+        "name": "第 3 步 · （可选）输入 {{character}} 换用其他日期格式",
+        "desc": "建议会列出可选项。"
+      },
+      "accept": {
+        "name": "第 4 步 · 按 Enter",
+        "desc": "选定高亮的那一行并写入笔记。"
+      },
+      "tips": {
+        "name": "提示",
+        "desc": "放心尝试，按 Enter 之前不会写入任何内容。",
+        "tab": {
+          "key": "Tab",
+          "text": "选定高亮的值，并进入下一步。"
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "关闭列表，输入的文字保持原样。"
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "输错字符后可让列表重新出现。"
+        }
+      }
+    },
+    "recognising": {
+      "heading": "识别日期"
+    },
+    "languages": {
+      "heading": "语言",
+      "description": "选择需要识别月份和星期名称的语言。",
+      "search": "搜索",
+      "none": "没有匹配的语言。"
+    },
     "scopes": {
       "heading": "扫描范围",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "无法识别的日期",
     "accept": "确认",
-    "countTooBig": "最多只能计到 999"
+    "countTooBig": "最多只能计到 999",
+    "instructions": {
+      "navigate": "移动",
+      "accept": "插入",
+      "complete": "补全",
+      "format": "格式"
+    }
   },
   "notices": {
     "noEditor": "请先在编辑视图中打开笔记。"

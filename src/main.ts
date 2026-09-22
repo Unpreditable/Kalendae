@@ -1,11 +1,14 @@
-import { MarkdownView, Notice, Plugin } from "obsidian";
+import { MarkdownView, Notice, Plugin, moment } from "obsidian";
+import { setDetectionLocales } from "./detect/formats";
 import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
 import { defaultWeekStart } from "./picker/month";
 import {
+  BASE_LOCALE,
   DEFAULT_SETTINGS,
   KalendaeSettings,
+  enabledLocales,
   commandScopes,
   migrateTriggers,
   normaliseStoredFormats,
@@ -22,6 +25,7 @@ export default class KalendaePlugin extends Plugin {
 
   async onload(): Promise<void> {
     await this.loadSettings();
+    this.applyLanguages();
 
     this.addSettingTab(new KalendaeSettingTab(this.app, this));
     this.registerEditorExtension(datePickerExtension(() => this.settings));
@@ -89,6 +93,10 @@ export default class KalendaePlugin extends Plugin {
       // Never guessed twice: whichever day the reader's region starts weeks on is
       // resolved once, on the first run, and is an ordinary setting after that.
       weekStart: stored?.weekStart ?? defaultWeekStart(),
+      // Seeded once, like weekStart, and an ordinary setting afterwards. A
+      // vault reading Russian types `@ноя 3` today; upgrading must not take
+      // that away and then wait to be asked for it back.
+      languages: stored?.languages ?? defaultLanguages(),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
       quickDates: normaliseStoredQuickDates(stored?.quickDates),
@@ -97,5 +105,29 @@ export default class KalendaePlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    this.applyLanguages();
   }
+
+  /**
+   * Hands the enabled languages to detection, which has no way to ask.
+   *
+   * Both on load and on every save, not one: the first makes detection right
+   * at startup, the second makes it right the moment a reader turns a language
+   * on, without reloading the plugin to see it.
+   */
+  private applyLanguages(): void {
+    setDetectionLocales(enabledLocales(this.settings, moment.locale()));
+  }
+}
+
+/**
+ * The app's own language, unless that is English, which is always in force.
+ *
+ * `moment.locale()` rather than `getLanguage()`: the names this list governs
+ * are moment's, so the code stored has to be one moment answers to.
+ */
+function defaultLanguages(): string[] {
+  const locale = moment.locale();
+
+  return locale === BASE_LOCALE ? [] : [locale];
 }

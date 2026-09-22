@@ -7,7 +7,7 @@
       "heading": "Datos užraše"
     },
     "commandOnly": {
-      "name": "Pastaba: kalendorių atveria tik „{{command}}“ komandų paletėje"
+      "name": "Pastaba: jau parašytos datos kalendorių atveria tik „{{command}}“ komandų paletėje"
     },
     "calendar": {
       "heading": "Kalendorius"
@@ -130,21 +130,7 @@
         "weekdayNth_other": "{{count}} {{day}} pirmyn",
         "weekdayNthBack_one": "{{count}} {{day}} atgal",
         "weekdayNthBack_other": "{{count}} {{day}} atgal",
-        "weekdayThis": "šį {{day}}",
-        "amount_d_few": "{{count}} dienos",
-        "amount_d_many": "{{count}} dienos",
-        "amount_w_few": "{{count}} savaitės",
-        "amount_w_many": "{{count}} savaitės",
-        "amount_M_few": "{{count}} mėnesiai",
-        "amount_M_many": "{{count}} mėnesio",
-        "amount_Q_few": "{{count}} ketvirčiai",
-        "amount_Q_many": "{{count}} ketvirčio",
-        "amount_y_few": "{{count}} metai",
-        "amount_y_many": "{{count}} metų",
-        "weekdayNth_few": "{{count}} {{day}} pirmyn",
-        "weekdayNth_many": "{{count}} {{day}} pirmyn",
-        "weekdayNthBack_few": "{{count}} {{day}} atgal",
-        "weekdayNthBack_many": "{{count}} {{day}} atgal"
+        "weekdayThis": "šį {{day}}"
       },
       "edges": {
         "SoW": "Savaitės pradžia",
@@ -234,6 +220,102 @@
         "save": "Įrašyti"
       }
     },
+    "typing": {
+      "heading": "Datos rašymas"
+    },
+    "typeToInsert": {
+      "name": "Rašyti ir įterpti",
+      "desc": "Žodžio pradžioje įveskite {{trigger}} ir pasirinkite datą iš sąrašo."
+    },
+    "typeTrigger": {
+      "name": "Paleidiklis",
+      "desc": "Datą rašote paleidikliu. Nuo vieno iki trijų simbolių."
+    },
+    "formatTrigger": {
+      "name": "Formato simbolis",
+      "desc": "Pasirinkite vieną iš savo {{formats}} rašomai datai."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Naudokite nuo vieno iki trijų simbolių, pavyzdžiui @ arba @@",
+        "letter": "Paleidiklis negali prasidėti raide. Pabandykite @ ; arba //",
+        "digit": "Paleidiklis negali prasidėti skaitmeniu. Pabandykite @ ; arba //",
+        "space": "Pašalinkite tarpą",
+        "reserved": "Obsidian reaguoja į # ( [ { \" ir ' vos juos įvedus. Bandykite @ ; arba //",
+        "clash": "Paleidiklis ir formato simbolis negali turėti bendro simbolio"
+      },
+      "format": {
+        "single": "Naudokite vieną simbolį, pavyzdžiui _ ~ arba !",
+        "letter": "Raidė būtų perskaityta kaip datos dalis. Pabandykite _ ~ arba !",
+        "digit": "Skaitmuo būtų perskaitytas kaip datos dalis. Pabandykite _ ~ arba !",
+        "space": "Pašalinkite tarpą",
+        "comma": "Po datos dienos gali būti kablelis. Pabandykite _ ~ arba !",
+        "sign": "Datos žingsnis prasideda + arba -. Pabandykite _ ~ arba !",
+        "clash": "Paleidiklis ir formato simbolis negali turėti bendro simbolio"
+      }
+    },
+    "typingHelp": {
+      "heading": "Kaip parašyti datą",
+      "start": {
+        "name": "1 žingsnis · Pradėkite įvesdami {{trigger}}",
+        "desc": "atsiveria pasiūlymų sąrašas ir atsinaujina jums rašant.",
+        "note": "atveria sąrašą"
+      },
+      "say": {
+        "name": "2 žingsnis · Nurodykite datą",
+        "desc": "tai galima padaryti trimis būdais."
+      },
+      "shorthand": {
+        "name": "Trumpiniai",
+        "desc": "nurodykite datą keliais žingsniais.",
+        "eom": "šio mėnesio pabaiga",
+        "chain": "dvi savaitės į priekį, tada tos savaitės pabaiga"
+      },
+      "words": {
+        "name": "Žodžiais",
+        "desc": "naudokite įprastus posakius. Tik angliškai."
+      },
+      "named": {
+        "name": "Pagal pavadinimą",
+        "desc": "įveskite datą bet kuria įjungta kalba.",
+        "two": "pasiūlymuose bus dvi datos",
+        "one": "viena data, nes įvedėte metus",
+        "prefix": "po datą kiekvienam taip prasidedančiam mėnesiui, visomis jūsų įjungtomis kalbomis"
+      },
+      "format": {
+        "name": "3 žingsnis · (Nebūtina) Įveskite {{character}} kitam datos formatui",
+        "desc": "pasiūlymai parodo galimybes."
+      },
+      "accept": {
+        "name": "4 žingsnis · Paspauskite Enter",
+        "desc": "paima pažymėtą eilutę ir įrašo ją į jūsų užrašą."
+      },
+      "tips": {
+        "name": "Patarimai",
+        "desc": "bandykite drąsiai, iki Enter niekas neįrašoma.",
+        "tab": {
+          "key": "Tab",
+          "text": "Paima pažymėtą reikšmę ir pereina prie kito žingsnio."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Uždaro sąrašą ir palieka jūsų tekstą nepaliestą."
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "Grąžina sąrašą po neteisingo simbolio."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Datų atpažinimas"
+    },
+    "languages": {
+      "heading": "Kalbos",
+      "description": "Pasirinkite kalbas, kurių mėnesių ir savaitės dienų pavadinimai turi būti aptinkami.",
+      "search": "Ieškoti",
+      "none": "Nė viena kalba neatitinka."
+    },
     "scopes": {
       "heading": "Kur ieškoti",
       "text": {
@@ -273,7 +355,13 @@
   "typing": {
     "invalid": "Netinkama data",
     "accept": "Patvirtinti",
-    "countTooBig": "Skaičiuoja tik iki 999"
+    "countTooBig": "Skaičiuoja tik iki 999",
+    "instructions": {
+      "navigate": "naršyti",
+      "accept": "įterpti",
+      "complete": "užbaigti",
+      "format": "formatai"
+    }
   },
   "notices": {
     "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje."

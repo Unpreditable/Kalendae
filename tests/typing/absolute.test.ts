@@ -1,4 +1,4 @@
-import { AbsoluteContext, absoluteDates } from "../../src/typing/absolute";
+import { AbsoluteContext, Spelling, absoluteDates } from "../../src/typing/absolute";
 
 /**
  * A day named outright. Today is Sunday 13 September 2026 throughout, as in the
@@ -15,6 +15,10 @@ const context: AbsoluteContext = {
 /** The days a query lands on, which is what most cases here are about. */
 const daysFor = (query: string, on: AbsoluteContext = context) =>
   absoluteDates(query, on).map((row) => row.day);
+
+/** Twelve lists of plain spellings, every one of them tagged with one language. */
+const inLanguage = (locale: string, months: string[][]): Spelling[][] =>
+  months.map((names) => names.map((text) => ({ text, locale })));
 
 describe("absoluteDates", () => {
   it("reads a month and a day, in either order", () => {
@@ -104,7 +108,7 @@ describe("absoluteDates", () => {
   it("reads the reader's own month names, in every form they are handed in", () => {
     const russian: AbsoluteContext = {
       ...context,
-      months: [
+      months: inLanguage("ru", [
         ["январь", "янв.", "января"],
         ["февраль", "февр.", "февраля"],
         ["март", "март", "марта"],
@@ -117,7 +121,7 @@ describe("absoluteDates", () => {
         ["октябрь", "окт.", "октября"],
         ["ноябрь", "нояб.", "ноября"],
         ["декабрь", "дек.", "декабря"],
-      ],
+      ]),
     };
 
     expect(daysFor("ноя 3", russian)).toEqual(daysFor("nov 3"));
@@ -130,7 +134,7 @@ describe("absoluteDates", () => {
   it("refuses a prefix of digits alone, so a count stays a count", () => {
     const japanese: AbsoluteContext = {
       ...context,
-      months: Array.from({ length: 12 }, (_unused, month) => [`${month + 1}月`]),
+      months: inLanguage("ja", Array.from({ length: 12 }, (_unused, month) => [`${month + 1}月`])),
     };
 
     expect(daysFor("3", japanese)).toEqual([]);
@@ -146,7 +150,7 @@ describe("absoluteDates", () => {
   it("cannot type a month name with a space in it", () => {
     const vietnamese: AbsoluteContext = {
       ...context,
-      months: Array.from({ length: 12 }, (_unused, month) => [`tháng ${month + 1}`]),
+      months: inLanguage("vi", Array.from({ length: 12 }, (_unused, month) => [`tháng ${month + 1}`])),
     };
 
     expect(daysFor("tháng 11 3", vietnamese)).toEqual([]);
@@ -182,5 +186,77 @@ describe("absoluteDates", () => {
     // Nothing missing, nothing to complete.
     expect(completions("nov 3 2026")).toEqual([null]);
     expect(completions("nov 3 198")).toEqual([null]);
+  });
+});
+
+describe("the language a month name was read in", () => {
+  const localesFor = (query: string, on: AbsoluteContext = context) =>
+    absoluteDates(query, on).map((row) => row.locale);
+
+  const latvian = inLanguage("lv", [
+    ["janvāris", "jan"],
+    ["februāris", "feb"],
+    ["marts", "mar"],
+    ["aprīlis", "apr"],
+    ["maijs", "mai"],
+    ["jūnijs", "jūn"],
+    ["jūlijs", "jūl"],
+    ["augusts", "aug"],
+    ["septembris", "sep"],
+    ["oktobris", "okt"],
+    ["novembris", "nov"],
+    ["decembris", "dec"],
+  ]);
+  const english = inLanguage("en", [
+    ["January", "Jan"],
+    ["February", "Feb"],
+    ["March", "Mar"],
+    ["April", "Apr"],
+    ["May"],
+    ["June", "Jun"],
+    ["July", "Jul"],
+    ["August", "Aug"],
+    ["September", "Sep"],
+    ["October", "Oct"],
+    ["November", "Nov"],
+    ["December", "Dec"],
+  ]);
+  /** Each month's spellings, the first table's before the second's. */
+  const merged = (first: Spelling[][], second: Spelling[][]) =>
+    first.map((names, month) => [...names, ...second[month]]);
+
+  it("is the language whose spelling matched", () => {
+    const withRussian: AbsoluteContext = {
+      ...context,
+      months: inLanguage("ru", [
+        ["январь"], ["февраль"], ["март"], ["апрель"], ["май"], ["июнь"],
+        ["июль"], ["август"], ["сентябрь"], ["октябрь"], ["ноябрь", "ноября"], ["декабрь"],
+      ]),
+    };
+
+    expect(localesFor("ноя 3", withRussian)).toEqual(["ru", "ru"]);
+    expect(localesFor("nov 3", withRussian)).toEqual(["en", "en"]);
+  });
+
+  it("is English for the module's own table, with nothing handed in", () => {
+    expect(localesFor("sept 3")).toEqual(["en", "en"]);
+  });
+
+  it("goes to whichever language is listed first where two read the prefix", () => {
+    // `ma` is March and May in English and marts and maijs in Latvian. The
+    // caller lists the app's own language first, which is how it wins.
+    const appLatvian: AbsoluteContext = { ...context, months: merged(latvian, english) };
+    const appEnglish: AbsoluteContext = { ...context, months: merged(english, latvian) };
+
+    expect(new Set(localesFor("ma 13", appLatvian))).toEqual(new Set(["lv"]));
+    expect(new Set(localesFor("ma 13", appEnglish))).toEqual(new Set(["en"]));
+  });
+
+  it("is decided month by month, not once for the query", () => {
+    // `jū` is Latvian alone — jūnijs, jūlijs — and `ju` English alone.
+    const appEnglish: AbsoluteContext = { ...context, months: merged(english, latvian) };
+
+    expect(new Set(localesFor("jū 3", appEnglish))).toEqual(new Set(["lv"]));
+    expect(new Set(localesFor("ju 3", appEnglish))).toEqual(new Set(["en"]));
   });
 });

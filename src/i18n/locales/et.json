@@ -7,7 +7,7 @@
       "heading": "Kuupäevad märkmes"
     },
     "commandOnly": {
-      "name": "Märkus: kalendri avab ainult „{{command}}“ käsupaletist"
+      "name": "Märkus: olemasoleval kuupäeval avab kalendri ainult „{{command}}“ käsupaletist"
     },
     "calendar": {
       "heading": "Kalender"
@@ -220,6 +220,102 @@
         "save": "Salvesta"
       }
     },
+    "typing": {
+      "heading": "Kuupäeva tippimine"
+    },
+    "typeToInsert": {
+      "name": "Tipi lisamiseks",
+      "desc": "Tipi sõna alguses {{trigger}}, et valida kuupäev loendist."
+    },
+    "typeTrigger": {
+      "name": "Käivitaja",
+      "desc": "Käivitajaga kirjutad oma kuupäeva. Üks kuni kolm märki."
+    },
+    "formatTrigger": {
+      "name": "Vormingumärk",
+      "desc": "Vali kirjutatavale kuupäevale üks oma {{formats}}."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Kasuta üht kuni kolme märki, näiteks @ või @@",
+        "letter": "Käivitaja ei saa alata tähega. Proovi @ ; või //",
+        "digit": "Käivitaja ei saa alata numbriga. Proovi @ ; või //",
+        "space": "Jäta tühik välja",
+        "reserved": "Obsidian reageerib märkidele # ( [ { \" ja ' kohe tippimisel. Proovi @ ; või //",
+        "clash": "Käivitajal ja vormingumärgil ei tohi olla ühist märki"
+      },
+      "format": {
+        "single": "Kasuta üht märki, näiteks _ ~ või !",
+        "letter": "Tähte loetaks kuupäeva osaks. Proovi _ ~ või !",
+        "digit": "Numbrit loetaks kuupäeva osaks. Proovi _ ~ või !",
+        "space": "Jäta tühik välja",
+        "comma": "Kuupäeval võib päeva järel olla koma. Proovi _ ~ või !",
+        "sign": "Kuupäeva samm algab märgiga + või -. Proovi _ ~ või !",
+        "clash": "Käivitajal ja vormingumärgil ei tohi olla ühist märki"
+      }
+    },
+    "typingHelp": {
+      "heading": "Kuidas kuupäeva tippida",
+      "start": {
+        "name": "1. samm · Tipi alustamiseks {{trigger}}",
+        "desc": "avaneb soovitusloend, mis tippimise käigus uueneb.",
+        "note": "avab loendi"
+      },
+      "say": {
+        "name": "2. samm · Määra kuupäev",
+        "desc": "selleks on kolm viisi."
+      },
+      "shorthand": {
+        "name": "Lühivorm",
+        "desc": "määra kuupäev mitme sammuga.",
+        "eom": "selle kuu lõpp",
+        "chain": "kaks nädalat edasi, siis selle nädala lõpp"
+      },
+      "words": {
+        "name": "Sõnadega",
+        "desc": "kasuta tavalisi väljendeid. Ainult inglise keeles."
+      },
+      "named": {
+        "name": "Nime järgi",
+        "desc": "tipi kuupäev, igas keeles, mille oled sisse lülitanud.",
+        "two": "soovitused näitavad kaht kuupäeva",
+        "one": "üks kuupäev, sest tippisid aasta",
+        "prefix": "kuupäev iga kuu kohta, mis nii algab, kõigis keeltes, mille oled sisse lülitanud"
+      },
+      "format": {
+        "name": "3. samm · (Valikuline) Tipi {{character}}, et kasutada muud kuupäevavormingut",
+        "desc": "soovitused näitavad valikuid."
+      },
+      "accept": {
+        "name": "4. samm · Vajuta Enter",
+        "desc": "võtab esiletõstetud rea ja kirjutab selle märkmesse."
+      },
+      "tips": {
+        "name": "Näpunäited",
+        "desc": "proovi julgelt, enne Enterit ei kirjutata midagi.",
+        "tab": {
+          "key": "Tab",
+          "text": "Võtab esiletõstetud väärtuse ja liigub järgmise sammu juurde."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Sulgeb loendi ja jätab su teksti puutumata."
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "Toob loendi vale märgi järel tagasi."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Kuupäevade tuvastamine"
+    },
+    "languages": {
+      "heading": "Keeled",
+      "description": "Vali keeled, mille kuude ja nädalapäevade nimesid tuvastada.",
+      "search": "Otsi",
+      "none": "Ükski keel ei sobi."
+    },
     "scopes": {
       "heading": "Läbivaadatavad osad",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "Vigane kuupäev",
     "accept": "Kinnita",
-    "countTooBig": "Loeb ainult kuni 999"
+    "countTooBig": "Loeb ainult kuni 999",
+    "instructions": {
+      "navigate": "liikumine",
+      "accept": "lisamine",
+      "complete": "lõpetamine",
+      "format": "vormingud"
+    }
   },
   "notices": {
     "noEditor": "Ava kõigepealt märge redigeerimisvaates."

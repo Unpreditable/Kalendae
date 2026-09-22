@@ -1,7 +1,7 @@
 import { DateFormatEntry, renderPattern } from "../detect/formats";
 import { DayKey } from "../picker/month";
 import { Rule, canonicalTyped, parseTyped, resolveRule, suggestionsFor } from "../picker/quick";
-import { absoluteDates } from "./absolute";
+import { Spelling, absoluteDates } from "./absolute";
 import { countRefused, rulesFromWords } from "./words";
 
 /**
@@ -27,6 +27,20 @@ export interface NamedDate {
    * the day is today.
    */
   rule: string | null;
+  /**
+   * Extra spellings this row answers to, never shown.
+   *
+   * How a weekday becomes typable in a language the reader turned on. The row
+   * already exists and is already labelled in the app's own language — what an
+   * enabled language adds is another way to reach it, which is exactly what an
+   * alias is. Teaching `quick.ts` the names instead would put a Spanish
+   * weekday into the parser the settings builder shares, where a stored rule
+   * is `today +1Fri` in every language.
+   *
+   * Each carries its language, so a row reached by `пятница` is written in
+   * Russian. The label carries none: it is in the app's own language already.
+   */
+  aliases?: readonly Spelling[];
 }
 
 export interface EntryContext {
@@ -35,16 +49,22 @@ export interface EntryContext {
   firstDay: number;
   names: NamedDate[];
   /**
-   * Every spelling each month answers to in the reader's language, January
-   * first. Handed through to `absoluteDates`, which adds English itself.
+   * Every spelling each month answers to in the languages in force, January
+   * first, the app's own language leading. Handed through to `absoluteDates`,
+   * which adds English itself.
    */
-  months: readonly (readonly string[])[];
+  months: readonly (readonly Spelling[])[];
   /** The formats a date can be written in, in the order settings lists them. */
   formats: readonly DateFormatEntry[];
   /** The character that turns a resolved query into the list of those formats. */
   formatChar: string;
 }
 
+/**
+ * On the three rows that can carry one, `locale` is the language the date is to
+ * be written in. Undefined means nothing typed named a language, and the app's
+ * own is used — see `localeOf`.
+ */
 export type Entry =
   | {
       kind: "named";
@@ -53,6 +73,7 @@ export type Entry =
       complete: string;
       day: DayKey;
       rule: Rule | null;
+      locale?: string;
     }
   | { kind: "step"; keyword: string; complete: string; day: DayKey; rule: Rule }
   // Nothing but the day: the row shows no keyword by design, Tab writes rather
@@ -62,11 +83,11 @@ export type Entry =
   // A day named outright: no rule behind it, so no gloss and no keyword. Its
   // `complete` is null once nothing is missing, which is how Tab knows to write
   // rather than to fill the rest in.
-  | { kind: "date"; day: DayKey; complete: string | null }
+  | { kind: "date"; day: DayKey; complete: string | null; locale: string }
   // One day, written one way. `text` is that day already rendered, because the
   // row shows it and nothing else about the format is worth a column; the
   // pattern rides along for the write.
-  | { kind: "format"; pattern: string; text: string; day: DayKey }
+  | { kind: "format"; pattern: string; text: string; day: DayKey; locale?: string }
   // `reason` is the difference between "that is not a date" and "that is a
   // date with a number I cannot take", which are different things to be told.
   | { kind: "invalid"; reason?: "count" };
@@ -100,23 +121,26 @@ function formatEntries(query: string, context: EntryContext): Entry[] | null {
   const at = query.indexOf(context.formatChar);
   if (at === -1) return null;
 
-  const day = dayFor(query.slice(0, at), context);
-  if (day === null) return null;
+  const source = sourceFor(query.slice(0, at), context);
+  if (source === null) return null;
 
+  const { day, locale } = source;
   const wanted = query.slice(at + context.formatChar.length).toLowerCase();
 
+  // Rendered in the language the day was read in, so `@ноя 3_` offers the
+  // dates as Russian writes them and narrows on that text.
   return context.formats.flatMap((format): Entry[] => {
-    const text = renderPattern(format.pattern, day);
+    const text = renderPattern(format.pattern, day, locale);
 
     return text.toLowerCase().startsWith(wanted)
-      ? [{ kind: "format", pattern: format.pattern, text, day }]
+      ? [{ kind: "format", pattern: format.pattern, text, day, locale }]
       : [];
   });
 }
 
 /**
- * The day the switch acts on: the first row the text in front of it answers
- * with.
+ * The day the switch acts on, and the language it was read in: the first row
+ * the text in front of it answers with.
  *
  * The first row, not the only row. On a desktop the character is a key, and by
  * the time this reads the text the handler has already completed the
@@ -126,10 +150,26 @@ function formatEntries(query: string, context: EntryContext): Entry[] | null {
  * draft's "exactly one row" test was reaching for and refused too much to get:
  * it left the switch inert on every query that answered more than once.
  */
-function dayFor(query: string, context: EntryContext): DayKey | null {
+function sourceFor(
+  query: string,
+  context: EntryContext,
+): { day: DayKey; locale: string | undefined } | null {
   const [first] = ordinaryEntries(query, context);
 
-  return first.kind === "invalid" ? null : first.day;
+  return first.kind === "invalid" ? null : { day: first.day, locale: localeOf(first) };
+}
+
+/**
+ * The language a row is written in, or undefined for the app's own.
+ *
+ * Only a name that belongs to one language sets it: a month or weekday typed in
+ * Russian is written in Russian. A step, a phrase and Accept name no language,
+ * and neither does a label, which is the app's own already.
+ */
+export function localeOf(entry: Entry): string | undefined {
+  return entry.kind === "named" || entry.kind === "date" || entry.kind === "format"
+    ? entry.locale
+    : undefined;
 }
 
 /**
@@ -185,6 +225,7 @@ function dateEntries(query: string, context: EntryContext): Entry[] {
     kind: "date",
     day: row.day,
     complete: row.complete,
+    locale: row.locale,
   }));
 }
 
@@ -192,7 +233,7 @@ function namedEntries(query: string, context: EntryContext, seen: Set<string>): 
   const wanted = query.trim().toLowerCase();
 
   return context.names.flatMap((name): Entry[] => {
-    if (!matchesName(name.label, wanted)) return [];
+    if (!matchesName(name, wanted)) return [];
 
     // Two names can hold one rule: the catalogue's Tomorrow and the generated
     // "1 day on" are both `+1d`. The curated one is listed first and is the one
@@ -227,6 +268,7 @@ function namedEntries(query: string, context: EntryContext, seen: Set<string>): 
         complete: `${keyword} `,
         day: dayOf(rule, context),
         rule,
+        locale: aliasLocale(name, wanted),
       },
     ];
   });
@@ -415,10 +457,32 @@ function lastTokenStart(query: string): number {
  * put this here. The whole label is matched too, so a query with spaces of its
  * own — `end of this` — still narrows the way it reads.
  */
-function matchesName(label: string, wanted: string): boolean {
+function matchesName(name: NamedDate, wanted: string): boolean {
   if (wanted === "") return true;
 
-  const lower = label.toLowerCase();
+  return [name.label, ...(name.aliases ?? []).map((alias) => alias.text)].some((spelling) =>
+    matchesSpelling(spelling, wanted),
+  );
+}
+
+/**
+ * The language of the alias that reached a row, or undefined where the label
+ * did.
+ *
+ * The label is asked first because it is the app's own language, and the app's
+ * own wins wherever two read what was typed. After it, the first alias that
+ * matches — which is why the caller lists the app's language first among them
+ * too.
+ */
+function aliasLocale(name: NamedDate, wanted: string): string | undefined {
+  if (wanted === "" || matchesSpelling(name.label, wanted)) return undefined;
+
+  return name.aliases?.find((alias) => matchesSpelling(alias.text, wanted))?.locale;
+}
+
+/** One spelling against what has been typed, on the whole or on any word. */
+function matchesSpelling(spelling: string, wanted: string): boolean {
+  const lower = spelling.toLowerCase();
 
   return lower.startsWith(wanted) || lower.split(" ").some((word) => word.startsWith(wanted));
 }

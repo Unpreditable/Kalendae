@@ -94,9 +94,17 @@ export function shiftMonths(from: DayKey, months: number): DayKey {
  * today when the command is inserting a date where there was none — an empty
  * range at the caret, whose text is the empty string. Text that does not parse
  * answers today as well, rather than a day built out of NaN.
+ *
+ * The locale is the one that read the date, which detection kept for exactly
+ * this. Without it, strict mode reads the *app's* language and a Russian date
+ * in an English vault parses as nothing at all — so the calendar opened on
+ * today, silently, rather than on the day under the pointer.
  */
-export function dayFor(text: string, pattern: string): DayKey {
-  const at = moment.utc(text, pattern, true);
+export function dayFor(text: string, pattern: string, locale?: string): DayKey {
+  const at =
+    locale === undefined
+      ? moment.utc(text, pattern, true)
+      : moment.utc(text, pattern, locale, true);
 
   return at.isValid() ? { year: at.year(), month: at.month(), day: at.date() } : todayKey();
 }

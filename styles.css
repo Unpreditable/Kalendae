@@ -1048,16 +1048,14 @@
 
    The popup container is Obsidian's and is shared with every other suggester in
    the app — link autocomplete, tags, slash commands — so it cannot simply be
-   given a height: that would shorten all of them. There is no public way to put
-   a class on it either, which is what `:has()` is doing here. It reaches up from
-   the rows this plugin drew to the box holding them, and touches no other
-   suggester's.
+   given a height: that would shorten all of them. The suggester puts a class on
+   its own box instead, and no other suggester's box carries it.
 
    The cap is in `em`, so it follows the reader's font size rather than assuming
-   a row is so many pixels tall. If `:has()` is ever unavailable the rule is
-   skipped and the list falls back to Obsidian's own height, which is longer —
-   a worse menu, not a broken one. */
-.suggestion-container:has(.kalendae-suggest-row) {
+   a row is so many pixels tall. If the class is ever missing the list falls
+   back to Obsidian's own height, which is longer — a worse menu, not a broken
+   one. */
+.suggestion-container.kalendae-suggest {
   max-height: 16em;
   overflow-y: auto;
 }
@@ -1181,4 +1179,85 @@
   padding-inline-end: 0;
   text-align: end;
   white-space: nowrap;
+}
+
+/* The languages list.
+
+   Its rows are a name and a toggle and nothing else, so they take less room
+   than a settings row is given by default, and the list scrolls rather than
+   pushing the search field off the top of a page 111 rows long. */
+.kalendae-languages .setting-item.kalendae-languages-intro {
+  border-top: none;
+  padding-block-start: 0;
+}
+
+/* The page scrolls, not the list. A scrollable box inside a scrollable page
+   gives two scrollbars and a reader who cannot tell which one they are on.
+   The search row stays reachable by sticking to the top instead, which is
+   what the inner box was really for.
+
+   The gutter is reserved on whatever is scrolling, so narrowing the list with
+   the search does not take the scrollbar away and reflow the whole page a
+   few pixels wider. The page marks the panes around it while it is open and
+   unmarks them on leaving, so no other settings tab is touched. */
+.kalendae-stable-gutter {
+  scrollbar-gutter: stable;
+}
+.kalendae-languages .setting-item.kalendae-languages-search {
+  background-color: var(--background-primary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.kalendae-languages .setting-item.kalendae-language-row {
+  border-top: none;
+  padding-block: var(--size-2-2);
+}
+
+.kalendae-language-empty {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  padding-block: var(--size-4-2);
+}
+
+/* A format in the add menu: what you type on the left, what it writes on the
+   right. The two classes are the format rows' own, so the menu and the list
+   it feeds read the same way.
+
+   The title element is Obsidian's and sizes to its content, so it is told to
+   fill the item before `space-between` has any room to work with. The class is
+   put on it from code, which leaves every other menu in the app alone. */
+.menu-item-title.kalendae-format-title {
+  flex: 1;
+}
+
+.kalendae-format-option {
+  display: flex;
+  gap: var(--size-4-4);
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* A language row lights up under the pointer. The name is at one end of the
+   row and its toggle at the other, which is how every settings row is built —
+   fine for five rows, and not for a hundred, where it stops being obvious
+   which name the switch under your hand belongs to. */
+.kalendae-languages .setting-item.kalendae-language-row:hover {
+  background-color: var(--background-modifier-hover);
+  border-radius: var(--radius-s);
+}
+
+/* The locale code beside a language's name. Dimmed and small: it is there to
+   explain a search that matched it, not to be read down the list.
+
+   Opacity rather than --text-muted. Some themes set the muted and faint colours
+   almost level with normal text (Obsidian Nord: #e5e9f0 beside #eceff4), and
+   there the code read as part of the name. Opacity fades whatever colour the
+   theme chose, so it reads as secondary in all of them. */
+.kalendae-languages .setting-item-name .kalendae-language-code {
+  opacity: 0.6;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  margin-inline-start: var(--size-4-2);
 }

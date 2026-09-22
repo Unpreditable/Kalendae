@@ -5,7 +5,9 @@ import {
   WEEK_STARTS,
   checkFormatChar,
   checkTrigger,
+  alwaysOn,
   commandOnly,
+  enabledLocales,
   commandScopes,
   migrateTriggers,
   normaliseStoredFormats,
@@ -287,9 +289,15 @@ describe("checkTrigger", () => {
     expect(checkTrigger("@_", "_")).toBe("clash");
   });
 
-  it("allows the openers, which are unwise rather than broken", () => {
-    expect(checkTrigger('"', "_")).toBeNull();
-    expect(checkTrigger("(", "_")).toBeNull();
+  it("refuses the characters Obsidian pairs for you", () => {
+    // Typing one puts two in the note with the caret between, so the trigger
+    // that arrives is never the one that was typed.
+    for (const opener of ["(", "[", "{", '"', "'"]) {
+      expect(checkTrigger(opener, "_")).toBe("reserved");
+    }
+
+    // Later positions are unaffected: nothing is auto-paired mid-word.
+    expect(checkTrigger("@(", "_")).toBeNull();
   });
 });
 
@@ -326,5 +334,48 @@ describe("checkFormatChar", () => {
   it("refuses a character the trigger is made of, wherever it sits in it", () => {
     expect(checkFormatChar("@", "@")).toBe("clash");
     expect(checkFormatChar("%", "$%@")).toBe("clash");
+  });
+});
+
+describe("enabledLocales", () => {
+  it("always puts English first, whether or not it is stored", () => {
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: [] }, "en")).toEqual(["en"]);
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: ["ru"] }, "en")).toEqual(["en", "ru"]);
+  });
+
+  it("keeps the app's own language in force without storing it", () => {
+    // Before this list existed, month names followed the app's language, so
+    // switching Obsidian to Latvian made Latvian dates work at once. A list
+    // seeded only on first run took that away from anyone who switched later.
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: [] }, "lv")).toEqual(["en", "lv"]);
+  });
+
+  it("does not list a language twice when it is stored as well", () => {
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: ["lv"] }, "lv")).toEqual(["en", "lv"]);
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: ["en", "ru"] }, "en")).toEqual([
+      "en",
+      "ru",
+    ]);
+  });
+
+  it("keeps the reader's order after the two that are always on", () => {
+    expect(enabledLocales({ ...DEFAULT_SETTINGS, languages: ["ru", "de"] }, "lv")).toEqual([
+      "en",
+      "lv",
+      "ru",
+      "de",
+    ]);
+  });
+
+  it("starts empty, so a fresh install adds nothing of its own", () => {
+    expect(DEFAULT_SETTINGS.languages).toEqual([]);
+  });
+});
+
+describe("alwaysOn", () => {
+  it("names English and the app's own language", () => {
+    expect(alwaysOn("en", "lv")).toBe(true);
+    expect(alwaysOn("lv", "lv")).toBe(true);
+    expect(alwaysOn("ru", "lv")).toBe(false);
   });
 });

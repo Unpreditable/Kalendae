@@ -92,7 +92,7 @@
         "meaning": "Meaning"
       },
       "short": {
-        "tomorrow_comment": "Short form shown on the button in the calendar and used as the name field's placeholder. Keep it short \u2014 a long one widens the calendar.",
+        "tomorrow_comment": "Short form shown on the button in the calendar and used as the name field's placeholder. Keep it short — a long one widens the calendar.",
         "tomorrow": "Tomorrow",
         "yesterday_comment": "Short form on the button. Keep it short.",
         "yesterday": "Yesterday",
@@ -102,7 +102,7 @@
         "nextMonday": "Next Mon",
         "nextFriday_comment": "Short form on the button, abbreviating the weekday the way your language does in a calendar. Keep it short.",
         "nextFriday": "Next Fri",
-        "endOfThisWeek_comment": "Short form on the button: end of this week. An abbreviation of your language's own words for it, three or four letters if that works \u2014 it sits on a small button. Unmarked means counted from today, against the \"That \u2026\" forms counted from the date being edited.",
+        "endOfThisWeek_comment": "Short form on the button: end of this week. An abbreviation of your language's own words for it, three or four letters if that works — it sits on a small button. Unmarked means counted from today, against the \"That …\" forms counted from the date being edited.",
         "endOfThisWeek": "EoW",
         "startOfThisWeek_comment": "Short form on the button: the start of this week. Keep it short.",
         "startOfThisWeek": "SoW",
@@ -397,8 +397,8 @@
         "digit_comment": "The value starts with a digit, refused for the same reason as a letter.",
         "digit": "Digits cannot start a trigger. Try @ ; or //",
         "space": "Leave out the space",
-        "reserved_comment": "The value starts with # or [, on which Obsidian opens its own tag and link menus while you type. Two menus over one cursor is a defect, so those two are the only characters refused for being Obsidian's.",
-        "reserved": "Obsidian's own menus open on # and [. Try @ ; or //",
+        "reserved_comment": "The value starts with a character Obsidian acts on as you type it: # and [ open its tag and link menus, and ( [ { \" ' get a closing partner added, so the text that arrives is not what was typed. Keep all six characters in the message.",
+        "reserved": "Obsidian acts on # ( [ { \" and ' as you type them. Try @ ; or //",
         "clash_comment": "The trigger would use a character the format character is set to. Shown on whichever field is being edited; the same wording appears under the other field.",
         "clash": "The trigger and the format character cannot share a character"
       },
@@ -453,8 +453,8 @@
       "named": {
         "name_comment": "Sub-heading over the third of the three ways: naming the day outright, rather than counting to it.",
         "name": "By name",
-        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. With no year typed, the plugin offers the nearest such day ahead and the nearest behind.",
-        "desc": "type the date.",
+        "desc_comment": "Joined to the heading on the same line with an em dash, so start it lowercase and write it as the second half of one sentence. This line and the one under 'In words' are a pair, and the contrast between them is the point: names are read in every language the reader turned on, phrases only in English. Do not soften either half.",
+        "desc": "type the date, in any language you have turned on.",
         "two_comment": "Middle column of the first Name-by-name example, e.g. '@Nov 3'. With no year typed the plugin offers two dates — the nearest 3 November ahead and the nearest behind — and the right-hand column shows both. Say it plainly: this is the one place the page admits the reader still has to choose.",
         "two": "suggestions will show two dates",
         "one_comment": "Middle column of the second example, e.g. '@3 Nov 2027'. Typing the year is what reduces the two suggestions above to one, and nothing else on the page says so.",
@@ -498,6 +498,20 @@
           "text": "Brings the list back after a wrong character."
         }
       }
+    },
+    "recognising": {
+      "heading_comment": "Heading over the two rows that decide what Kalendae reads as a date: which parts of a note are searched, and which languages' month and weekday names count. Both govern typing and detection alike. British spelling, to match 'recognises' in settings.formats.description.",
+      "heading": "Recognising dates"
+    },
+    "languages": {
+      "heading_comment": "Label of the row that opens the language list, and the title of that page.",
+      "heading": "Languages",
+      "description_comment": "One line at the top of the Languages page, saying what the toggles below it do. One sentence, no second clause.",
+      "description": "Select languages in which month and weekday names should be detected.",
+      "search_comment": "Label of the field that narrows the list of languages.",
+      "search": "Search",
+      "none_comment": "Shown in place of the list when the search matches no language.",
+      "none": "No language matches that."
     },
     "scopes": {
       "heading_comment": "Label of the row that opens the page controlling which parts of a note are searched, and the title of that page.",

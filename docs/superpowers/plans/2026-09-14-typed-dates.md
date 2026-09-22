@@ -1721,17 +1721,17 @@ The last step before the work is done, once the English has stopped moving. Thir
 **Files:**
 - Modify: `src/i18n/locales/{de,es,et,fr,ja,ko,lt,lv,pt,ru,uk,zh}.json`
 
-- [ ] **Step 1: List what is new**
+- [x] **Step 1: List what is new**
 
 ```bash
 node -e "const en=require('./src/i18n/locales/en.json'),de=require('./src/i18n/locales/de.json');const keys=o=>Object.entries(o).flatMap(([k,v])=>typeof v==='object'?keys(v).map(s=>k+'.'+s):[k]);const missing=keys(en).filter(k=>!k.endsWith('_comment')&&!keys(de).includes(k));console.log(missing.join('\n'))"
 ```
 
-- [ ] **Step 2: Translate**
+- [x] **Step 2: Translate**
 
 Every locale gets exactly en's key set, no blanks, `_comment` keys excluded. Each string's `_comment` in `en.json` is the brief. `sample_lang.json` is the blank template and is exempt.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npm run validate-translations` — PASS.
 Run: `npm run release-check` — PASS, all three in the order the Release workflow runs them.

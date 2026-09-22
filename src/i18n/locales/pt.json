@@ -7,7 +7,7 @@
       "heading": "Datas em uma nota"
     },
     "commandOnly": {
-      "name": "Nota: apenas “{{command}}” na paleta de comandos abre o calendário"
+      "name": "Nota: apenas “{{command}}” na paleta de comandos abre o calendário em uma data já escrita"
     },
     "calendar": {
       "heading": "Calendário"
@@ -220,6 +220,102 @@
         "save": "Salvar"
       }
     },
+    "typing": {
+      "heading": "Digitar uma data"
+    },
+    "typeToInsert": {
+      "name": "Digitar para inserir",
+      "desc": "Digite {{trigger}} no início de uma palavra para escolher uma data em uma lista."
+    },
+    "typeTrigger": {
+      "name": "Gatilho",
+      "desc": "Use o gatilho para escrever sua data. De um a três caracteres."
+    },
+    "formatTrigger": {
+      "name": "Caractere de formato",
+      "desc": "Escolha um dos seus {{formats}} para a data que está escrevendo."
+    },
+    "triggerError": {
+      "trigger": {
+        "length": "Use de um a três caracteres, como @ ou @@",
+        "letter": "Um gatilho não pode começar com uma letra. Tente @ ; ou //",
+        "digit": "Um gatilho não pode começar com um número. Tente @ ; ou //",
+        "space": "Tire o espaço",
+        "reserved": "O Obsidian reage a # ( [ { \" e ' enquanto você digita. Tente @ ; ou //",
+        "clash": "O gatilho e o caractere de formato não podem compartilhar um caractere"
+      },
+      "format": {
+        "single": "Use um único caractere, como _ ~ ou !",
+        "letter": "Uma letra seria lida como parte da data. Tente _ ~ ou !",
+        "digit": "Um número seria lido como parte da data. Tente _ ~ ou !",
+        "space": "Tire o espaço",
+        "comma": "Uma data pode levar vírgula depois do dia. Tente _ ~ ou !",
+        "sign": "Um passo de uma data começa com + ou -. Tente _ ~ ou !",
+        "clash": "O gatilho e o caractere de formato não podem compartilhar um caractere"
+      }
+    },
+    "typingHelp": {
+      "heading": "Como digitar uma data",
+      "start": {
+        "name": "Passo 1 · Digite {{trigger}} para começar",
+        "desc": "uma lista de sugestões abre e se atualiza enquanto você digita.",
+        "note": "abre a lista"
+      },
+      "say": {
+        "name": "Passo 2 · Informe a data",
+        "desc": "há três maneiras de fazer isso."
+      },
+      "shorthand": {
+        "name": "Abreviado",
+        "desc": "informe uma data em várias etapas.",
+        "eom": "fim deste mês",
+        "chain": "duas semanas adiante e o fim daquela semana"
+      },
+      "words": {
+        "name": "Em palavras",
+        "desc": "use expressões comuns. Somente em inglês."
+      },
+      "named": {
+        "name": "Pelo nome",
+        "desc": "digite a data, em qualquer idioma que você ativou.",
+        "two": "as sugestões mostrarão duas datas",
+        "one": "uma única data, porque você digitou o ano",
+        "prefix": "uma data para cada mês que começa assim, em todos os idiomas que você ativou"
+      },
+      "format": {
+        "name": "Passo 3 · (Opcional) Digite {{character}} para outro formato de data",
+        "desc": "as sugestões mostram as opções."
+      },
+      "accept": {
+        "name": "Passo 4 · Pressione Enter",
+        "desc": "pega a linha destacada e a escreve na sua nota."
+      },
+      "tips": {
+        "name": "Dicas",
+        "desc": "experimente à vontade, nada é escrito até o Enter.",
+        "tab": {
+          "key": "Tab",
+          "text": "Pega o valor destacado e passa para a etapa seguinte."
+        },
+        "escape": {
+          "key": "Esc",
+          "text": "Fecha a lista e deixa seu texto como está."
+        },
+        "backspace": {
+          "key": "Backspace",
+          "text": "Traz a lista de volta depois de um caractere errado."
+        }
+      }
+    },
+    "recognising": {
+      "heading": "Reconhecer datas"
+    },
+    "languages": {
+      "heading": "Idiomas",
+      "description": "Escolha os idiomas em que os nomes de meses e dias devem ser detectados.",
+      "search": "Pesquisar",
+      "none": "Nenhum idioma corresponde."
+    },
     "scopes": {
       "heading": "Seções a analisar",
       "text": {
@@ -259,7 +355,13 @@
   "typing": {
     "invalid": "Data inválida",
     "accept": "Aceitar",
-    "countTooBig": "Conta apenas até 999"
+    "countTooBig": "Conta apenas até 999",
+    "instructions": {
+      "navigate": "navegar",
+      "accept": "inserir",
+      "complete": "completar",
+      "format": "formatos"
+    }
   },
   "notices": {
     "noEditor": "Abra uma nota no modo de edição primeiro."

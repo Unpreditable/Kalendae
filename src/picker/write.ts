@@ -18,8 +18,8 @@ import { DayKey } from "./month";
  * `22.03.2024` goes on saying dates that way, and one that spells the weekday
  * out gets the new day's weekday, not the old one's.
  */
-export function replacementFor(pattern: string, day: DayKey): string {
-  return renderPattern(pattern, day);
+export function replacementFor(pattern: string, day: DayKey, locale?: string): string {
+  return renderPattern(pattern, day, locale);
 }
 
 /**
@@ -38,11 +38,12 @@ export function insertionFor(
   to: number,
   pattern: string,
   day: DayKey,
+  locale?: string,
 ): string {
   const before = cleanBoundaryBefore(doc, from) ? "" : " ";
   const after = cleanBoundaryAfter(doc, to) ? "" : " ";
 
-  return before + replacementFor(pattern, day) + after;
+  return before + replacementFor(pattern, day, locale) + after;
 }
 
 /**

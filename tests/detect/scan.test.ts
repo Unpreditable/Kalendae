@@ -1,4 +1,6 @@
-import { DateFormatEntry } from "../../src/detect/formats";
+import { moment } from "obsidian";
+
+import { DateFormatEntry, setDetectionLocales } from "../../src/detect/formats";
 import { cleanBoundaryAfter, cleanBoundaryBefore, scanText } from "../../src/detect/scan";
 
 function formats(...patterns: string[]): DateFormatEntry[] {
@@ -239,5 +241,122 @@ describe("cleanBoundaryAfter", () => {
 
   it("accepts a dot ending a sentence", () => {
     expect(cleanBoundaryAfter(". ", 0)).toBe(true);
+  });
+});
+
+/**
+ * A month has two spellings in a language that declines them, and gate 3 knew
+ * one of them. moment builds its strict month table from the standalone list —
+ * the one a calendar shows — so `6 вересня 2026`, which is how Ukrainian
+ * writes that date and what moment's own `format()` produces, was matched by
+ * the regex and then thrown out here as not a date. The note said nothing,
+ * because a rejected candidate looks exactly like text that was never a date.
+ *
+ * ru and lv accept both spellings unaided — ru ships parse regexes covering
+ * each, lv declines nothing in a date — and are here to keep it that way.
+ */
+describe("a month name in a language that declines it", () => {
+  const locale = moment.locale();
+  const long = formats("D MMMM YYYY");
+  const day = { year: 2026, month: 8, day: 6 };
+
+  afterEach(() => {
+    moment.locale(locale);
+    setDetectionLocales(["en"]);
+  });
+
+  /**
+   * Detection reads the languages that are turned on, not the app's own, so a
+   * case about Ukrainian months has to turn Ukrainian on. In a real vault the
+   * two coincide: `languages` is seeded with the app's language on first run.
+   */
+  const reading = (language: string) => {
+    moment.locale(language);
+    setDetectionLocales(["en", language]);
+  };
+
+  it.each(["ru", "uk", "lt", "lv"])("accepts the date %s itself writes", (language) => {
+    reading(language);
+    const written = moment.utc(day).format("D MMMM YYYY");
+
+    expect(accepted(`до ${written} at the latest`, long)).toEqual([written]);
+  });
+
+  it.each(["ru", "uk", "lt", "lv"])("accepts the listed spelling in %s too", (language) => {
+    reading(language);
+    const written = `6 ${moment.months()[8]} 2026`;
+
+    expect(accepted(written, long)).toEqual([written]);
+  });
+
+  it("still refuses a month name that is not one, and a day the month lacks", () => {
+    reading("uk");
+
+    expect(accepted("6 вересняти 2026", long)).toEqual([]);
+    expect(accepted("31 вересня 2026", long)).toEqual([]);
+  });
+
+  it("still finds an English month name, which has one spelling", () => {
+    moment.locale("en");
+
+    expect(accepted("due 6 September 2026", long)).toEqual(["6 September 2026"]);
+  });
+});
+
+describe("a note written in a language that was turned on", () => {
+  const formats = [{ id: "long", pattern: "D MMMM YYYY" }];
+
+  afterEach(() => {
+    setDetectionLocales(["en"]);
+  });
+
+  it("finds a Spanish date with Spanish on and none with it off", () => {
+    const text = "Vence el 6 septiembre 2026 sin falta.";
+
+    setDetectionLocales(["en", "es"]);
+    expect(scanText(text, formats).filter((found) => found.accepted)).toHaveLength(1);
+
+    setDetectionLocales(["en"]);
+    expect(scanText(text, formats).filter((found) => found.accepted)).toHaveLength(0);
+  });
+
+  it("finds an English date either way", () => {
+    const text = "Due 6 September 2026 without fail.";
+
+    setDetectionLocales(["en", "es"]);
+    expect(scanText(text, formats).filter((found) => found.accepted)).toHaveLength(1);
+  });
+});
+
+describe("the language a date was read in", () => {
+  const long = formats("D MMMM YYYY");
+
+  afterEach(() => {
+    setDetectionLocales(["en"]);
+  });
+
+  it("is recorded on the candidate", () => {
+    setDetectionLocales(["en", "ru"]);
+
+    const [found] = scanText("6 сентября 2026", long).filter((c) => c.accepted);
+
+    expect(found.locale).toBe("ru");
+  });
+
+  it("prefers the app's own language where several read it the same", () => {
+    // `6 September 2026` is the same text in English and German. Picking a
+    // different month afterwards is where that stops being harmless — October
+    // against Oktober — so the reader's own language is the right guess.
+    setDetectionLocales(["en", "de"]);
+
+    const [found] = scanText("6 September 2026", long).filter((c) => c.accepted);
+
+    expect(found.locale).toBe(moment.locale());
+  });
+
+  it("carries none where nothing read it", () => {
+    setDetectionLocales(["en"]);
+
+    expect(scanText("6 сентября 2026", long).filter((c) => c.accepted)).toHaveLength(0);
   });
 });
