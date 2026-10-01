@@ -1,8 +1,10 @@
 import {
   App,
   Menu,
+  Platform,
   PluginSettingTab,
   Setting,
+  SettingDefinition,
   SettingDefinitionItem,
   SettingGroup,
   moment,
@@ -13,6 +15,8 @@ import {
   KalendaeSettings,
   DEFAULT_SETTINGS,
   HOVER_ICONS,
+  STEP_KEYS,
+  StepKeys,
   WEEK_STARTS,
   TriggerProblem,
   checkFormatChar,
@@ -27,6 +31,7 @@ import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
 import { LanguagesPage, languagesSummary } from "./languages-page";
 import { SectionsPage, scopeSummary } from "./sections-page";
+import { boundCommands, stepClashes } from "./step-clash";
 import { TypingHelpPage } from "./typing-help-page";
 import { t } from "../i18n/i18n";
 
@@ -128,6 +133,7 @@ export class KalendaeSettingTab extends PluginSettingTab {
               defaultValue: DEFAULT_SETTINGS.showHoverFrame,
             },
           },
+          this.stepKeysRow(),
         ],
       },
       {
@@ -345,6 +351,73 @@ export class KalendaeSettingTab extends PluginSettingTab {
   }
 
   /**
+   * The row for this computer's step keys, and only this computer's.
+   *
+   * Each kind of computer binds its own setting, so a vault synced between a
+   * Mac and a PC keeps both; see STEP_KEYS. The platform cannot change while
+   * the tab is open, so the other row is left out rather than hidden.
+   *
+   * The warnings sit in their own element after the description, and are
+   * written when the row is drawn rather than when it is defined. Obsidian
+   * defines the rows once, when the plugin loads, and draws those same rows
+   * every time the tab opens — so a warning written at definition would name
+   * whatever hotkeys existed at startup. Nor can rebuilding the definitions
+   * reach it on a change of key: Obsidian leaves a row unredrawn while focus
+   * is inside its control, and the dropdown has focus as it changes.
+   *
+   * `visible` is the hook, being the one thing Obsidian asks of a row every
+   * time it draws the tab or refreshes it after a control changes, with the
+   * rows already on screen. It always answers yes; asking it is what rewrites
+   * the warnings. They are looked up on screen rather than held from here,
+   * because Obsidian draws a copy of every description and the element built
+   * here is never the one shown.
+   *
+   * The same hook marks the dropdown, which Obsidian otherwise narrows to the
+   * option chosen: on Ctrl, too narrow to show Ctrl + Alt. A definition has no
+   * class of its own to carry, so the mark goes on the drawn element.
+   */
+  private stepKeysRow(): SettingDefinition<keyof KalendaeSettings> {
+    const desc = createFragment();
+    desc.appendText(t("settings.stepKeys.desc"));
+    desc.createDiv({ cls: STEP_CLASHES });
+
+    const visible = () => {
+      const shown = this.containerEl.querySelector<HTMLElement>(`.${STEP_CLASHES}`);
+      if (shown !== null) fillStepClashes(shown, this.app, this.kalendae.settings);
+      shown?.closest(".setting-item")?.querySelector("select")?.addClass("kalendae-step-keys");
+      return true;
+    };
+
+    if (Platform.isMacOS) {
+      return {
+        name: t("settings.stepKeys.name"),
+        desc,
+        visible,
+        control: {
+          type: "dropdown",
+          key: "stepKeysMac",
+          defaultValue: DEFAULT_SETTINGS.stepKeysMac,
+          options: { alt: stepKeyName("alt", true), off: t("settings.stepKeys.options.off") },
+        },
+      };
+    }
+
+    return {
+      name: t("settings.stepKeys.name"),
+      desc,
+      visible,
+      control: {
+        type: "dropdown",
+        key: "stepKeys",
+        defaultValue: DEFAULT_SETTINGS.stepKeys,
+        options: Object.fromEntries(
+          STEP_KEYS.map((value) => [value, t(`settings.stepKeys.options.${value}`)]),
+        ),
+      },
+    };
+  }
+
+  /**
    * Reopening the tab builds a new list element, and the drag binding on the
    * old one would outlive it. See releaseSortable().
    */
@@ -530,6 +603,36 @@ function hoverIconDesc(): DocumentFragment {
   }
 
   return description;
+}
+
+/** A modifier as the keyboard in front of the reader names it: Option, on a Mac. */
+function stepKeyName(keys: StepKeys, isMac: boolean): string {
+  return t(isMac && keys === "alt" ? "settings.stepKeys.options.option" : `settings.stepKeys.options.${keys}`);
+}
+
+/** Marks where the step keys' warnings sit, so a change of key can find them. */
+const STEP_CLASHES = "kalendae-step-clashes";
+
+/**
+ * A line for each command holding the chosen step keys, replacing whatever the
+ * element held. A hotkey wins over the editor's keys, so the reader is told
+ * which command is taking them rather than finding out from a date that will
+ * not move.
+ */
+function fillStepClashes(el: HTMLElement, app: App, settings: KalendaeSettings): void {
+  const isMac = Platform.isMacOS;
+  const keys = isMac ? settings.stepKeysMac : settings.stepKeys;
+
+  el.empty();
+  for (const clash of stepClashes(keys, isMac, boundCommands(app))) {
+    el.createDiv({
+      cls: "kalendae-step-clash",
+      text: t("settings.stepKeys.clash", {
+        keys: `${stepKeyName(keys, isMac)} + ${clash.arrow === "up" ? "↑" : "↓"}`,
+        command: clash.command,
+      }),
+    });
+  }
 }
 
 /**

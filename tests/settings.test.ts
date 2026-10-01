@@ -12,6 +12,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
+  readStepKeys,
 } from "../src/settings";
 
 describe("settings defaults", () => {
@@ -377,5 +378,25 @@ describe("alwaysOn", () => {
     expect(alwaysOn("en", "lv")).toBe(true);
     expect(alwaysOn("lv", "lv")).toBe(true);
     expect(alwaysOn("ru", "lv")).toBe(false);
+  });
+});
+
+describe("readStepKeys", () => {
+  it("defaults to Ctrl, and to Option on a Mac", () => {
+    expect(readStepKeys({})).toEqual({ stepKeys: "ctrl", stepKeysMac: "alt" });
+  });
+
+  it("keeps each computer's choice apart, so a sync carries both", () => {
+    expect(readStepKeys({ stepKeys: "ctrl-alt", stepKeysMac: "off" })).toEqual({
+      stepKeys: "ctrl-alt",
+      stepKeysMac: "off",
+    });
+  });
+
+  it("falls back to the default for anything a Mac or the others cannot use", () => {
+    expect(readStepKeys({ stepKeys: "shift", stepKeysMac: "ctrl" } as never)).toEqual({
+      stepKeys: "ctrl",
+      stepKeysMac: "alt",
+    });
   });
 });

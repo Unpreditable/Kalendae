@@ -46,6 +46,26 @@
       "name_comment": "Settings row label for the toggle that draws an outline around a date and its icon while the pointer is over them.",
       "name": "Outline on hover"
     },
+    "stepKeys": {
+      "name_comment": "Settings row label for the dropdown choosing the key that, held with the up or down arrow, changes the day, month or year the caret is on by one. The arrows are drawn as symbols; keep them.",
+      "name": "Change a date with ↑ and ↓",
+      "desc_comment": "Description under that dropdown. 'it' is the key chosen in the dropdown.",
+      "desc": "Hold it and press ↑ or ↓ to change the day, month, or year at the caret.",
+      "clash_comment": "Warning line under that description, one per clash, shown when an Obsidian hotkey uses the same keys. A hotkey takes the keys first, so the date does not change. {{keys}} is replaced by the key combination, such as 'Alt + ↑'; {{command}} by the command's name as the Hotkeys screen shows it. Keep both markers, and quote the command with your language's quotation marks. 'setting' is this dropdown; 'existing hotkey' is the one in Obsidian's Hotkeys settings.",
+      "clash": "Conflict: {{keys}} runs “{{command}}”, update setting or existing hotkey.",
+      "options": {
+        "ctrl_comment": "Dropdown option: the Ctrl key. Use the name printed on keyboards in your language.",
+        "ctrl": "Ctrl",
+        "alt_comment": "Dropdown option: the Alt key. Use the name printed on keyboards in your language.",
+        "alt": "Alt",
+        "option_comment": "Dropdown option, shown on a Mac only: the Option key, which is the Mac's Alt. Use the name Apple uses for it in your language.",
+        "option": "Option",
+        "ctrl-alt_comment": "Dropdown option: the Ctrl and Alt keys held together.",
+        "ctrl-alt": "Ctrl + Alt",
+        "off_comment": "Dropdown option: the arrow keys never change a date.",
+        "off": "Disabled"
+      }
+    },
     "weekNumbers": {
       "name_comment": "Settings row label for the toggle adding a week-number column to the calendar.",
       "name": "Week numbers"

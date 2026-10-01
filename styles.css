@@ -195,6 +195,18 @@
   color: var(--text-error);
 }
 
+/* Obsidian narrows a dropdown to the option chosen. This one keeps the width of
+   its longest option, so choosing Ctrl does not cut off Ctrl + Alt. */
+.setting-item-control select.dropdown.kalendae-step-keys {
+  min-width: max-content;
+}
+
+/* A hotkey holding the step keys. The setting saves either way, so it is advice
+   in the warning colour rather than an error. */
+.kalendae-step-clash {
+  color: var(--text-warning, var(--text-accent));
+}
+
 /* Advice, not a fault: the format saves either way. Falls back to the accent
    colour where a theme leaves the warning colour undefined. */
 .kalendae-format-problem-warning {

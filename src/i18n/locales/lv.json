@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Rāmis, virzot peli"
     },
+    "stepKeys": {
+      "name": "Mainīt datumu ar ↑ un ↓",
+      "desc": "Turiet to nospiestu un spiediet ↑ vai ↓, lai mainītu dienu, mēnesi vai gadu pie kursora.",
+      "clash": "Konflikts: {{keys}} izpilda „{{command}}”, mainiet iestatījumu vai esošo īsinājumtaustiņu.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "Izslēgts"
+      }
+    },
     "weekNumbers": {
       "name": "Nedēļu numuri"
     },

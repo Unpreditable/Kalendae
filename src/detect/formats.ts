@@ -217,6 +217,64 @@ export function renderPattern(
   );
 }
 
+/** Where one token of a pattern sits in a date written in it. */
+export interface TokenSpan {
+  token: string;
+  from: number;
+  to: number;
+}
+
+/**
+ * Where each token of the pattern sits in the text, or null when the pattern
+ * does not cover the text whole.
+ *
+ * Read off the text rather than worked out from the pattern: a month name is
+ * as long as the word the note holds, and in a language that declines months
+ * that may be either of two words. Every piece becomes its own group, literals
+ * included, so a token's offset is the sum of the groups before it and the
+ * regex needs no match indices.
+ */
+export function tokenSpans(text: string, pattern: string): TokenSpan[] | null {
+  const cache = tokenCache();
+  const pieces = split(pattern, cache);
+  const source = pieces
+    .map((piece) => `(${piece.isToken ? cache.tokens[piece.text] : escapeLiteral(piece.text)})`)
+    .join("");
+  const match = new RegExp(`^${source}$`).exec(text);
+  if (match === null) return null;
+
+  const spans: TokenSpan[] = [];
+  let at = 0;
+  pieces.forEach((piece, index) => {
+    const length = match[index + 1].length;
+    if (piece.isToken) spans.push({ token: piece.text, from: at, to: at + length });
+    at += length;
+  });
+
+  return spans;
+}
+
+/**
+ * The day a date is, read in one language, or null where it does not read.
+ *
+ * The in-date spelling of a month is tried a second time as the listed one, for
+ * the reason `parsesStrictly` gives: moment's strict parser knows only the
+ * listed spelling in some of the languages that decline months.
+ */
+export function readDate(
+  text: string,
+  pattern: string,
+  locale?: string,
+): { year: number; month: number; day: number } | null {
+  const parse = (input: string) =>
+    locale === undefined ? moment.utc(input, pattern, true) : moment.utc(input, pattern, locale, true);
+
+  let at = parse(text);
+  if (!at.isValid()) at = parse(listedSpelling(text));
+
+  return at.isValid() ? { year: at.year(), month: at.month(), day: at.date() } : null;
+}
+
 /** Which of TOKEN_GROUPS a pattern draws on, for the checklist in settings. */
 export function tokenGroupsPresent(pattern: string): Set<TokenGroupKey> {
   const used = new Set(

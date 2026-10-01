@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "마우스를 올렸을 때 테두리"
     },
+    "stepKeys": {
+      "name": "↑ 및 ↓로 날짜 변경",
+      "desc": "이 키를 누른 채 ↑ 또는 ↓를 누르면 커서 위치의 일, 월, 연도가 바뀝니다.",
+      "clash": "충돌: {{keys}}은(는) “{{command}}”을(를) 실행합니다. 설정이나 기존 단축키를 변경하세요.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "사용 안 함"
+      }
+    },
     "weekNumbers": {
       "name": "주 번호"
     },

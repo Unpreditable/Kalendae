@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Rahmen beim Überfahren"
     },
+    "stepKeys": {
+      "name": "Datum mit ↑ und ↓ ändern",
+      "desc": "Gedrückt halten und ↑ oder ↓ drücken, um Tag, Monat oder Jahr an der Einfügemarke zu ändern.",
+      "clash": "Konflikt: {{keys}} führt „{{command}}“ aus, ändere die Einstellung oder das bestehende Tastenkürzel.",
+      "options": {
+        "ctrl": "Strg",
+        "alt": "Alt",
+        "option": "Wahltaste",
+        "ctrl-alt": "Strg + Alt",
+        "off": "Deaktiviert"
+      }
+    },
     "weekNumbers": {
       "name": "Kalenderwochen"
     },

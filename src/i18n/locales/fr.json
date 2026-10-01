@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Cadre au survol"
     },
+    "stepKeys": {
+      "name": "Modifier une date avec ↑ et ↓",
+      "desc": "Maintenez-la et appuyez sur ↑ ou ↓ pour changer le jour, le mois ou l’année sous le curseur.",
+      "clash": "Conflit : {{keys}} lance « {{command}} », modifiez le réglage ou le raccourci existant.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "Désactivé"
+      }
+    },
     "weekNumbers": {
       "name": "Numéros de semaine"
     },

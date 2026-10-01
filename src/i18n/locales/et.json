@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Raam hiirega osutades"
     },
+    "stepKeys": {
+      "name": "Muuda kuupäeva klahvidega ↑ ja ↓",
+      "desc": "Hoia seda all ja vajuta ↑ või ↓, et muuta kursori kohal olevat päeva, kuud või aastat.",
+      "clash": "Konflikt: {{keys}} käivitab käsu „{{command}}“, muuda seadet või olemasolevat kiirklahvi.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "Välja lülitatud"
+      }
+    },
     "weekNumbers": {
       "name": "Nädalanumbrid"
     },

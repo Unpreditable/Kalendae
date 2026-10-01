@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Rėmelis užvedus pelę"
     },
+    "stepKeys": {
+      "name": "Keisti datą klavišais ↑ ir ↓",
+      "desc": "Laikykite jį nuspaudę ir spauskite ↑ arba ↓, kad pakeistumėte dieną, mėnesį ar metus ties žymekliu.",
+      "clash": "Konfliktas: {{keys}} vykdo „{{command}}“, pakeiskite nustatymą arba esamą spartųjį klavišą.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "Išjungta"
+      }
+    },
     "weekNumbers": {
       "name": "Savaičių numeriai"
     },

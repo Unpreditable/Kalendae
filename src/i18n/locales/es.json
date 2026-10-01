@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "Recuadro al pasar el ratón"
     },
+    "stepKeys": {
+      "name": "Cambiar una fecha con ↑ y ↓",
+      "desc": "Mantenla pulsada y pulsa ↑ o ↓ para cambiar el día, el mes o el año donde está el cursor.",
+      "clash": "Conflicto: {{keys}} ejecuta «{{command}}», cambia este ajuste o el atajo existente.",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Opción",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "Desactivado"
+      }
+    },
     "weekNumbers": {
       "name": "Números de semana"
     },

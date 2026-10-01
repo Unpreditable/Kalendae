@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "悬停时显示边框"
     },
+    "stepKeys": {
+      "name": "用 ↑ 和 ↓ 修改日期",
+      "desc": "按住此键并按 ↑ 或 ↓，即可修改光标处的日、月或年。",
+      "clash": "冲突：{{keys}} 会运行“{{command}}”，请修改此设置或现有快捷键。",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "禁用"
+      }
+    },
     "weekNumbers": {
       "name": "周数"
     },

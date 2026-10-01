@@ -32,6 +32,18 @@
     "hoverFrame": {
       "name": "ホバー時の枠線"
     },
+    "stepKeys": {
+      "name": "↑ と ↓ で日付を変更",
+      "desc": "このキーを押しながら ↑ または ↓ を押すと、カーソル位置の日・月・年を変更します。",
+      "clash": "競合: {{keys}} は「{{command}}」を実行します。設定か既存のホットキーを変更してください。",
+      "options": {
+        "ctrl": "Ctrl",
+        "alt": "Alt",
+        "option": "Option",
+        "ctrl-alt": "Ctrl + Alt",
+        "off": "無効"
+      }
+    },
     "weekNumbers": {
       "name": "週番号"
     },

@@ -13,6 +13,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   normaliseStoredQuickDates,
+  readStepKeys,
 } from "./settings";
 import { KalendaeSettingTab } from "./settings/settings-tab";
 import { t } from "./i18n/i18n";
@@ -97,6 +98,7 @@ export default class KalendaePlugin extends Plugin {
       // vault reading Russian types `@ноя 3` today; upgrading must not take
       // that away and then wait to be asked for it back.
       languages: stored?.languages ?? defaultLanguages(),
+      ...readStepKeys(stored ?? {}),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
       quickDates: normaliseStoredQuickDates(stored?.quickDates),

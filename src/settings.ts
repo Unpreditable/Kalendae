@@ -36,6 +36,36 @@ export const HOVER_ICONS = ["off", "left", "right"] as const;
 export type HoverIcon = (typeof HOVER_ICONS)[number];
 
 /**
+ * Which modifier, held with the up and down arrows, steps the part of a date
+ * the caret is on.
+ *
+ * A Mac has a setting of its own, offering Option alone: the system takes
+ * Ctrl+arrows for Mission Control before Obsidian sees them, and Ctrl+Option
+ * is how VoiceOver is driven. Two settings rather than one read differently per
+ * computer, because a vault synced between a Mac and a PC carries one
+ * `data.json` — with one value, whichever computer saved last would choose the
+ * other's keys.
+ */
+export const STEP_KEYS = ["ctrl", "alt", "ctrl-alt", "off"] as const;
+
+export type StepKeys = (typeof STEP_KEYS)[number];
+
+export const MAC_STEP_KEYS = ["alt", "off"] as const;
+
+export type MacStepKeys = (typeof MAC_STEP_KEYS)[number];
+
+/** Both step-key settings out of what was stored, each falling back to its default. */
+export function readStepKeys(
+  stored: Partial<Pick<KalendaeSettings, "stepKeys" | "stepKeysMac">>,
+): Pick<KalendaeSettings, "stepKeys" | "stepKeysMac"> {
+  return {
+    stepKeys: STEP_KEYS.find((value) => value === stored.stepKeys) ?? DEFAULT_SETTINGS.stepKeys,
+    stepKeysMac:
+      MAC_STEP_KEYS.find((value) => value === stored.stepKeysMac) ?? DEFAULT_SETTINGS.stepKeysMac,
+  };
+}
+
+/**
  * Which day a week starts on in the calendar.
  *
  * Named days rather than the numbers moment counts in, because a dropdown's
@@ -118,6 +148,10 @@ export interface KalendaeSettings {
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
   showWritesPreview: boolean;
+  /** The modifier the arrow keys step a date with, off a Mac; see STEP_KEYS. */
+  stepKeys: StepKeys;
+  /** The same, on a Mac. */
+  stepKeysMac: MacStepKeys;
   /** Whether the list of dates opens while you type at all. */
   typeToInsert: boolean;
   /**
@@ -152,6 +186,8 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,
+  stepKeys: "ctrl",
+  stepKeysMac: "alt",
   typeToInsert: true,
   typeTrigger: "@",
   formatTrigger: "_",
