@@ -16,8 +16,26 @@
       "name": "Dubultklikšķis",
       "desc": "Veic dubultklikšķi uz datuma, lai atvērtu kalendāru."
     },
+    "hover": {
+      "heading": "Virzot peli",
+      "preview": {
+        "heading": "Priekšskatījums",
+        "desc": "Novieto kursoru virs rāmja zemāk.",
+        "hovered": "Šādi datumi izskatās piezīmē, kad virzi kursoru virs tiem.",
+        "nothing": "Viss ir izslēgts, tāpēc, virzot kursoru virs datuma, nekas nemainās."
+      },
+      "summary": {
+        "iconLeft": "Ikona pa kreisi",
+        "iconRight": "Ikona pa labi",
+        "outline": "Rāmis",
+        "days": "Attālums dienās",
+        "rounded": "Noapaļots attālums",
+        "orb": "Lodīte",
+        "none": "Nerādīt neko"
+      }
+    },
     "hoverIcon": {
-      "name": "Ikona, virzot peli",
+      "name": "Rādīt ikonu",
       "desc": "Noklikšķini uz {{icon}}, kas parādās, kad kursors ir virs datuma.",
       "options": {
         "off": "Izslēgta",
@@ -30,7 +48,27 @@
       "desc": "Noklikšķini uz vienas, lai atvērtu kalendāru. Šiem datumiem ikona, virzot peli, netiek rādīta."
     },
     "hoverFrame": {
-      "name": "Rāmis, virzot peli"
+      "name": "Rādīt rāmi"
+    },
+    "hoverHint": {
+      "name": "Rādīt norādi",
+      "desc": "Pēc īsas pauzes parāda, cik tālu datums ir no šodienas."
+    },
+    "hoverDistance": {
+      "name": "Attālums",
+      "options": {
+        "off": "Izslēgts",
+        "days": "Dienās",
+        "rounded": "Noapaļoti"
+      }
+    },
+    "hoverOrb": {
+      "name": "Lodītes krāsa",
+      "options": {
+        "off": "Izslēgta",
+        "green-red": "Zaļš nākotnē, sarkans pagātnē",
+        "red-green": "Sarkans nākotnē, zaļš pagātnē"
+      }
     },
     "stepKeys": {
       "name": "Mainīt datumu ar ↑ un ↓",
@@ -363,6 +401,11 @@
     "nextMonth": "Nākamais mēnesis",
     "prevYear": "Iepriekšējais gads",
     "nextYear": "Nākamais gads"
+  },
+  "hint": {
+    "today": "Šodien",
+    "tomorrow": "Rīt",
+    "yesterday": "Vakar"
   },
   "typing": {
     "invalid": "Nederīgs datums",

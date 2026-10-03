@@ -16,8 +16,26 @@
       "name": "Double-clic",
       "desc": "Double-cliquez sur une date pour ouvrir le calendrier."
     },
+    "hover": {
+      "heading": "Au survol",
+      "preview": {
+        "heading": "Aperçu",
+        "desc": "Survolez le cadre ci-dessous.",
+        "hovered": "Voici l'apparence des dates quand vous les survolez dans une note.",
+        "nothing": "Tout est désactivé : survoler une date ne change rien."
+      },
+      "summary": {
+        "iconLeft": "Icône à gauche",
+        "iconRight": "Icône à droite",
+        "outline": "Cadre",
+        "days": "Écart en jours",
+        "rounded": "Écart arrondi",
+        "orb": "Pastille",
+        "none": "Ne rien afficher"
+      }
+    },
     "hoverIcon": {
-      "name": "Icône au survol",
+      "name": "Afficher l'icône",
       "desc": "Cliquez sur l'icône {{icon}} qui apparaît lorsque le pointeur est sur une date.",
       "options": {
         "off": "Désactivée",
@@ -30,7 +48,27 @@
       "desc": "Cliquez sur l'un d'eux pour ouvrir le calendrier. Ces dates n'affichent pas l'icône au survol."
     },
     "hoverFrame": {
-      "name": "Cadre au survol"
+      "name": "Afficher le cadre"
+    },
+    "hoverHint": {
+      "name": "Afficher l'indication",
+      "desc": "Affiche l'écart entre la date et aujourd'hui, après une courte pause."
+    },
+    "hoverDistance": {
+      "name": "Écart",
+      "options": {
+        "off": "Désactivé",
+        "days": "En jours",
+        "rounded": "Arrondi"
+      }
+    },
+    "hoverOrb": {
+      "name": "Couleur de la pastille",
+      "options": {
+        "off": "Désactivée",
+        "green-red": "Vert à venir, rouge passé",
+        "red-green": "Rouge à venir, vert passé"
+      }
     },
     "stepKeys": {
       "name": "Modifier une date avec ↑ et ↓",
@@ -363,6 +401,11 @@
     "nextMonth": "Mois suivant",
     "prevYear": "Année précédente",
     "nextYear": "Année suivante"
+  },
+  "hint": {
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "yesterday": "Hier"
   },
   "typing": {
     "invalid": "Date invalide",

@@ -16,8 +16,26 @@
       "name": "Topeltklõps",
       "desc": "Tee kuupäeval topeltklõps, et kalender avada."
     },
+    "hover": {
+      "heading": "Hiirega osutades",
+      "preview": {
+        "heading": "Eelvaade",
+        "desc": "Vii kursor allolevale kastile.",
+        "hovered": "Nii näevad kuupäevad märkmes välja, kui neile kursoriga osutad.",
+        "nothing": "Kõik on välja lülitatud, nii et kuupäevale osutamine ei muuda midagi."
+      },
+      "summary": {
+        "iconLeft": "Ikoon vasakul",
+        "iconRight": "Ikoon paremal",
+        "outline": "Raam",
+        "days": "Kaugus päevades",
+        "rounded": "Ümardatud kaugus",
+        "orb": "Kera",
+        "none": "Ära näita midagi"
+      }
+    },
     "hoverIcon": {
-      "name": "Ikoon hiirega osutades",
+      "name": "Näita ikooni",
       "desc": "Klõpsa ikoonil {{icon}}, mis ilmub, kui kursor on kuupäeva kohal.",
       "options": {
         "off": "Välja lülitatud",
@@ -30,7 +48,27 @@
       "desc": "Klõpsa ühel, et kalender avada. Nendel kuupäevadel ikooni hiirega osutades ei näidata."
     },
     "hoverFrame": {
-      "name": "Raam hiirega osutades"
+      "name": "Näita raami"
+    },
+    "hoverHint": {
+      "name": "Näita vihjet",
+      "desc": "Näitab lühikese pausi järel, kui kaugel kuupäev tänasest on."
+    },
+    "hoverDistance": {
+      "name": "Kaugus",
+      "options": {
+        "off": "Välja lülitatud",
+        "days": "Päevades",
+        "rounded": "Ümardatud"
+      }
+    },
+    "hoverOrb": {
+      "name": "Kera värv",
+      "options": {
+        "off": "Välja lülitatud",
+        "green-red": "Roheline ees, punane möödas",
+        "red-green": "Punane ees, roheline möödas"
+      }
     },
     "stepKeys": {
       "name": "Muuda kuupäeva klahvidega ↑ ja ↓",
@@ -363,6 +401,11 @@
     "nextMonth": "Järgmine kuu",
     "prevYear": "Eelmine aasta",
     "nextYear": "Järgmine aasta"
+  },
+  "hint": {
+    "today": "Täna",
+    "tomorrow": "Homme",
+    "yesterday": "Eile"
   },
   "typing": {
     "invalid": "Vigane kuupäev",

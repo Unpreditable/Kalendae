@@ -1,5 +1,5 @@
 import { Extension, StateEffect, StateField } from "@codemirror/state";
-import { EditorView, Tooltip, showTooltip } from "@codemirror/view";
+import { EditorView, Tooltip, closeHoverTooltips, showTooltip } from "@codemirror/view";
 import { Detection, detectIn } from "../detect/detect";
 import { DayKey, dayFor } from "../picker/month";
 import { createPanel } from "../picker/panel";
@@ -38,6 +38,11 @@ const openOn = StateField.define<DateTarget | null>({
     return transaction.docChanged ? null : current;
   },
 });
+
+/** Whether the calendar is open, which the hover hint stays out of the way of. */
+export function pickerOpen(state: EditorView["state"]): boolean {
+  return state.field(openOn, false) != null;
+}
 
 /** The date under a document position, if the plugin recognises one there. */
 export function targetAt(
@@ -132,7 +137,10 @@ export function pickerTooltip(getSettings: () => KalendaeSettings): Extension {
 
 /** Opens the picker on a target, from anywhere that has a view. */
 export function showPicker(view: EditorView, target: DateTarget): void {
-  view.dispatch({ effects: openPicker.of(target) });
+  // The hint, if one is up, goes as the calendar arrives: it sits over the line
+  // above the date, which is where the calendar flips to near the bottom of the
+  // window.
+  view.dispatch({ effects: [openPicker.of(target), closeHoverTooltips] });
 }
 
 /**
@@ -145,7 +153,7 @@ export function showPicker(view: EditorView, target: DateTarget): void {
 function openFromClick(view: EditorView, target: DateTarget): void {
   view.dispatch({
     selection: { anchor: target.to },
-    effects: openPicker.of(target),
+    effects: [openPicker.of(target), closeHoverTooltips],
   });
 }
 

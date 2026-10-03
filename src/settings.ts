@@ -36,6 +36,40 @@ export const HOVER_ICONS = ["off", "left", "right"] as const;
 export type HoverIcon = (typeof HOVER_ICONS)[number];
 
 /**
+ * How the hover hint words a date's distance from today, or "off" for no hint.
+ *
+ * Off by default. The hint is new behaviour on every date in every note, and a
+ * reader who never asked for it may not know where to turn it off.
+ */
+export const HOVER_DISTANCES = ["off", "days", "rounded"] as const;
+
+export type HoverDistance = (typeof HOVER_DISTANCES)[number];
+
+/**
+ * The orb in front of the hint, and which colour means which.
+ *
+ * Both ways round rather than one fixed pair: red for the past and green for
+ * what is ahead is not how every reader is used to reading the two. Today
+ * counts as ahead. Drawn only while the hint is — an orb alone says nothing
+ * a reader could act on.
+ */
+export const HOVER_ORBS = ["off", "green-red", "red-green"] as const;
+
+export type HoverOrb = (typeof HOVER_ORBS)[number];
+
+/** Both hint settings out of what was stored, each falling back to its default. */
+export function readHoverHint(
+  stored: Partial<Pick<KalendaeSettings, "hoverDistance" | "hoverOrb">>,
+): Pick<KalendaeSettings, "hoverDistance" | "hoverOrb"> {
+  return {
+    hoverDistance:
+      HOVER_DISTANCES.find((value) => value === stored.hoverDistance) ??
+      DEFAULT_SETTINGS.hoverDistance,
+    hoverOrb: HOVER_ORBS.find((value) => value === stored.hoverOrb) ?? DEFAULT_SETTINGS.hoverOrb,
+  };
+}
+
+/**
  * Which modifier, held with the up and down arrows, steps the part of a date
  * the caret is on.
  *
@@ -144,6 +178,10 @@ export interface KalendaeSettings {
   scopeWikilinks: boolean;
   /** The outline drawn around a hovered date and its icon. */
   showHoverFrame: boolean;
+  /** The hint above a hovered date; see HOVER_DISTANCES. */
+  hoverDistance: HoverDistance;
+  /** Its orb; see HOVER_ORBS. */
+  hoverOrb: HoverOrb;
   showWeekNumbers: boolean;
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
@@ -183,6 +221,8 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   scopeFrontmatter: false,
   scopeWikilinks: false,
   showHoverFrame: true,
+  hoverDistance: "off",
+  hoverOrb: "green-red",
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,

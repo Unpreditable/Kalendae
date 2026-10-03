@@ -14,7 +14,6 @@ import { BUILT_IN_FORMATS, DateFormatEntry, renderExample } from "../detect/form
 import {
   KalendaeSettings,
   DEFAULT_SETTINGS,
-  HOVER_ICONS,
   STEP_KEYS,
   StepKeys,
   WEEK_STARTS,
@@ -27,6 +26,7 @@ import {
 import { TASK_MARKERS } from "../detect/markers";
 import { shadowedFormats } from "../detect/shadow";
 import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
+import { HoverPage, hoverSummary } from "./hover-page";
 import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
 import { LanguagesPage, languagesSummary } from "./languages-page";
@@ -100,19 +100,8 @@ export class KalendaeSettingTab extends PluginSettingTab {
             },
           },
           {
-            name: t("settings.hoverIcon.name"),
-            desc: hoverIconDesc(),
-            control: {
-              type: "dropdown",
-              key: "hoverIcon",
-              defaultValue: DEFAULT_SETTINGS.hoverIcon,
-              options: Object.fromEntries(
-                HOVER_ICONS.map((value) => [value, t(`settings.hoverIcon.options.${value}`)]),
-              ),
-            },
-          },
-          {
-            // Third of the three ways in, under the two that came before it.
+            // The last way in, under the double-click. The icon, the other one,
+            // lives on the On hover page further down.
             // The emoji are in the name rather than the description: a reader
             // scanning the section sees which glyphs this is about without
             // reading a sentence, and the list has one definition — TASK_MARKERS
@@ -125,15 +114,16 @@ export class KalendaeSettingTab extends PluginSettingTab {
               defaultValue: DEFAULT_SETTINGS.taskEmoji,
             },
           },
-          {
-            name: t("settings.hoverFrame.name"),
-            control: {
-              type: "toggle",
-              key: "showHoverFrame",
-              defaultValue: DEFAULT_SETTINGS.showHoverFrame,
-            },
-          },
           this.stepKeysRow(),
+          {
+            // The icon, the outline and the hint, on a page of their own: three
+            // answers to "what happens under the pointer", with a preview the
+            // tab has no room for.
+            name: t("settings.hover.heading"),
+            type: "page",
+            displayValue: () => hoverSummary(this.kalendae.settings),
+            page: () => new HoverPage(this.kalendae, () => this.update()),
+          },
         ],
       },
       {
@@ -581,28 +571,6 @@ function formatOption(pattern: string): DocumentFragment {
  */
 function problemText(problem: TriggerProblem | null, field: "trigger" | "format"): string | void {
   return problem === null ? undefined : t(`settings.triggerError.${field}.${problem}`);
-}
-
-/**
- * The hover-icon row's description, with the icon itself standing in it.
- *
- * A picture of the thing beats a name for it: the row is telling you what to
- * click, and the reader can then look for that shape in their note rather than
- * for the word "calendar". Translators are given the sentence with an {{icon}}
- * marker to place, which is why this is assembled rather than interpolated.
- */
-function hoverIconDesc(): DocumentFragment {
-  const description = createFragment();
-  const [before, after] = t("settings.hoverIcon.desc").split("{{icon}}");
-
-  description.appendText(before);
-  if (after !== undefined) {
-    const icon = description.createSpan({ cls: "kalendae-inline-icon" });
-    setIcon(icon, "calendar");
-    description.appendText(after);
-  }
-
-  return description;
 }
 
 /** A modifier as the keyboard in front of the reader names it: Option, on a Mac. */

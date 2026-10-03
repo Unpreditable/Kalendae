@@ -12,6 +12,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
+  readHoverHint,
   readStepKeys,
 } from "../src/settings";
 
@@ -397,6 +398,26 @@ describe("readStepKeys", () => {
     expect(readStepKeys({ stepKeys: "shift", stepKeysMac: "ctrl" } as never)).toEqual({
       stepKeys: "ctrl",
       stepKeysMac: "alt",
+    });
+  });
+});
+
+describe("readHoverHint", () => {
+  it("starts with the hint off, and the orb ready for when it is turned on", () => {
+    expect(readHoverHint({})).toEqual({ hoverDistance: "off", hoverOrb: "green-red" });
+  });
+
+  it("keeps what was chosen", () => {
+    expect(readHoverHint({ hoverDistance: "rounded", hoverOrb: "red-green" })).toEqual({
+      hoverDistance: "rounded",
+      hoverOrb: "red-green",
+    });
+  });
+
+  it("falls back to the default for a value it does not know", () => {
+    expect(readHoverHint({ hoverDistance: "weeks", hoverOrb: "blue" } as never)).toEqual({
+      hoverDistance: "off",
+      hoverOrb: "green-red",
     });
   });
 });

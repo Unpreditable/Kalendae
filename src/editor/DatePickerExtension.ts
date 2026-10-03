@@ -2,6 +2,7 @@ import { Extension } from "@codemirror/state";
 import { EditorView, ViewPlugin } from "@codemirror/view";
 import { KalendaeSettings } from "../settings";
 import { dateDecorations } from "./decorations";
+import { hoverHint } from "./hover-hint";
 import { hotDate, hoverHandlers } from "./hover-state";
 import { nudgeKeys } from "./nudge-keys";
 import { pickerTooltip, showPicker } from "./picker-tooltip";
@@ -57,6 +58,7 @@ export function datePickerExtension(getSettings: () => KalendaeSettings): Extens
     // by dispatching the same effect.
     dateDecorations(getSettings, (target, view) => showPicker(view, target)),
     pickerTooltip(getSettings),
+    hoverHint(getSettings),
     nudgeKeys(getSettings),
   ];
 }

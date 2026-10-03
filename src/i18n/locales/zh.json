@@ -16,8 +16,26 @@
       "name": "双击",
       "desc": "双击日期即可打开日历。"
     },
+    "hover": {
+      "heading": "悬停时",
+      "preview": {
+        "heading": "预览",
+        "desc": "将指针悬停在下方的框上。",
+        "hovered": "在笔记中将指针悬停在日期上时，日期就是这样显示的。",
+        "nothing": "所有选项均已关闭，因此悬停在日期上不会有任何变化。"
+      },
+      "summary": {
+        "iconLeft": "图标在左",
+        "iconRight": "图标在右",
+        "outline": "边框",
+        "days": "以天计的距离",
+        "rounded": "约略距离",
+        "orb": "圆点",
+        "none": "不显示任何内容"
+      }
+    },
     "hoverIcon": {
-      "name": "悬停时的图标",
+      "name": "显示图标",
       "desc": "点击将指针悬停在日期上时出现的 {{icon}}。",
       "options": {
         "off": "禁用",
@@ -30,7 +48,27 @@
       "desc": "点击其中任意一个即可打开日历。这些日期不会显示悬停图标。"
     },
     "hoverFrame": {
-      "name": "悬停时显示边框"
+      "name": "显示边框"
+    },
+    "hoverHint": {
+      "name": "显示提示",
+      "desc": "短暂停留后，显示该日期距今天多远。"
+    },
+    "hoverDistance": {
+      "name": "距离",
+      "options": {
+        "off": "禁用",
+        "days": "按天",
+        "rounded": "约略"
+      }
+    },
+    "hoverOrb": {
+      "name": "圆点颜色",
+      "options": {
+        "off": "禁用",
+        "green-red": "未来为绿，过去为红",
+        "red-green": "未来为红，过去为绿"
+      }
     },
     "stepKeys": {
       "name": "用 ↑ 和 ↓ 修改日期",
@@ -363,6 +401,11 @@
     "nextMonth": "下一个月",
     "prevYear": "上一年",
     "nextYear": "下一年"
+  },
+  "hint": {
+    "today": "今天",
+    "tomorrow": "明天",
+    "yesterday": "昨天"
   },
   "typing": {
     "invalid": "无法识别的日期",

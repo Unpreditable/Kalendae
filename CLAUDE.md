@@ -91,9 +91,11 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/editor/decorations.ts](src/editor/decorations.ts) | Marks each date in view and hangs the icon widget off it, paired by a shared id |
 | [src/editor/hover-state.ts](src/editor/hover-state.ts) | `StateField` holding which date the pointer is on |
 | [src/editor/picker-tooltip.ts](src/editor/picker-tooltip.ts) | The tooltip, the three ways to open it, and the write-back transaction |
+| [src/editor/hover-hint.ts](src/editor/hover-hint.ts) | The hint above a date once the pointer rests on it; `fillHint()` is shared with the settings preview |
 | [src/picker/month.ts](src/picker/month.ts) | Pure calendar arithmetic: `buildMonth()`, `clampDay()`, `shiftMonths()`, `firstDayOf()` |
 | [src/picker/panel.ts](src/picker/panel.ts) | The calendar's DOM and keyboard; knows nothing of CodeMirror |
 | [src/picker/write.ts](src/picker/write.ts) | `replacementFor()` and the `stillThere()` guard |
+| [src/picker/hint.ts](src/picker/hint.ts) | `hintFor()`: a date's distance from today, weekday and orb colour, worded by moment in the app's language |
 | [src/picker/quick.ts](src/picker/quick.ts) | The quick-date language: `parseRule()`, `formatRule()`, `resolveRule()` and `QUICK_PRESETS` |
 | [src/picker/quick-text.ts](src/picker/quick-text.ts) | A rule, a step and a slot read back in words, for the calendar and both settings surfaces |
 | [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `renderPattern()`, `BUILT_IN_FORMATS` |
@@ -106,6 +108,7 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/settings/settings-tab.ts](src/settings/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
 | [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand; the Sortable binding |
 | [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern |
+| [src/settings/hover-page.ts](src/settings/hover-page.ts) | The On hover page: icon, outline, the hint's two dropdowns, and the box that previews them under the pointer |
 | [src/settings/sections-page.ts](src/settings/sections-page.ts) | The scope toggles and their worked example |
 | [src/settings/quick-dates-page.ts](src/settings/quick-dates-page.ts) | The four quick-date slots and the switch that hides the row |
 | [src/settings/quick-date-modal.ts](src/settings/quick-date-modal.ts) | The editor for a quick date of your own: a rule field with suggestions, and a date to test it on |

@@ -13,6 +13,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   normaliseStoredQuickDates,
+  readHoverHint,
   readStepKeys,
 } from "./settings";
 import { KalendaeSettingTab } from "./settings/settings-tab";
@@ -99,6 +100,7 @@ export default class KalendaePlugin extends Plugin {
       // that away and then wait to be asked for it back.
       languages: stored?.languages ?? defaultLanguages(),
       ...readStepKeys(stored ?? {}),
+      ...readHoverHint(stored ?? {}),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
       quickDates: normaliseStoredQuickDates(stored?.quickDates),

@@ -16,8 +16,26 @@
       "name": "Duplo clique",
       "desc": "Dê um duplo clique em uma data para abrir o calendário."
     },
+    "hover": {
+      "heading": "Ao passar o mouse",
+      "preview": {
+        "heading": "Pré-visualização",
+        "desc": "Passe o ponteiro sobre a caixa abaixo.",
+        "hovered": "É assim que as datas aparecem quando você passa o ponteiro sobre elas numa nota.",
+        "nothing": "Tudo está desativado, então passar o ponteiro sobre uma data não muda nada."
+      },
+      "summary": {
+        "iconLeft": "Ícone à esquerda",
+        "iconRight": "Ícone à direita",
+        "outline": "Contorno",
+        "days": "Distância em dias",
+        "rounded": "Distância arredondada",
+        "orb": "Orbe",
+        "none": "Não mostrar nada"
+      }
+    },
     "hoverIcon": {
-      "name": "Ícone ao passar o mouse",
+      "name": "Mostrar ícone",
       "desc": "Clique no {{icon}} que aparece quando o ponteiro está sobre uma data.",
       "options": {
         "off": "Desativado",
@@ -30,7 +48,27 @@
       "desc": "Clique em um deles para abrir o calendário. Essas datas não mostram o ícone ao passar o mouse."
     },
     "hoverFrame": {
-      "name": "Contorno ao passar o mouse"
+      "name": "Mostrar contorno"
+    },
+    "hoverHint": {
+      "name": "Mostrar dica",
+      "desc": "Mostra a distância entre a data e hoje, após uma breve pausa."
+    },
+    "hoverDistance": {
+      "name": "Distância",
+      "options": {
+        "off": "Desativada",
+        "days": "Em dias",
+        "rounded": "Arredondada"
+      }
+    },
+    "hoverOrb": {
+      "name": "Cor do orbe",
+      "options": {
+        "off": "Desativado",
+        "green-red": "Verde à frente, vermelho no passado",
+        "red-green": "Vermelho à frente, verde no passado"
+      }
     },
     "stepKeys": {
       "name": "Alterar uma data com ↑ e ↓",
@@ -363,6 +401,11 @@
     "nextMonth": "Mês seguinte",
     "prevYear": "Ano anterior",
     "nextYear": "Ano seguinte"
+  },
+  "hint": {
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "yesterday": "Ontem"
   },
   "typing": {
     "invalid": "Data inválida",

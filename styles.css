@@ -473,6 +473,191 @@
   box-shadow: 0 0 0 0.15em var(--background-modifier-hover);
 }
 
+/* The hint above a date under the pointer.
+ *
+ * A tooltip, so it lies over the line above rather than in it. CodeMirror
+ * gathers hover tooltips into a host of its own, `.cm-tooltip-hover`, and the
+ * pale background is on that host rather than on the hint inside it. The host
+ * is styled from here, and `:has()` keeps the rule off every other plugin's
+ * hover tooltip. Four classes' worth, which CodeMirror's two-class theme rule
+ * cannot tie however late it is injected.
+ */
+.kalendae-hint {
+  align-items: center;
+  color: var(--text-normal);
+  display: flex;
+  font-size: var(--font-ui-smaller);
+  gap: var(--size-4-1);
+  padding: var(--size-4-1) var(--size-4-2);
+  white-space: nowrap;
+}
+
+.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint),
+.kalendae-hover-preview .kalendae-hint {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-s);
+}
+
+/* The hint's left border on the date outline's left border. The outline
+   reaches 4px past the date, or past the icon too when the icon sits before
+   the date: see `--kalendae-frame-inset` and `--kalendae-icon-space` above,
+   whose 1.9em is written out here in the note's font size, since the hint's
+   own em is smaller. */
+.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint) {
+  margin-left: -4px;
+}
+
+.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint-icon-left) {
+  margin-left: calc(-1.9 * var(--font-text-size));
+}
+
+.kalendae-hint-orb {
+  border-radius: 50%;
+  flex: none;
+  height: 0.6em;
+  width: 0.6em;
+}
+
+.kalendae-hint-green {
+  background-color: var(--color-green);
+}
+
+.kalendae-hint-red {
+  background-color: var(--color-red);
+}
+
+.kalendae-hint-separator {
+  color: var(--text-faint);
+}
+
+/* The samples at the foot of the On hover page, each drawn lit, with its hint
+   sitting on the top of its line the way the tooltip sits on a date's line in
+   a note: no gap, and its left edge where the date starts. */
+.kalendae-hover-preview {
+  display: grid;
+  gap: var(--size-4-4) var(--size-4-6);
+  /* Two columns, each as wide as its widest sample, so the dates line up
+     under one another whatever their hints say. */
+  grid-template-columns: repeat(2, max-content);
+  margin-top: var(--size-4-2);
+  padding: var(--size-4-4);
+  position: relative;
+  /* Snug around the samples rather than the width of the pane. */
+  width: fit-content;
+}
+
+/* The box's row adds no space of its own above the box. The rule names the
+   page as well, to outrank the padding `.kalendae-settings-page .setting-item`
+   gives every row here. */
+.kalendae-settings-page .setting-item.kalendae-hover-preview-block {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.kalendae-settings-page .kalendae-hover-preview-block::before,
+.kalendae-hover-preview-block .setting-item-info {
+  display: none;
+}
+
+/* The dashed border, an SVG laid over the box. */
+.kalendae-preview-frame {
+  height: 100%;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.kalendae-preview-frame rect {
+  fill: none;
+  height: calc(100% - 2px);
+  rx: var(--radius-m);
+  stroke: var(--background-modifier-border-hover);
+  stroke-dasharray: 10 6;
+  stroke-width: 2px;
+  width: calc(100% - 2px);
+  x: 1px;
+  y: 1px;
+}
+
+/* Solid while lit, so the box answers the pointer before the hints do. */
+.kalendae-preview-lit .kalendae-preview-frame rect {
+  stroke: var(--background-modifier-border-focus);
+  stroke-dasharray: none;
+}
+
+/* Hidden rather than absent, so the samples keep their place as hints come and
+   go, the way the tooltip lies over a note without moving its text. */
+.kalendae-hover-preview .kalendae-hint {
+  visibility: hidden;
+}
+
+/* Takes the width of a hint with an orb, and no height and no box. */
+.kalendae-hover-preview .kalendae-hint.kalendae-hint-sizer {
+  border-block: none;
+  box-shadow: none;
+  height: 0;
+  overflow: hidden;
+  padding-block: 0;
+}
+
+.kalendae-hover-preview.kalendae-preview-hinting .kalendae-hint:not(.kalendae-hint-unused):not(.kalendae-hint-sizer) {
+  visibility: visible;
+}
+
+.kalendae-hover-sample {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Room on both sides for the icon, which hangs out of the flow over whatever
+   follows the date, and here nothing does. The hint is pushed in by the same
+   amount, so it starts where the date does. The note's own type and line
+   height, so the date sits as far under the hint as it does in a note. */
+.kalendae-hover-sample-line {
+  color: var(--text-normal);
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+  padding-inline: 2em;
+}
+
+/* The sample's date starts 2em in; the hint lines up with its outline, as in
+   a note. */
+.kalendae-hover-sample .kalendae-hint {
+  margin-inline-start: calc(2 * var(--font-text-size) - 4px);
+}
+
+.kalendae-hover-sample .kalendae-hint.kalendae-hint-icon-left {
+  margin-inline-start: calc(0.1 * var(--font-text-size));
+}
+
+/* The two dropdowns side by side, each label above its own, on a line of
+   their own under the row's name and indented beneath it, so they read as
+   belonging to it. */
+.kalendae-hint-row {
+  flex-wrap: wrap;
+}
+
+.kalendae-hint-table {
+  display: grid;
+  flex-basis: 100%;
+  gap: var(--size-4-1) var(--size-4-6);
+  grid-template-columns: max-content max-content;
+  padding-inline-start: var(--size-4-8);
+  padding-top: var(--size-4-2);
+}
+
+.kalendae-hint-label {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
 
 /* The calendar panel
  *

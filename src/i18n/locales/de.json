@@ -16,8 +16,26 @@
       "name": "Doppelklick",
       "desc": "Doppelklicke auf ein Datum, um den Kalender zu öffnen."
     },
+    "hover": {
+      "heading": "Beim Überfahren",
+      "preview": {
+        "heading": "Vorschau",
+        "desc": "Fahre mit dem Zeiger über das Feld unten.",
+        "hovered": "So sehen Datumsangaben in einer Notiz aus, wenn du mit dem Zeiger darüberfährst.",
+        "nothing": "Alles ist ausgeschaltet, daher ändert sich beim Überfahren eines Datums nichts."
+      },
+      "summary": {
+        "iconLeft": "Symbol links",
+        "iconRight": "Symbol rechts",
+        "outline": "Rahmen",
+        "days": "Abstand in Tagen",
+        "rounded": "Gerundeter Abstand",
+        "orb": "Kugel",
+        "none": "Nichts anzeigen"
+      }
+    },
     "hoverIcon": {
-      "name": "Symbol beim Überfahren",
+      "name": "Symbol anzeigen",
       "desc": "Klicke auf das {{icon}}, das erscheint, wenn der Zeiger über einem Datum steht.",
       "options": {
         "off": "Deaktiviert",
@@ -30,7 +48,27 @@
       "desc": "Klicke auf eines, um den Kalender zu öffnen. Bei diesen Datumsangaben erscheint kein Symbol beim Überfahren."
     },
     "hoverFrame": {
-      "name": "Rahmen beim Überfahren"
+      "name": "Rahmen anzeigen"
+    },
+    "hoverHint": {
+      "name": "Hinweis anzeigen",
+      "desc": "Zeigt nach einer kurzen Pause, wie weit das Datum von heute entfernt ist."
+    },
+    "hoverDistance": {
+      "name": "Abstand",
+      "options": {
+        "off": "Deaktiviert",
+        "days": "In Tagen",
+        "rounded": "Gerundet"
+      }
+    },
+    "hoverOrb": {
+      "name": "Kugelfarbe",
+      "options": {
+        "off": "Deaktiviert",
+        "green-red": "Grün kommend, rot vergangen",
+        "red-green": "Rot kommend, grün vergangen"
+      }
     },
     "stepKeys": {
       "name": "Datum mit ↑ und ↓ ändern",
@@ -363,6 +401,11 @@
     "nextMonth": "Nächster Monat",
     "prevYear": "Vorheriges Jahr",
     "nextYear": "Nächstes Jahr"
+  },
+  "hint": {
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "yesterday": "Gestern"
   },
   "typing": {
     "invalid": "Ungültiges Datum",

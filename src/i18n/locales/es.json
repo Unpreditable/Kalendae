@@ -16,8 +16,26 @@
       "name": "Doble clic",
       "desc": "Haz doble clic en una fecha para abrir el calendario."
     },
+    "hover": {
+      "heading": "Al pasar el ratón",
+      "preview": {
+        "heading": "Vista previa",
+        "desc": "Pasa el puntero por el recuadro de abajo.",
+        "hovered": "Así se ven las fechas cuando pasas el puntero sobre ellas en una nota.",
+        "nothing": "Todo está desactivado, así que pasar el puntero sobre una fecha no cambia nada."
+      },
+      "summary": {
+        "iconLeft": "Icono a la izquierda",
+        "iconRight": "Icono a la derecha",
+        "outline": "Recuadro",
+        "days": "Distancia en días",
+        "rounded": "Distancia redondeada",
+        "orb": "Orbe",
+        "none": "No mostrar nada"
+      }
+    },
     "hoverIcon": {
-      "name": "Icono al pasar el ratón",
+      "name": "Mostrar icono",
       "desc": "Haz clic en el {{icon}} que aparece cuando el puntero está sobre una fecha.",
       "options": {
         "off": "Desactivado",
@@ -30,7 +48,27 @@
       "desc": "Haz clic en uno para abrir el calendario. Esas fechas no muestran el icono al pasar el ratón."
     },
     "hoverFrame": {
-      "name": "Recuadro al pasar el ratón"
+      "name": "Mostrar recuadro"
+    },
+    "hoverHint": {
+      "name": "Mostrar indicación",
+      "desc": "Muestra a qué distancia está la fecha de hoy, tras una breve pausa."
+    },
+    "hoverDistance": {
+      "name": "Distancia",
+      "options": {
+        "off": "Desactivada",
+        "days": "En días",
+        "rounded": "Redondeada"
+      }
+    },
+    "hoverOrb": {
+      "name": "Color del orbe",
+      "options": {
+        "off": "Desactivado",
+        "green-red": "Verde futuro, rojo pasado",
+        "red-green": "Rojo futuro, verde pasado"
+      }
     },
     "stepKeys": {
       "name": "Cambiar una fecha con ↑ y ↓",
@@ -363,6 +401,11 @@
     "nextMonth": "Mes siguiente",
     "prevYear": "Año anterior",
     "nextYear": "Año siguiente"
+  },
+  "hint": {
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "yesterday": "Ayer"
   },
   "typing": {
     "invalid": "Fecha no válida",

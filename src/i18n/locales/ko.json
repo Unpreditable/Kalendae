@@ -16,8 +16,26 @@
       "name": "더블 클릭",
       "desc": "날짜를 더블 클릭하면 달력이 열립니다."
     },
+    "hover": {
+      "heading": "마우스를 올렸을 때",
+      "preview": {
+        "heading": "미리보기",
+        "desc": "아래 상자 위에 포인터를 올려 보세요.",
+        "hovered": "노트에서 날짜 위에 포인터를 올리면 이렇게 보입니다.",
+        "nothing": "모두 꺼져 있어서 날짜 위에 포인터를 올려도 아무것도 바뀌지 않습니다."
+      },
+      "summary": {
+        "iconLeft": "아이콘 왼쪽",
+        "iconRight": "아이콘 오른쪽",
+        "outline": "테두리",
+        "days": "일 단위 거리",
+        "rounded": "대략적인 거리",
+        "orb": "구슬",
+        "none": "아무것도 표시 안 함"
+      }
+    },
     "hoverIcon": {
-      "name": "마우스를 올렸을 때 아이콘",
+      "name": "아이콘 표시",
       "desc": "날짜 위에 포인터를 올리면 나타나는 {{icon}} 을(를) 클릭하세요.",
       "options": {
         "off": "사용 안 함",
@@ -30,7 +48,27 @@
       "desc": "하나를 클릭하면 달력이 열립니다. 이러한 날짜에는 마우스를 올렸을 때 아이콘이 표시되지 않습니다."
     },
     "hoverFrame": {
-      "name": "마우스를 올렸을 때 테두리"
+      "name": "테두리 표시"
+    },
+    "hoverHint": {
+      "name": "힌트 표시",
+      "desc": "잠시 후 날짜가 오늘로부터 얼마나 떨어져 있는지 표시합니다."
+    },
+    "hoverDistance": {
+      "name": "거리",
+      "options": {
+        "off": "사용 안 함",
+        "days": "일 단위",
+        "rounded": "대략"
+      }
+    },
+    "hoverOrb": {
+      "name": "구슬 색",
+      "options": {
+        "off": "사용 안 함",
+        "green-red": "앞으로는 초록, 지난 날은 빨강",
+        "red-green": "앞으로는 빨강, 지난 날은 초록"
+      }
     },
     "stepKeys": {
       "name": "↑ 및 ↓로 날짜 변경",
@@ -363,6 +401,11 @@
     "nextMonth": "다음 달",
     "prevYear": "이전 해",
     "nextYear": "다음 해"
+  },
+  "hint": {
+    "today": "오늘",
+    "tomorrow": "내일",
+    "yesterday": "어제"
   },
   "typing": {
     "invalid": "인식할 수 없는 날짜",

@@ -16,8 +16,26 @@
       "name": "ダブルクリック",
       "desc": "日付をダブルクリックするとカレンダーが開きます。"
     },
+    "hover": {
+      "heading": "ホバー時",
+      "preview": {
+        "heading": "プレビュー",
+        "desc": "下の枠にポインタを合わせてください。",
+        "hovered": "ノートで日付にポインタを合わせると、このように表示されます。",
+        "nothing": "すべてオフのため、日付にポインタを合わせても何も変わりません。"
+      },
+      "summary": {
+        "iconLeft": "アイコン左",
+        "iconRight": "アイコン右",
+        "outline": "枠線",
+        "days": "日数で表示",
+        "rounded": "おおよその期間",
+        "orb": "オーブ",
+        "none": "何も表示しない"
+      }
+    },
     "hoverIcon": {
-      "name": "ホバー時のアイコン",
+      "name": "アイコンを表示",
       "desc": "日付にポインタを合わせると表示される {{icon}} をクリックします。",
       "options": {
         "off": "無効",
@@ -30,7 +48,27 @@
       "desc": "いずれかをクリックするとカレンダーが開きます。これらの日付にホバー時のアイコンは表示されません。"
     },
     "hoverFrame": {
-      "name": "ホバー時の枠線"
+      "name": "枠線を表示"
+    },
+    "hoverHint": {
+      "name": "ヒントを表示",
+      "desc": "少し待つと、今日から日付までの距離を表示します。"
+    },
+    "hoverDistance": {
+      "name": "距離",
+      "options": {
+        "off": "無効",
+        "days": "日数",
+        "rounded": "おおよそ"
+      }
+    },
+    "hoverOrb": {
+      "name": "オーブの色",
+      "options": {
+        "off": "無効",
+        "green-red": "今後は緑、過去は赤",
+        "red-green": "今後は赤、過去は緑"
+      }
     },
     "stepKeys": {
       "name": "↑ と ↓ で日付を変更",
@@ -363,6 +401,11 @@
     "nextMonth": "次の月",
     "prevYear": "前の年",
     "nextYear": "次の年"
+  },
+  "hint": {
+    "today": "今日",
+    "tomorrow": "明日",
+    "yesterday": "昨日"
   },
   "typing": {
     "invalid": "認識できない日付",

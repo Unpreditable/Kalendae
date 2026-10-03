@@ -22,9 +22,39 @@
       "desc_comment": "Description under that toggle.",
       "desc": "Double-click a date to open the calendar."
     },
+    "hover": {
+      "heading_comment": "Label of the row in 'Dates in a note' that opens a page of everything a date does while the pointer is over it, and the title of that page.",
+      "heading": "On hover",
+      "preview": {
+        "heading_comment": "Heading over the sample dates at the bottom of the On hover page.",
+        "heading": "Preview",
+        "desc_comment": "Line under that heading. Below it is a box with a dashed border holding sample dates, which look plain until the pointer moves into the box, then look the way a date does while the pointer rests on it.",
+        "desc": "Hover over the box below.",
+        "hovered_comment": "Replaces the line above while the pointer is inside the box, when the sample dates show the look a date has under the pointer.",
+        "hovered": "This is how dates look when you hover over them in a note.",
+        "nothing_comment": "Replaces the line above when the icon, the outline and the hint are all switched off on this page, so a date under the pointer looks no different and the box shows nothing either.",
+        "nothing": "Everything is off, so hovering over a date changes nothing."
+      },
+      "summary": {
+        "iconLeft_comment": "Part of the summary shown beside the On hover row: the icon appears before the date. The parts are joined with ' · '.",
+        "iconLeft": "Icon left",
+        "iconRight_comment": "Part of that summary: the icon appears after the date.",
+        "iconRight": "Icon right",
+        "outline_comment": "Part of that summary: the outline is on.",
+        "outline": "Outline",
+        "days_comment": "Part of that summary: the hint counts the distance in days.",
+        "days": "Distance in days",
+        "rounded_comment": "Part of that summary: the hint rounds the distance to months and years.",
+        "rounded": "Rounded distance",
+        "orb_comment": "Part of that summary: the coloured orb is on.",
+        "orb": "Orb",
+        "none_comment": "The whole summary beside the On hover row when the icon, the outline and the hint are all switched off. Read together with the row's name: 'On hover: Show nothing'.",
+        "none": "Show nothing"
+      }
+    },
     "hoverIcon": {
-      "name_comment": "Settings row label for the dropdown controlling the small icon that appears beside a date while the pointer is over it.",
-      "name": "Icon on hover",
+      "name_comment": "Row label on the On hover page, for the dropdown controlling the small icon that appears beside a date while the pointer is over it.",
+      "name": "Show icon",
       "desc_comment": "Description under that dropdown. {{icon}} is replaced by the icon itself, drawn inline — keep the marker, and put it where the icon reads naturally in your language.",
       "desc": "Click the {{icon}} that appears when the pointer is over a date.",
       "options": {
@@ -43,8 +73,38 @@
       "desc": "Click one to open the calendar. Those dates get no hover icon."
     },
     "hoverFrame": {
-      "name_comment": "Settings row label for the toggle that draws an outline around a date and its icon while the pointer is over them.",
-      "name": "Outline on hover"
+      "name_comment": "Row label on the On hover page, for the toggle that draws an outline around a date and its icon while the pointer is over them.",
+      "name": "Show outline"
+    },
+    "hoverHint": {
+      "name_comment": "Row label on the On hover page. The row holds two dropdowns, Distance and Orb colour, for a small line that appears above a date once the pointer rests on it, such as '● Thursday · in 3 days'.",
+      "name": "Show hint",
+      "desc_comment": "Description under that row. 'a short pause' is the moment the pointer has to rest on a date before the line appears.",
+      "desc": "Show how far the date is from today, after a short pause."
+    },
+    "hoverDistance": {
+      "name_comment": "Label above the first dropdown in the Show hint row: how the distance from today is worded.",
+      "name": "Distance",
+      "options": {
+        "off_comment": "Dropdown option: no line appears.",
+        "off": "Disabled",
+        "days_comment": "Dropdown option: the distance is always counted in days, such as 'in 45 days' or '400 days ago'.",
+        "days": "In days",
+        "rounded_comment": "Dropdown option: days up to 25, then months and years, such as 'in a month' or 'a year ago'.",
+        "rounded": "Rounded"
+      }
+    },
+    "hoverOrb": {
+      "name_comment": "Label above the second dropdown in the Show hint row: a coloured orb in front of the distance. Disabled while Distance is off. 'ahead' in the options includes today.",
+      "name": "Orb colour",
+      "options": {
+        "off_comment": "Dropdown option: no orb.",
+        "off": "Disabled",
+        "green-red_comment": "Dropdown option: green for today and later dates, red for past dates.",
+        "green-red": "Green ahead, red past",
+        "red-green_comment": "Dropdown option: red for today and later dates, green for past dates.",
+        "red-green": "Red ahead, green past"
+      }
     },
     "stepKeys": {
       "name_comment": "Settings row label for the dropdown choosing the key that, held with the up or down arrow, changes the day, month or year the caret is on by one. The arrows are drawn as symbols; keep them.",
@@ -585,6 +645,14 @@
     "prevYear": "Previous year",
     "nextYear_comment": "Screen-reader label for the double right chevron above the calendar.",
     "nextYear": "Next year"
+  },
+  "hint": {
+    "today_comment": "The line above a date under the pointer, when the date is today. Stands alone, with no weekday or distance after it.",
+    "today": "Today",
+    "tomorrow_comment": "The same line, when the date is tomorrow.",
+    "tomorrow": "Tomorrow",
+    "yesterday_comment": "The same line, when the date was yesterday.",
+    "yesterday": "Yesterday"
   },
   "typing": {
     "invalid_comment": "The only row in the list of dates when what has been typed is not a date the plugin understands. Not an error message: the reader can carry on typing, backspace to fix it, or press Escape and leave the text alone. Keep it short — it sits in a one-line row.",
