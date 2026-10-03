@@ -477,10 +477,11 @@
  *
  * A tooltip, so it lies over the line above rather than in it. CodeMirror
  * gathers hover tooltips into a host of its own, `.cm-tooltip-hover`, and the
- * pale background is on that host rather than on the hint inside it. The host
- * is styled from here, and `:has()` keeps the rule off every other plugin's
- * hover tooltip. Four classes' worth, which CodeMirror's two-class theme rule
- * cannot tie however late it is injected.
+ * pale background is on that host rather than on the hint inside it. The hint
+ * marks its host with a class while it is there (see `hover-hint.ts`), which
+ * keeps these rules off every other plugin's hover tooltip. Three classes'
+ * worth, which CodeMirror's two-class theme rule cannot tie however late it is
+ * injected.
  */
 .kalendae-hint {
   align-items: center;
@@ -492,7 +493,7 @@
   white-space: nowrap;
 }
 
-.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint),
+.cm-tooltip.cm-tooltip-hover.kalendae-hint-host,
 .kalendae-hover-preview .kalendae-hint {
   background-color: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
@@ -505,11 +506,11 @@
    the date: see `--kalendae-frame-inset` and `--kalendae-icon-space` above,
    whose 1.9em is written out here in the note's font size, since the hint's
    own em is smaller. */
-.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint) {
+.cm-tooltip.cm-tooltip-hover.kalendae-hint-host {
   margin-left: -4px;
 }
 
-.cm-tooltip.cm-tooltip-hover:has(> .kalendae-hint-icon-left) {
+.cm-tooltip.cm-tooltip-hover.kalendae-hint-host-icon-left {
   margin-left: calc(-1.9 * var(--font-text-size));
 }
 

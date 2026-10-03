@@ -59,7 +59,23 @@ export function hoverHint(getSettings: () => KalendaeSettings): Extension {
               cls: iconLeft ? "kalendae-hint kalendae-hint-icon-left" : "kalendae-hint",
             });
             fillHint(dom, hint);
-            return { dom };
+
+            // CodeMirror hangs every hover tooltip in a host of its own, and
+            // the host carries the pale background. Marked from here while the
+            // hint is in it, so styles.css can reach the host without `:has()`,
+            // which Obsidian's review refuses.
+            const marks = iconLeft
+              ? ["kalendae-hint-host", "kalendae-hint-host-icon-left"]
+              : ["kalendae-hint-host"];
+            let host: HTMLElement | null = null;
+            return {
+              dom,
+              mount: () => {
+                host = dom.parentElement;
+                host?.addClasses(marks);
+              },
+              destroy: () => host?.removeClasses(marks),
+            };
           },
         };
       }
