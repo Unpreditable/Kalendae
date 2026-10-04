@@ -1,4 +1,5 @@
 import { moment } from "obsidian";
+import { readDate } from "../detect/formats";
 import { WEEK_STARTS, WeekStart } from "../settings";
 
 /**
@@ -104,14 +105,12 @@ export function shiftMonths(from: DayKey, months: number, meant: number = from.d
  * this. Without it, strict mode reads the *app's* language and a Russian date
  * in an English vault parses as nothing at all — so the calendar opened on
  * today, silently, rather than on the day under the pointer.
+ *
+ * Read through `readDate()`, which retries a declined month name in the
+ * spelling moment lists, so `6 вересня 2026` opens on 6 September too.
  */
 export function dayFor(text: string, pattern: string, locale?: string): DayKey {
-  const at =
-    locale === undefined
-      ? moment.utc(text, pattern, true)
-      : moment.utc(text, pattern, locale, true);
-
-  return at.isValid() ? { year: at.year(), month: at.month(), day: at.date() } : todayKey();
+  return readDate(text, pattern, locale) ?? todayKey();
 }
 
 /** Today by the reader's own clock, which is the only place local time is right. */

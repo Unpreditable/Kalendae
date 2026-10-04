@@ -1,3 +1,4 @@
+import { setDetectionLocales } from "../../src/detect/formats";
 import { WEEK_STARTS } from "../../src/settings";
 import {
   buildMonth,
@@ -215,5 +216,20 @@ describe("dayFor", () => {
 
   it("answers with today rather than a day built out of NaN", () => {
     expect(dayFor("not a date", "YYYY-MM-DD")).toEqual(todayKey());
+  });
+
+  it("reads a month name in the spelling a declining language writes", () => {
+    // Ukrainian writes вересня inside a date and lists вересень on its own, and
+    // moment's strict parse knows only the second.
+    setDetectionLocales(["en", "uk"]);
+    try {
+      expect(dayFor("6 вересня 2026", "D MMMM YYYY", "uk")).toEqual({
+        year: 2026,
+        month: 8,
+        day: 6,
+      });
+    } finally {
+      setDetectionLocales(["en"]);
+    }
   });
 });
