@@ -43,6 +43,9 @@ export function createPanel(options: PanelOptions): Panel {
   // Where the keyboard is, which is not the same as what the note holds: paging
   // moves this, and only Enter or a click turns it into a date in the note.
   let focused = options.value;
+  // The day of the month paging aims for, so 31 January pages through February
+  // and back to the 31st. A day arrow is a new choice of day and resets it.
+  let meant = focused.day;
 
   const header = dom.createDiv({ cls: "kalendae-panel-header" });
   const label = createSpan({ cls: "kalendae-panel-month" });
@@ -50,7 +53,7 @@ export function createPanel(options: PanelOptions): Panel {
   const footer = dom.createDiv({ cls: "kalendae-panel-footer" });
 
   const step = (months: number) => {
-    focused = shiftMonths(focused, months);
+    focused = shiftMonths(focused, months, meant);
     render();
   };
 
@@ -184,11 +187,12 @@ export function createPanel(options: PanelOptions): Panel {
 
   dom.tabIndex = -1;
   dom.addEventListener("keydown", (event) => {
-    const moved = movedBy(event, focused);
+    const moved = movedBy(event, focused, meant);
 
     if (moved !== null) {
       event.preventDefault();
-      focused = moved;
+      focused = moved.day;
+      meant = moved.meant;
       render();
       return;
     }
@@ -210,8 +214,15 @@ export function createPanel(options: PanelOptions): Panel {
   return { dom, focus: () => dom.focus() };
 }
 
-/** Where a key takes the keyboard, or null when the key is not ours. */
-function movedBy(event: KeyboardEvent, from: DayKey): DayKey | null {
+/**
+ * Where a key takes the keyboard, and the day of the month paging should aim
+ * for next, or null when the key is not ours.
+ */
+function movedBy(
+  event: KeyboardEvent,
+  from: DayKey,
+  meant: number,
+): { day: DayKey; meant: number } | null {
   const days: Record<string, number> = {
     ArrowLeft: -1,
     ArrowRight: 1,
@@ -220,12 +231,17 @@ function movedBy(event: KeyboardEvent, from: DayKey): DayKey | null {
   };
 
   const offset = days[event.key];
-  if (offset !== undefined) return shiftDays(from, offset);
+  if (offset !== undefined) {
+    const day = shiftDays(from, offset);
+    return { day, meant: day.day };
+  }
 
   // Shift turns a month step into a year, which is the same pairing the header
   // buttons make: one chevron a month, two a year.
-  if (event.key === "PageUp") return shiftMonths(from, event.shiftKey ? -12 : -1);
-  if (event.key === "PageDown") return shiftMonths(from, event.shiftKey ? 12 : 1);
+  const months = { PageUp: -1, PageDown: 1 }[event.key];
+  if (months !== undefined) {
+    return { day: shiftMonths(from, event.shiftKey ? 12 * months : months, meant), meant };
+  }
 
   return null;
 }

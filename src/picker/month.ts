@@ -78,13 +78,18 @@ export function clampDay(year: number, month: number, day: number): number {
  *
  * Paging off the 31st of January lands on the 29th of February, not the 2nd of
  * March, which is where adding a month to a full date would put it.
+ *
+ * `meant` is the day of the month paging started from, clamped in place of the
+ * day in front of it, so repeated pages do not drift: 31 January goes to the
+ * 29th of February and back to the 31st of March, as `stepDay()` does for the
+ * arrow keys on a date.
  */
-export function shiftMonths(from: DayKey, months: number): DayKey {
+export function shiftMonths(from: DayKey, months: number, meant: number = from.day): DayKey {
   const at = moment.utc({ year: from.year, month: from.month, day: 1 }).add(months, "months");
   const year = at.year();
   const month = at.month();
 
-  return { year, month, day: clampDay(year, month, from.day) };
+  return { year, month, day: clampDay(year, month, meant) };
 }
 
 /**

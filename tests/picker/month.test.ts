@@ -150,6 +150,15 @@ describe("shiftMonths", () => {
       day: 29,
     });
   });
+
+  it("clamps the day meant rather than the day in front of it", () => {
+    // 31 January through February and on to March comes back to the 31st, where
+    // clamping the day in front would have stuck at the 29th.
+    const february = shiftMonths({ year: 2024, month: 0, day: 31 }, 1, 31);
+    expect(february).toEqual({ year: 2024, month: 1, day: 29 });
+    expect(shiftMonths(february, 1, 31)).toEqual({ year: 2024, month: 2, day: 31 });
+    expect(shiftMonths(february, 12, 30)).toEqual({ year: 2025, month: 1, day: 28 });
+  });
 });
 
 describe("todayKey", () => {
