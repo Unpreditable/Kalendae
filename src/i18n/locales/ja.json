@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "日付を選択"
+    "pickDate": "日付を選択",
+    "tryTimePicker": "時刻ピッカーを試す"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "新しい日付のプレビュー"
+    },
+    "times": {
+      "heading": "時刻ピッカー"
+    },
+    "snapMinutes": {
+      "name": "分をスナップ",
+      "desc": "分針が5の倍数に合います。正確な分・秒を設定するには、ピッカーの {{icon}} をオフにします。"
+    },
+    "clockCommit": {
+      "name": "ノートに書き込む",
+      "ok": "✓ をクリックしたとき",
+      "okDesc": "数字を順にクリックします。✓ をクリックすると時刻がノートに書き込まれます。",
+      "doubleClick": "ダブルクリックしたとき",
+      "doubleClickDesc": "数字を順にクリックします。いずれかの数字をダブルクリックすると、すぐに時刻が書き込まれます。",
+      "click": "クリックしたとき",
+      "clickDesc": "数字を順にクリックします。最後のクリックで時刻がノートに書き込まれます。"
     },
     "quickDates": {
       "heading": "クイック日付",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "今日",
+    "now": "現在",
+    "clock": {
+      "hours": "時",
+      "minutes": "分",
+      "seconds": "秒",
+      "snap": "5分単位にスナップ",
+      "cancel": "キャンセル",
+      "ok": "この時刻を書き込む"
+    },
     "weekColumn": "週",
     "prevMonth": "前の月",
     "nextMonth": "次の月",

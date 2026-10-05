@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Datum auswählen"
+    "pickDate": "Datum auswählen",
+    "tryTimePicker": "Zeitauswahl ausprobieren"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "Neues Datum vorab anzeigen"
+    },
+    "times": {
+      "heading": "Zeitauswahl"
+    },
+    "snapMinutes": {
+      "name": "Minuten einrasten",
+      "desc": "Der Minutenzeiger rastet auf Vielfachen von 5 ein. Schalte das {{icon}} in der Auswahl aus, um Minuten/Sekunden genau einzustellen."
+    },
+    "clockCommit": {
+      "name": "In Notiz schreiben",
+      "ok": "Bei Klick auf ✓",
+      "okDesc": "Klicke nacheinander auf jede Zahl. Klicke auf ✓, um die Zeit in deine Notiz zu schreiben.",
+      "doubleClick": "Bei Doppelklick",
+      "doubleClickDesc": "Klicke nacheinander auf jede Zahl. Ein Doppelklick auf eine beliebige Zahl schreibt die Zeit sofort.",
+      "click": "Bei Klick",
+      "clickDesc": "Klicke nacheinander auf jede Zahl. Der letzte Klick schreibt die Zeit in deine Notiz."
     },
     "quickDates": {
       "heading": "Schnelldaten",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "Heute",
+    "now": "Jetzt",
+    "clock": {
+      "hours": "Stunden",
+      "minutes": "Minuten",
+      "seconds": "Sekunden",
+      "snap": "Auf 5 Minuten einrasten",
+      "cancel": "Abbrechen",
+      "ok": "Diese Zeit schreiben"
+    },
     "weekColumn": "KW",
     "prevMonth": "Vorheriger Monat",
     "nextMonth": "Nächster Monat",

@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Vali kuupäev"
+    "pickDate": "Vali kuupäev",
+    "tryTimePicker": "Proovi kellaajavalijat"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "Uue kuupäeva eelvaade"
+    },
+    "times": {
+      "heading": "Kellaajavalija"
+    },
+    "snapMinutes": {
+      "name": "Minutite haakimine",
+      "desc": "Minutiosuti peatub 5-ga jaguvatel väärtustel. Täpsete minutite/sekundite jaoks lülita valijas {{icon}} välja."
+    },
+    "clockCommit": {
+      "name": "Kirjuta märkmesse",
+      "ok": "✓ klõpsamisel",
+      "okDesc": "Klõpsa järjest igal numbril. Klõpsa ✓, et kirjutada aeg märkmesse.",
+      "doubleClick": "Topeltklõpsamisel",
+      "doubleClickDesc": "Klõpsa järjest igal numbril. Topeltklõpsa mis tahes numbril, et kirjutada aeg kohe.",
+      "click": "Klõpsamisel",
+      "clickDesc": "Klõpsa järjest igal numbril. Viimane klõps kirjutab aja märkmesse."
     },
     "quickDates": {
       "heading": "Kiirkuupäevad",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "Täna",
+    "now": "Praegu",
+    "clock": {
+      "hours": "Tunnid",
+      "minutes": "Minutid",
+      "seconds": "Sekundid",
+      "snap": "Haagi 5 minuti kaupa",
+      "cancel": "Tühista",
+      "ok": "Kirjuta see aeg"
+    },
     "weekColumn": "Näd",
     "prevMonth": "Eelmine kuu",
     "nextMonth": "Järgmine kuu",

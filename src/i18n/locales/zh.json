@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "选择日期"
+    "pickDate": "选择日期",
+    "tryTimePicker": "试用时间选择器"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "新日期预览"
+    },
+    "times": {
+      "heading": "时间选择器"
+    },
+    "snapMinutes": {
+      "name": "分钟吸附",
+      "desc": "分针停在 5 的倍数上。要设置精确的分钟/秒，请在选择器中关闭 {{icon}}。"
+    },
+    "clockCommit": {
+      "name": "写入笔记",
+      "ok": "点击 ✓ 时",
+      "okDesc": "依次点击每个数字。点击 ✓ 将时间写入笔记。",
+      "doubleClick": "双击时",
+      "doubleClickDesc": "依次点击每个数字。双击任意数字即可立即写入时间。",
+      "click": "单击时",
+      "clickDesc": "依次点击每个数字。最后一次点击会将时间写入笔记。"
     },
     "quickDates": {
       "heading": "快捷日期",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "今天",
+    "now": "现在",
+    "clock": {
+      "hours": "小时",
+      "minutes": "分钟",
+      "seconds": "秒",
+      "snap": "吸附到 5 分钟",
+      "cancel": "取消",
+      "ok": "写入此时间"
+    },
     "weekColumn": "周",
     "prevMonth": "上一个月",
     "nextMonth": "下一个月",

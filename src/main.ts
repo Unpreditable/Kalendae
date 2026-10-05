@@ -1,5 +1,6 @@
 import { MarkdownView, Notice, Plugin, moment } from "obsidian";
 import { setDetectionLocales } from "./detect/formats";
+import { tryClock } from "./editor/clock-tooltip";
 import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
@@ -13,6 +14,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   normaliseStoredQuickDates,
+  readClockCommit,
   readHoverHint,
   readStepKeys,
 } from "./settings";
@@ -38,6 +40,21 @@ export default class KalendaePlugin extends Plugin {
       name: t("commands.pickDate"),
       editorCallback: (_editor, ctx) => {
         this.pickDate(ctx instanceof MarkdownView ? ctx : null);
+      },
+    });
+
+    // Temporary, with clock-tooltip.ts.
+    this.addCommand({
+      id: "try-time-picker",
+      name: t("commands.tryTimePicker"),
+      editorCallback: (_editor, ctx) => {
+        const view = ctx instanceof MarkdownView ? editorViewIn(ctx.contentEl) : null;
+        if (!view) {
+          new Notice(t("notices.noEditor"));
+          return;
+        }
+
+        tryClock(view);
       },
     });
   }
@@ -101,6 +118,7 @@ export default class KalendaePlugin extends Plugin {
       languages: stored?.languages ?? defaultLanguages(),
       ...readStepKeys(stored ?? {}),
       ...readHoverHint(stored ?? {}),
+      ...readClockCommit(stored ?? {}),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
       quickDates: normaliseStoredQuickDates(stored?.quickDates),

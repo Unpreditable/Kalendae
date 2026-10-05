@@ -70,6 +70,27 @@ export function readHoverHint(
 }
 
 /**
+ * What makes a pick on the time picker's dial go into the note.
+ *
+ * OK by default: two picks make a time, and writing on the first click that
+ * completes it surprises anyone who meant to look before committing. A click
+ * writes on the last unit's click; a double-click writes whatever is under it,
+ * keeping the other units, and leaves OK there for the keyboard.
+ */
+export const CLOCK_COMMITS = ["ok", "double-click", "click"] as const;
+
+export type ClockCommit = (typeof CLOCK_COMMITS)[number];
+
+export function readClockCommit(
+  stored: Partial<Pick<KalendaeSettings, "clockCommit">>,
+): Pick<KalendaeSettings, "clockCommit"> {
+  return {
+    clockCommit:
+      CLOCK_COMMITS.find((value) => value === stored.clockCommit) ?? DEFAULT_SETTINGS.clockCommit,
+  };
+}
+
+/**
  * Which modifier, held with the up and down arrows, steps the part of a date
  * the caret is on.
  *
@@ -186,6 +207,13 @@ export interface KalendaeSettings {
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
   showWritesPreview: boolean;
+  /**
+   * Where the time picker's Snap starts each time it opens. The panel's own
+   * checkbox overrides it for one pick and never writes it back.
+   */
+  snapMinutes: boolean;
+  /** See CLOCK_COMMITS. */
+  clockCommit: ClockCommit;
   /** The modifier the arrow keys step a date with, off a Mac; see STEP_KEYS. */
   stepKeys: StepKeys;
   /** The same, on a Mac. */
@@ -226,6 +254,8 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,
+  snapMinutes: true,
+  clockCommit: "ok",
   stepKeys: "ctrl",
   stepKeysMac: "alt",
   typeToInsert: true,

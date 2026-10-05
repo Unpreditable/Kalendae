@@ -12,6 +12,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
+  readClockCommit,
   readHoverHint,
   readStepKeys,
 } from "../src/settings";
@@ -419,5 +420,23 @@ describe("readHoverHint", () => {
       hoverDistance: "off",
       hoverOrb: "green-red",
     });
+  });
+});
+
+describe("readClockCommit", () => {
+  it("asks for OK out of the box", () => {
+    expect(DEFAULT_SETTINGS.clockCommit).toBe("ok");
+    expect(readClockCommit({})).toEqual({ clockCommit: "ok" });
+  });
+
+  it("keeps a stored choice", () => {
+    expect(readClockCommit({ clockCommit: "click" })).toEqual({ clockCommit: "click" });
+    expect(readClockCommit({ clockCommit: "double-click" })).toEqual({
+      clockCommit: "double-click",
+    });
+  });
+
+  it("falls back to OK for a value it does not know", () => {
+    expect(readClockCommit({ clockCommit: "hover" as never })).toEqual({ clockCommit: "ok" });
   });
 });

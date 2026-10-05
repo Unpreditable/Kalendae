@@ -1,7 +1,9 @@
 {
   "commands": {
     "pickDate_comment": "Command palette entry, shown after the plugin name, so keep it short. Opens the calendar on the date at the cursor, or writes a new date in at the cursor when there is none. 'Pick' is the reader choosing a day from a calendar, not selecting text.",
-    "pickDate": "Pick a date"
+    "pickDate": "Pick a date",
+    "tryTimePicker_comment": "Command palette entry. Temporary: opens the time picker on the current time so its look can be checked, and changes nothing in the note.",
+    "tryTimePicker": "Try the time picker"
   },
   "settings": {
     "notes": {
@@ -137,6 +139,32 @@
     "writesPreview": {
       "name_comment": "Settings row label for the toggle showing, in the calendar, the exact text a pick will write into the note.",
       "name": "Preview the new date"
+    },
+    "times": {
+      "heading_comment": "Heading of the settings section for the time picker, the clock that sets a time the way the calendar sets a date.",
+      "heading": "Time picker"
+    },
+    "snapMinutes": {
+      "name_comment": "Settings row label. When on, the time picker's minute hand lands on 0, 5, 10 … rather than on every minute.",
+      "name": "Snap minutes",
+      "desc_comment": "Under the label. {{icon}} is replaced by the magnet icon itself, drawn inline — keep the marker, and put it where the icon reads naturally in your language. It is the button in the corner of the time picker that switches snapping off for one pick.",
+      "desc": "The minute hand lands on multiples of 5. Turn off the {{icon}} in the picker for exact minutes/seconds."
+    },
+    "clockCommit": {
+      "name_comment": "Settings row label for a dropdown: what makes a time picked on the clock dial go into the note. Reads together with each option, e.g. 'Write to note: On double-click'.",
+      "name": "Write to note",
+      "ok_comment": "Dropdown option: the time goes in only when the check-mark button in the corner of the time picker is clicked. The default. Keep the ✓ symbol: it is what the button shows.",
+      "ok": "On ✓ click",
+      "okDesc_comment": "Under the dropdown while 'On ✓ click' is chosen. 'Each number' is the hour, then the minute, then the second where there is one.",
+      "okDesc": "Click each number in turn. Click ✓ to write the time to your note.",
+      "doubleClick_comment": "Dropdown option: double-clicking a number on the dial writes the time at once.",
+      "doubleClick": "On double-click",
+      "doubleClickDesc_comment": "Under the dropdown while 'On double-click' is chosen. A double-click on any number writes at once, keeping the rest of the time as it is.",
+      "doubleClickDesc": "Click each number in turn. Double-click any number to write the time straight away.",
+      "click_comment": "Dropdown option: clicking the last number (the minutes, or the seconds where there are any) writes the time at once, with no OK button.",
+      "click": "On click",
+      "clickDesc_comment": "Under the dropdown while 'On click' is chosen. The last number is the minute, or the second where there is one.",
+      "clickDesc": "Click each number in turn. The last click writes the time to your note."
     },
     "quickDates": {
       "heading_comment": "Title of the settings page holding the configurable shortcut buttons shown under the calendar, and the label of the row that opens it.",
@@ -635,6 +663,22 @@
   "picker": {
     "today_comment": "Button under the calendar that sets the date to today and closes the picker. The only shortcut the picker ships with.",
     "today": "Today",
+    "now_comment": "Button under the time picker that writes the current time and closes the picker, as Today does under the calendar.",
+    "now": "Now",
+    "clock": {
+      "hours_comment": "Screen-reader label for the large hour number at the top of the time picker. Clicking it switches the dial to hours.",
+      "hours": "Hours",
+      "minutes_comment": "Screen-reader label for the large minute number.",
+      "minutes": "Minutes",
+      "seconds_comment": "Screen-reader label for the large seconds number, shown only for times written with seconds.",
+      "seconds": "Seconds",
+      "snap_comment": "Tooltip and screen-reader label for the magnet button in the corner of the time picker. On, the minute hand lands on 0, 5, 10 …; off, on every minute. Lasts for this pick only. Use the same word for 'snap' as the 'Snap minutes to 5' setting.",
+      "snap": "Snap to 5 minutes",
+      "cancel_comment": "Tooltip and screen-reader label for the cross in the corner of the time picker, which closes it without changing the note.",
+      "cancel": "Cancel",
+      "ok_comment": "Tooltip and screen-reader label for the check mark in the corner of the time picker, which writes the chosen time into the note.",
+      "ok": "Write this time"
+    },
     "weekColumn_comment": "Heading of the optional week-number column, at the left edge of the calendar. Kept to two or three characters: the column is one number wide.",
     "weekColumn": "Wk",
     "prevMonth_comment": "Screen-reader label for the single left chevron above the calendar. The button shows no text.",

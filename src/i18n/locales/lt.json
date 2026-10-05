@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Pasirinkti datą"
+    "pickDate": "Pasirinkti datą",
+    "tryTimePicker": "Išbandyti laiko parinkiklį"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "Naujos datos peržiūra"
+    },
+    "times": {
+      "heading": "Laiko parinkiklis"
+    },
+    "snapMinutes": {
+      "name": "Pritraukti minutes",
+      "desc": "Minučių rodyklė sustoja ties 5 kartotiniais. Norėdami nustatyti tikslias minutes/sekundes, parinkiklyje išjunkite {{icon}}."
+    },
+    "clockCommit": {
+      "name": "Įrašyti į užrašą",
+      "ok": "Spustelėjus ✓",
+      "okDesc": "Paeiliui spustelėkite kiekvieną skaičių. Spustelėkite ✓, kad įrašytumėte laiką į užrašą.",
+      "doubleClick": "Dukart spustelėjus",
+      "doubleClickDesc": "Paeiliui spustelėkite kiekvieną skaičių. Dukart spustelėkite bet kurį skaičių, kad laikas būtų įrašytas iš karto.",
+      "click": "Spustelėjus",
+      "clickDesc": "Paeiliui spustelėkite kiekvieną skaičių. Paskutinis spustelėjimas įrašo laiką į užrašą."
     },
     "quickDates": {
       "heading": "Greitosios datos",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "Šiandien",
+    "now": "Dabar",
+    "clock": {
+      "hours": "Valandos",
+      "minutes": "Minutės",
+      "seconds": "Sekundės",
+      "snap": "Pritraukti prie 5 minučių",
+      "cancel": "Atšaukti",
+      "ok": "Įrašyti šį laiką"
+    },
     "weekColumn": "Sav",
     "prevMonth": "Ankstesnis mėnuo",
     "nextMonth": "Kitas mėnuo",

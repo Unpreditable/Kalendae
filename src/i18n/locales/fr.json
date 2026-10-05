@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Choisir une date"
+    "pickDate": "Choisir une date",
+    "tryTimePicker": "Essayer le sélecteur d'heure"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "Aperçu de la nouvelle date"
+    },
+    "times": {
+      "heading": "Sélecteur d'heure"
+    },
+    "snapMinutes": {
+      "name": "Aimanter les minutes",
+      "desc": "L'aiguille des minutes s'arrête sur les multiples de 5. Désactivez l'icône {{icon}} dans le sélecteur pour des minutes/secondes exactes."
+    },
+    "clockCommit": {
+      "name": "Écrire dans la note",
+      "ok": "Au clic sur ✓",
+      "okDesc": "Cliquez sur chaque nombre tour à tour. Cliquez sur ✓ pour écrire l'heure dans votre note.",
+      "doubleClick": "Au double-clic",
+      "doubleClickDesc": "Cliquez sur chaque nombre tour à tour. Double-cliquez sur n'importe quel nombre pour écrire l'heure aussitôt.",
+      "click": "Au clic",
+      "clickDesc": "Cliquez sur chaque nombre tour à tour. Le dernier clic écrit l'heure dans votre note."
     },
     "quickDates": {
       "heading": "Dates rapides",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "Aujourd'hui",
+    "now": "Maintenant",
+    "clock": {
+      "hours": "Heures",
+      "minutes": "Minutes",
+      "seconds": "Secondes",
+      "snap": "Aimanter sur 5 minutes",
+      "cancel": "Annuler",
+      "ok": "Écrire cette heure"
+    },
     "weekColumn": "Sem",
     "prevMonth": "Mois précédent",
     "nextMonth": "Mois suivant",

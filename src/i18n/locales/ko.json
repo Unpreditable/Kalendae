@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "날짜 선택"
+    "pickDate": "날짜 선택",
+    "tryTimePicker": "시간 선택기 사용해 보기"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "새 날짜 미리 보기"
+    },
+    "times": {
+      "heading": "시간 선택기"
+    },
+    "snapMinutes": {
+      "name": "분 맞추기",
+      "desc": "분침이 5의 배수에 맞춰집니다. 정확한 분/초를 설정하려면 선택기에서 {{icon}} 을(를) 끄세요."
+    },
+    "clockCommit": {
+      "name": "노트에 쓰기",
+      "ok": "✓ 클릭 시",
+      "okDesc": "숫자를 차례로 클릭하세요. ✓ 을(를) 클릭하면 시간이 노트에 기록됩니다.",
+      "doubleClick": "더블클릭 시",
+      "doubleClickDesc": "숫자를 차례로 클릭하세요. 아무 숫자나 더블클릭하면 시간이 바로 기록됩니다.",
+      "click": "클릭 시",
+      "clickDesc": "숫자를 차례로 클릭하세요. 마지막 클릭으로 시간이 노트에 기록됩니다."
     },
     "quickDates": {
       "heading": "빠른 날짜",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "오늘",
+    "now": "지금",
+    "clock": {
+      "hours": "시",
+      "minutes": "분",
+      "seconds": "초",
+      "snap": "5분 단위로 맞추기",
+      "cancel": "취소",
+      "ok": "이 시간 쓰기"
+    },
     "weekColumn": "주",
     "prevMonth": "이전 달",
     "nextMonth": "다음 달",

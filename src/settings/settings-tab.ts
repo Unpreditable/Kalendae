@@ -12,6 +12,7 @@ import {
 } from "obsidian";
 import { BUILT_IN_FORMATS, DateFormatEntry, renderExample } from "../detect/formats";
 import {
+  ClockCommit,
   KalendaeSettings,
   DEFAULT_SETTINGS,
   STEP_KEYS,
@@ -169,6 +170,38 @@ export class KalendaeSettingTab extends PluginSettingTab {
         ],
       },
       {
+        type: "group",
+        cls: "kalendae-group",
+        heading: t("settings.times.heading"),
+        items: [
+          {
+            name: t("settings.snapMinutes.name"),
+            desc: snapMinutesDesc(),
+            control: {
+              type: "toggle",
+              key: "snapMinutes",
+              defaultValue: DEFAULT_SETTINGS.snapMinutes,
+            },
+          },
+          {
+            name: t("settings.clockCommit.name"),
+            // What the chosen option does, so it follows the dropdown; see
+            // setControlValue for how it is kept in step.
+            desc: clockCommitDesc(this.kalendae.settings.clockCommit),
+            control: {
+              type: "dropdown",
+              key: "clockCommit",
+              defaultValue: DEFAULT_SETTINGS.clockCommit,
+              options: {
+                ok: t("settings.clockCommit.ok"),
+                "double-click": t("settings.clockCommit.doubleClick"),
+                click: t("settings.clockCommit.click"),
+              },
+            },
+          },
+        ],
+      },
+      {
         // Typing is not one of the ways into the calendar above: those all act
         // on a date already written, and this one writes a date that is not
         // there yet. Its own section, and it sits beside the scopes because the
@@ -320,6 +353,18 @@ export class KalendaeSettingTab extends PluginSettingTab {
   async setControlValue(key: string, value: unknown): Promise<void> {
     const before = commandOnly(this.kalendae.settings);
     await super.setControlValue(key, value);
+
+    // The dropdown's description says what the chosen option does, and is
+    // rewritten in place rather than by update(). Obsidian skips rebuilding a
+    // row whose control still has focus, and whether the dropdown keeps focus
+    // after a pick varies — so the description changed only some of the time.
+    if (key === "clockCommit") {
+      const text = t(CLOCK_COMMIT_DESCS[value as ClockCommit]);
+      this.containerEl
+        .querySelectorAll(".kalendae-clock-commit-desc")
+        .forEach((element) => element.setText(text));
+      return;
+    }
 
     // All three typing settings, because each one changes how the others are
     // drawn or judged. The switch greys the two fields below it; the trigger is
@@ -611,6 +656,36 @@ function fillStepClashes(el: HTMLElement, app: App, settings: KalendaeSettings):
  * "lundi" whether or not anyone has translated Kalendae into French. The order
  * of `WEEK_STARTS` is moment's own, so an entry's index is the day it names.
  */
+const CLOCK_COMMIT_DESCS: Record<ClockCommit, string> = {
+  ok: "settings.clockCommit.okDesc",
+  "double-click": "settings.clockCommit.doubleClickDesc",
+  click: "settings.clockCommit.clickDesc",
+};
+
+function clockCommitDesc(commit: ClockCommit): DocumentFragment {
+  return createFragment((fragment) => {
+    fragment.createSpan({ cls: "kalendae-clock-commit-desc", text: t(CLOCK_COMMIT_DESCS[commit]) });
+  });
+}
+
+/**
+ * The Snap row's description, with the picker's magnet standing in it — the
+ * reader is told what to look for, not what it is called. Assembled around an
+ * {{icon}} marker, as the hover icon's description is.
+ */
+function snapMinutesDesc(): DocumentFragment {
+  const description = createFragment();
+  const [before, after] = t("settings.snapMinutes.desc").split("{{icon}}");
+
+  description.appendText(before);
+  if (after !== undefined) {
+    setIcon(description.createSpan({ cls: "kalendae-inline-icon" }), "magnet");
+    description.appendText(after);
+  }
+
+  return description;
+}
+
 function weekStartOptions(): Record<string, string> {
   const names = moment.weekdays();
 

@@ -921,6 +921,212 @@
   white-space: nowrap;
 }
 
+/* The time picker. The calendar's shell — `.kalendae-panel` gives it border,
+   shadow, padding and the footer — with the big numbers and a dial in place of
+   the month. The dial is SVG: every position on it is an attribute, set from
+   code, so nothing here places a number. */
+
+/* Tighter than the calendar: the dial's corners already hold the controls, and
+   the round face leaves air of its own at the sides. */
+.kalendae-panel.kalendae-clock {
+  padding: var(--size-2-2);
+}
+
+/* Stretched, so the AM/PM toggle takes the numbers' height rather than
+   setting a taller one of its own. */
+.kalendae-panel .kalendae-clock-top {
+  align-items: stretch;
+  display: flex;
+  gap: var(--size-4-2);
+  justify-content: center;
+  margin-bottom: var(--size-2-3);
+}
+
+.kalendae-panel .kalendae-clock-digits {
+  align-items: center;
+  display: flex;
+  font-size: calc(var(--font-ui-large) * 1.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.kalendae-panel .kalendae-clock-digit {
+  background-color: var(--background-secondary);
+  border: none;
+  border-radius: var(--radius-m);
+  box-shadow: none;
+  color: var(--text-normal);
+  cursor: pointer;
+  font-size: inherit;
+  height: auto;
+  padding: var(--size-2-1) var(--size-2-3);
+}
+
+.kalendae-panel .kalendae-clock-digit:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.kalendae-panel .kalendae-clock-digit.kalendae-clock-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.kalendae-panel .kalendae-clock-colon {
+  color: var(--text-muted);
+  padding: 0 var(--size-2-1);
+}
+
+.kalendae-panel .kalendae-clock-meridiem {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.kalendae-panel .kalendae-clock-meridiem-option {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  align-content: center;
+  display: grid;
+  flex: 1;
+  font-size: var(--font-ui-small);
+  height: auto;
+  line-height: 1.2;
+  padding: 0 var(--size-4-2);
+}
+
+.kalendae-panel .kalendae-clock-meridiem-option + .kalendae-clock-meridiem-option {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.kalendae-panel .kalendae-clock-meridiem-option.kalendae-clock-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* The word and every word the language has, stacked in one cell: the cell is
+   the longest one's width, and only the word is seen. */
+.kalendae-panel .kalendae-clock-meridiem-option > span {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.kalendae-panel .kalendae-clock-sizer {
+  visibility: hidden;
+}
+
+.kalendae-panel .kalendae-clock-stage {
+  margin: 0 auto;
+  position: relative;
+  width: 16em;
+}
+
+.kalendae-panel .kalendae-clock-dial {
+  cursor: pointer;
+  display: block;
+  /* A drag on a touch screen turns the hand rather than scrolling the note. */
+  touch-action: none;
+  width: 100%;
+}
+
+.kalendae-panel .kalendae-clock-face {
+  fill: var(--background-secondary);
+}
+
+.kalendae-panel .kalendae-clock-hand {
+  stroke: var(--interactive-accent);
+  stroke-width: 2;
+}
+
+.kalendae-panel .kalendae-clock-pivot,
+.kalendae-panel .kalendae-clock-knob {
+  fill: var(--interactive-accent);
+}
+
+/* The value under a resting pointer: the knob's shape in the accent, faded,
+   so it reads as "here, if you click" beside the solid "here, now". */
+.kalendae-panel .kalendae-clock-ghost {
+  fill: var(--interactive-accent);
+  opacity: 0.3;
+}
+
+/* Size comes from the element's font-size attribute, in the dial's own units;
+   a size here would be in the page's and would not scale with the dial. */
+.kalendae-panel .kalendae-clock-mark {
+  dominant-baseline: central;
+  fill: var(--text-normal);
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.kalendae-panel .kalendae-clock-mark-inner {
+  fill: var(--text-muted);
+}
+
+.kalendae-panel .kalendae-clock-mark-on {
+  fill: var(--text-on-accent);
+}
+
+/* The corners the round dial leaves free hold the controls, so the panel ends
+   where the dial does. */
+.kalendae-panel .kalendae-clock-corner {
+  position: absolute;
+}
+
+.kalendae-panel .kalendae-clock-top-left {
+  left: 0;
+  top: 0;
+}
+
+.kalendae-panel .kalendae-clock-top-right {
+  right: 0;
+  top: 0;
+}
+
+.kalendae-panel .kalendae-clock-bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.kalendae-panel .kalendae-clock-bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+.kalendae-panel .kalendae-clock-icon {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: auto;
+  padding: var(--size-2-2);
+}
+
+.kalendae-panel .kalendae-clock-icon:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* Snap, while it is on: a filled circle, as the active big number and the
+   calendar's selected day are. An icon's colour alone was lost in some
+   themes. */
+.kalendae-panel .kalendae-clock-icon.kalendae-clock-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.kalendae-panel .kalendae-clock-icon.kalendae-clock-ok {
+  color: var(--text-accent);
+}
+
 /* Settings sections
  *
  * Obsidian rules a line above every setting row in a group, which turns three

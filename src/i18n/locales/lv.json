@@ -1,6 +1,7 @@
 {
   "commands": {
-    "pickDate": "Izvēlēties datumu"
+    "pickDate": "Izvēlēties datumu",
+    "tryTimePicker": "Izmēģināt laika atlasītāju"
   },
   "settings": {
     "notes": {
@@ -90,6 +91,22 @@
     },
     "writesPreview": {
       "name": "Jaunā datuma priekšskatījums"
+    },
+    "times": {
+      "heading": "Laika atlasītājs"
+    },
+    "snapMinutes": {
+      "name": "Piesaistīt minūtes",
+      "desc": "Minūšu rādītājs apstājas pie 5 daudzkārtņiem. Lai iestatītu precīzas minūtes/sekundes, atlasītājā izslēdz {{icon}}."
+    },
+    "clockCommit": {
+      "name": "Ierakstīt piezīmē",
+      "ok": "Noklikšķinot uz ✓",
+      "okDesc": "Noklikšķini uz katra skaitļa pēc kārtas. Noklikšķini uz ✓, lai ierakstītu laiku piezīmē.",
+      "doubleClick": "Veicot dubultklikšķi",
+      "doubleClickDesc": "Noklikšķini uz katra skaitļa pēc kārtas. Veic dubultklikšķi uz jebkura skaitļa, lai uzreiz ierakstītu laiku.",
+      "click": "Noklikšķinot",
+      "clickDesc": "Noklikšķini uz katra skaitļa pēc kārtas. Pēdējais klikšķis ieraksta laiku piezīmē."
     },
     "quickDates": {
       "heading": "Ātrie datumi",
@@ -396,6 +413,15 @@
   },
   "picker": {
     "today": "Šodien",
+    "now": "Tagad",
+    "clock": {
+      "hours": "Stundas",
+      "minutes": "Minūtes",
+      "seconds": "Sekundes",
+      "snap": "Piesaistīt 5 minūtēm",
+      "cancel": "Atcelt",
+      "ok": "Ierakstīt šo laiku"
+    },
     "weekColumn": "Ned",
     "prevMonth": "Iepriekšējais mēnesis",
     "nextMonth": "Nākamais mēnesis",
