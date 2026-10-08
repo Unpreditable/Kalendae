@@ -9,6 +9,8 @@ import {
 } from "@codemirror/view";
 import { setIcon } from "obsidian";
 import { detectIn } from "../detect/detect";
+import { FormatKind } from "../detect/formats";
+import { MeridiemStyle } from "../detect/meridiem";
 import { HoverIcon, KalendaeSettings } from "../settings";
 import { t } from "../i18n/i18n";
 import { hotDate } from "./hover-state";
@@ -34,6 +36,10 @@ export interface DateTarget {
   to: number;
   text: string;
   pattern: string;
+  /** A date or a time, and so the calendar or the clock. The name is older than times. */
+  kind: FormatKind;
+  /** How a time spelled its am/pm, carried from detection. */
+  meridiem?: MeridiemStyle;
   /** The language that read this date, carried from detection. */
   locale?: string;
 }
@@ -53,6 +59,7 @@ class IconWidget extends WidgetType {
       other.target.from === this.target.from &&
       other.target.to === this.target.to &&
       other.target.text === this.target.text &&
+      other.target.kind === this.target.kind &&
       other.placement === this.placement &&
       other.hot === this.hot
     );
@@ -69,10 +76,11 @@ class IconWidget extends WidgetType {
     });
 
     const icon = anchor.createSpan({ cls: "kalendae-icon" });
-    setIcon(icon, "calendar");
+    const time = this.target.kind === "time";
+    setIcon(icon, time ? "clock" : "calendar");
     // The command's own name, rather than a string of its own: both say the
     // same thing, and one of them is already translated.
-    icon.setAttribute("aria-label", t("commands.pickDate"));
+    icon.setAttribute("aria-label", t(time ? "commands.pickTime" : "commands.pickDate"));
 
     // mousedown, not click: the editor places the caret on mousedown, so by the
     // time a click arrives the caret has already jumped into the date.
@@ -137,7 +145,10 @@ function build(
       // A Tasks emoji takes the icon's place for its own date rather than
       // standing beside it: two buttons on one date, one of them drawn over the
       // emoji that is the other, is not something to offer.
-      const marker = settings.taskEmoji ? detection.markerFrom : undefined;
+      // A Tasks emoji marks a date. Scanning records one only for a date, and
+      // this says so again where the icon is decided.
+      const marker =
+        settings.taskEmoji && detection.kind === "date" ? detection.markerFrom : undefined;
       const withIcon = iconWanted && marker === undefined;
 
       const classes = ["kalendae-date"];
@@ -160,6 +171,8 @@ function build(
               to: detection.to,
               text: detection.text,
               pattern: detection.pattern,
+              kind: detection.kind,
+              meridiem: detection.meridiem,
               locale: detection.locale,
             },
             settings.hoverIcon,

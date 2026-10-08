@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "Datum auswählen",
-    "tryTimePicker": "Zeitauswahl ausprobieren"
+    "pickTime": "Uhrzeit auswählen"
   },
   "settings": {
     "notes": {
-      "heading": "Datumsangaben in einer Notiz"
+      "heading": "Datums- und Zeitangaben in einer Notiz"
     },
     "commandOnly": {
-      "name": "Hinweis: Nur „{{command}}“ über die Befehlspalette öffnet den Kalender bei einem vorhandenen Datum"
+      "name": "Hinweis: Nur „{{command}}“ und „{{timeCommand}}“ über die Befehlspalette öffnen ein vorhandenes Datum oder eine vorhandene Uhrzeit"
     },
     "calendar": {
       "heading": "Kalender"
     },
     "doubleClick": {
       "name": "Doppelklick",
-      "desc": "Doppelklicke auf ein Datum, um den Kalender zu öffnen."
+      "desc": "Doppelklicke auf ein Datum, um den Kalender zu öffnen, oder auf eine Uhrzeit, um die Uhr zu öffnen."
     },
     "hover": {
       "heading": "Beim Überfahren",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "Symbol anzeigen",
-      "desc": "Klicke auf das {{icon}}, das erscheint, wenn der Zeiger über einem Datum steht.",
+      "desc": "Klicke auf das {{icon}} oder {{clock}}, das erscheint, wenn der Zeiger über einem Datum oder einer Uhrzeit steht.",
       "options": {
         "off": "Deaktiviert",
         "left": "Links platzieren",
@@ -235,6 +235,10 @@
         "save": "Speichern"
       }
     },
+    "timeFormats": {
+      "heading": "Zeitformate",
+      "description": "Die Zeitformate, die Kalendae in deinen Notizen erkennt, von oben nach unten angewandt."
+    },
     "formats": {
       "heading": "Datumsformate",
       "description": "Die Datumsformate, die Kalendae in deinen Notizen erkennt, von oben nach unten angewandt.",
@@ -257,6 +261,7 @@
         "pattern": "Format",
         "required": "(Erforderlich)",
         "optional": "(Optional)",
+        "requiredWith12": "(Erforderlich mit h oder hh)",
         "columns": {
           "tokens": "Platzhalter",
           "meaning": "Bedeutung",
@@ -267,18 +272,26 @@
           "month": "Monat",
           "day": "Tag",
           "weekday": "Wochentag",
+          "hour": "Stunde",
+          "minute": "Minute",
+          "second": "Sekunde",
+          "meridiem": "am/pm",
           "literal": "Wird übernommen"
         },
         "warning": "Dein Format passt auf jede {{digits}}-stellige Zahl. Erwäge Trennzeichen.",
         "hint": "Schreibe ein Format mit den Platzhaltern oben.",
         "problem": {
+          "meridiemMissing": "Ein 12-Stunden-Format braucht am/pm: füge a oder A hinzu.",
+          "meridiemStray": "am/pm gehört zu einer 12-Stunden-Angabe: schreibe h oder hh.",
           "adjacent": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein.",
           "adjacentWiden": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein oder schreibe {{from}} als {{to}}.",
           "adjacentWidenBoth": "Dein Format ist mehrdeutig: {{first}} und {{second}} stehen ohne Trennung nebeneinander. Füge ein Trennzeichen ein oder schreibe sie als {{firstFixed}} und {{secondFixed}}.",
           "missing": {
             "year": "Ein Format braucht ein Jahr: füge YY oder YYYY hinzu.",
             "month": "Ein Format braucht einen Monat: füge M, MM, MMM oder MMMM hinzu.",
-            "day": "Ein Format braucht einen Tag: füge D, DD oder Do hinzu."
+            "day": "Ein Format braucht einen Tag: füge D, DD oder Do hinzu.",
+            "hour": "Ein Format braucht eine Stunde: füge H, HH, h oder hh hinzu.",
+            "minute": "Ein Format braucht eine Minute: füge m oder mm hinzu."
           },
           "unknownTokens": "Unbekannter Platzhalter: {{chars}}",
           "brackets": "Dein Format darf [ oder ] nicht verwenden"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht."
+    "noEditor": "Öffne zuerst eine Notiz in der Bearbeitungsansicht.",
+    "noTimeFormat": "Füge zuerst in den Einstellungen ein Zeitformat hinzu."
   }
 }

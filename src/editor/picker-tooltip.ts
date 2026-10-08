@@ -1,14 +1,17 @@
 import { Extension, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, Tooltip, closeHoverTooltips, showTooltip } from "@codemirror/view";
 import { Detection, detectIn } from "../detect/detect";
+import { readTime } from "../detect/time-formats";
+import { createClock } from "../picker/clock";
+import { TimeValue, timeOf } from "../picker/clock-math";
 import { DayKey, dayFor } from "../picker/month";
 import { createPanel } from "../picker/panel";
-import { insertionFor, stillThere } from "../picker/write";
+import { insertionFor, stillThere, timeInsertionFor } from "../picker/write";
 import { KalendaeSettings } from "../settings";
 import { DateTarget } from "./decorations";
 
 /**
- * The calendar, mounted on the date it was opened from.
+ * The calendar or the clock, mounted on the date or the time it was opened from.
  *
  * A CodeMirror tooltip rather than a popup of our own: CodeMirror already
  * anchors to a document position, flips the panel when it would fall off the
@@ -88,6 +91,8 @@ function targetOf(detection: Detection): DateTarget {
     to: detection.to,
     text: detection.text,
     pattern: detection.pattern,
+    kind: detection.kind,
+    meridiem: detection.meridiem,
     locale: detection.locale,
   };
 }
@@ -166,13 +171,26 @@ function tooltipFor(target: DateTarget, settings: KalendaeSettings): Tooltip {
     // arrow would draw a second one pointing at the text it already sits on.
     arrow: false,
     create: (view) => {
-      const panel = createPanel({
-        value: dayFor(target.text, target.pattern, target.locale),
-        pattern: target.pattern,
-        settings,
-        onPick: (day) => write(view, target, day),
-        onClose: () => close(view),
-      });
+      const panel =
+        target.kind === "time"
+          ? createClock({
+              // An empty target is a new time, which opens on the current one.
+              value: readTime(target.text, target.pattern, target.locale) ?? timeOf(new Date()),
+              pattern: target.pattern,
+              locale: target.locale,
+              meridiem: target.meridiem,
+              insert: target.text === "",
+              settings,
+              onPick: (time) => writeTime(view, target, time),
+              onClose: () => close(view),
+            })
+          : createPanel({
+              value: dayFor(target.text, target.pattern, target.locale),
+              pattern: target.pattern,
+              settings,
+              onPick: (day) => write(view, target, day),
+              onClose: () => close(view),
+            });
 
       // A click anywhere else is a click elsewhere, and the panel should be gone
       // by the time it lands. Captured on the editor's own document, which is
@@ -220,6 +238,32 @@ function write(view: EditorView, target: DateTarget, day: DayKey): void {
     // else. Past a space the insert case added, too — a letter typed straight
     // after a pick would otherwise stick to the date and undo the separation
     // that space was there for.
+    selection: { anchor: target.from + insert.length },
+    effects: closePicker.of(null),
+  });
+  view.focus();
+}
+
+/** The same write for a time: one transaction, guarded, in the note's own spelling. */
+function writeTime(view: EditorView, target: DateTarget, time: TimeValue): void {
+  const doc = view.state.doc.toString();
+  if (!stillThere(doc, target.from, target.to, target.text)) {
+    close(view);
+    return;
+  }
+
+  const insert = timeInsertionFor(
+    doc,
+    target.from,
+    target.to,
+    target.pattern,
+    time,
+    target.locale,
+    target.meridiem,
+  );
+
+  view.dispatch({
+    changes: { from: target.from, to: target.to, insert },
     selection: { anchor: target.from + insert.length },
     effects: closePicker.of(null),
   });

@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "Vali kuupäev",
-    "tryTimePicker": "Proovi kellaajavalijat"
+    "pickTime": "Vali kellaaeg"
   },
   "settings": {
     "notes": {
-      "heading": "Kuupäevad märkmes"
+      "heading": "Kuupäevad ja kellaajad märkmes"
     },
     "commandOnly": {
-      "name": "Märkus: olemasoleval kuupäeval avab kalendri ainult „{{command}}“ käsupaletist"
+      "name": "Märkus: olemasoleva kuupäeva või kellaaja avavad ainult „{{command}}“ ja „{{timeCommand}}“ käsupaletist"
     },
     "calendar": {
       "heading": "Kalender"
     },
     "doubleClick": {
       "name": "Topeltklõps",
-      "desc": "Tee kuupäeval topeltklõps, et kalender avada."
+      "desc": "Tee kuupäeval topeltklõps, et avada kalender, või kellaajal, et avada kell."
     },
     "hover": {
       "heading": "Hiirega osutades",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "Näita ikooni",
-      "desc": "Klõpsa ikoonil {{icon}}, mis ilmub, kui kursor on kuupäeva kohal.",
+      "desc": "Klõpsa ikoonil {{icon}} või {{clock}}, mis ilmub, kui kursor on kuupäeva või kellaaja kohal.",
       "options": {
         "off": "Välja lülitatud",
         "left": "Vasakule",
@@ -235,6 +235,10 @@
         "save": "Salvesta"
       }
     },
+    "timeFormats": {
+      "heading": "Kellaajavormingud",
+      "description": "Kellaajavormingud, mida Kalendae sinu märkmetes tunneb, rakendatakse ülalt alla."
+    },
     "formats": {
       "heading": "Kuupäevavormingud",
       "description": "Kuupäevavormingud, mida Kalendae sinu märkmetes tunneb, rakendatakse ülalt alla.",
@@ -257,6 +261,7 @@
         "pattern": "Vorming",
         "required": "(Kohustuslik)",
         "optional": "(Valikuline)",
+        "requiredWith12": "(Kohustuslik koos h või hh-ga)",
         "columns": {
           "tokens": "Tähised",
           "meaning": "Tähendus",
@@ -267,18 +272,26 @@
           "month": "Kuu",
           "day": "Päev",
           "weekday": "Nädalapäev",
+          "hour": "Tund",
+          "minute": "Minut",
+          "second": "Sekund",
+          "meridiem": "am/pm",
           "literal": "Jääb nii, nagu kirjutatud"
         },
         "warning": "Sinu vorming sobib iga {{digits}}-kohalise arvuga. Kaalu eraldajate lisamist.",
         "hint": "Kirjuta vorming ülal olevate tähistega.",
         "problem": {
+          "meridiemMissing": "12-tunnine vorming vajab am/pm-i: lisa a või A.",
+          "meridiemStray": "am/pm käib 12-tunnise tunniga: kirjuta h või hh.",
           "adjacent": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja.",
           "adjacentWiden": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja või kirjuta {{from}} kujul {{to}}.",
           "adjacentWidenBoth": "Vorming on mitmetähenduslik: {{first}} ja {{second}} jooksevad kokku. Lisa eraldaja või kirjuta need kujul {{firstFixed}} ja {{secondFixed}}.",
           "missing": {
             "year": "Vorming vajab aastat: lisa YY või YYYY.",
             "month": "Vorming vajab kuud: lisa M, MM, MMM või MMMM.",
-            "day": "Vorming vajab päeva: lisa D, DD või Do."
+            "day": "Vorming vajab päeva: lisa D, DD või Do.",
+            "hour": "Vorming vajab tundi: lisa H, HH, h või hh.",
+            "minute": "Vorming vajab minutit: lisa m või mm."
           },
           "unknownTokens": "Tundmatu tähis: {{chars}}",
           "brackets": "Vorming ei tohi kasutada [ ega ]"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "Ava kõigepealt märge redigeerimisvaates."
+    "noEditor": "Ava kõigepealt märge redigeerimisvaates.",
+    "noTimeFormat": "Lisa esmalt seadetes kellaajavorming."
   }
 }

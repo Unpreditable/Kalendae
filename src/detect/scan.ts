@@ -1,5 +1,7 @@
-import { DateFormatEntry, checkFormat, compileFormat, readIn } from "./formats";
+import { DateFormatEntry, FormatKind, checkFormat, compileFormat, readIn } from "./formats";
 import { markerBefore } from "./markers";
+import { MeridiemStyle, meridiemStyleOf } from "./meridiem";
+import { checkTimeFormat, compileTimeFormat, readTimeIn, withSeconds } from "./time-formats";
 
 /**
  * Finds the dates in a piece of text. Pure — no Obsidian editor, no syntax
@@ -29,6 +31,8 @@ export interface Candidate {
   /** The `DateFormatEntry.id` that matched. */
   formatId: string;
   pattern: string;
+  /** Which list the format came from, and so which panel edits it. */
+  kind: FormatKind;
   /**
    * Where the Tasks emoji in front of this date begins, spaces included, when
    * there is one. The rule is `markers.ts`; this only records what it found.
@@ -45,11 +49,17 @@ export interface Candidate {
    * vault has to come back Russian, not `7 September 2026`.
    */
   locale?: string;
+  /** How a time spelled its am/pm, where it has the English-style pair. */
+  meridiem?: MeridiemStyle;
   accepted: boolean;
   reason?: RejectReason;
 }
 
-export function scanText(text: string, entries: DateFormatEntry[]): Candidate[] {
+export function scanText(
+  text: string,
+  entries: DateFormatEntry[],
+  timeEntries: DateFormatEntry[] = [],
+): Candidate[] {
   const candidates: Candidate[] = [];
 
   // List order is priority order: when two formats can read the same string,
@@ -68,11 +78,46 @@ export function scanText(text: string, entries: DateFormatEntry[]): Candidate[] 
         text: match[0],
         formatId: entry.id,
         pattern: entry.pattern,
+        kind: "date",
         markerFrom: markerBefore(text, from) ?? undefined,
         ...reasonFor(text, from, to, match[0], entry.pattern),
       });
     }
   }
+
+  // Times after dates, so a date wins a string both could read: `12.10.25`
+  // is a date wherever a date format says so.
+  const times: Candidate[] = [];
+  for (const entry of timeEntries) {
+    if (checkTimeFormat(entry.pattern)) continue;
+
+    // The pattern a candidate carries is the one that read it, so a time
+    // found with seconds is written back with them.
+    for (const pattern of [withSeconds(entry.pattern), entry.pattern]) {
+      if (pattern === null) continue;
+
+      for (const match of text.matchAll(compileTimeFormat(pattern))) {
+        const from = match.index;
+        const to = from + match[0].length;
+        times.push({
+          from,
+          to,
+          text: match[0],
+          formatId: entry.id,
+          pattern,
+          kind: "time",
+          ...reasonForTime(text, from, to, match[0], pattern),
+        });
+      }
+    }
+  }
+
+  // The fullest reading of a time wins, and list order only settles readings
+  // of the same length. Without this `HH:mm` above `h:mm a` takes the `12:05`
+  // out of `12:05 am` and strands the rest. The sort is stable, so equal
+  // lengths stay in the order the list gave them.
+  times.sort((a, b) => b.to - b.from - (a.to - a.from));
+  candidates.push(...times);
 
   return resolveOverlaps(candidates).sort((a, b) => a.from - b.from);
 }
@@ -95,6 +140,38 @@ function reasonFor(
     return { accepted: false, reason: "not-a-date" };
   }
   return { accepted: true, locale };
+}
+
+function reasonForTime(
+  text: string,
+  from: number,
+  to: number,
+  matched: string,
+  pattern: string,
+): Pick<Candidate, "accepted" | "reason" | "locale" | "meridiem"> {
+  const flanked = insideLongerTime(text, from, to) || isUtcOffset(text, from);
+  if (!hasCleanBoundaries(text, from, to) || flanked) {
+    return { accepted: false, reason: "boundary" };
+  }
+
+  // "not-a-date" for a time as well: the reason is that the strict parser
+  // refused it, and one name for that serves both lists.
+  const locale = readTimeIn(matched, pattern);
+  if (locale === null) return { accepted: false, reason: "not-a-date" };
+
+  return { accepted: true, locale, meridiem: meridiemStyleOf(matched) ?? undefined };
+}
+
+/**
+ * A colon with a digit beyond it, on either side: this is the middle of
+ * `14:05:09` or the tail of `1:14:05`, not a time of its own. The dot rule
+ * already says the same of `14.05.09`.
+ */
+function insideLongerTime(text: string, from: number, to: number): boolean {
+  const before = text[from - 1] === ":" && /\d/.test(text[from - 2] ?? "");
+  const after = text[to] === ":" && /\d/.test(text[to + 1] ?? "");
+
+  return before || after;
 }
 
 /**
@@ -141,6 +218,25 @@ function isClean(adjacent: string | undefined, beyond: string | undefined): bool
   if (adjacent === "_") return !(beyond !== undefined && /[A-Za-z0-9]/.test(beyond));
 
   return !(adjacent === "." && beyond !== undefined && /\d/.test(beyond));
+}
+
+/**
+ * The `+02:00` on the end of a timestamp: shaped like a time, and editing it
+ * as one would corrupt the timestamp it belongs to.
+ *
+ * A plus sign in front is always an offset. A minus is one only where it is
+ * written as an offset is — after a space, or straight after a time that is
+ * glued to its date by a `T` — because `10:30-11:45` is a range, and both of
+ * its ends are times.
+ */
+function isUtcOffset(text: string, from: number): boolean {
+  const sign = text[from - 1];
+  if (sign === "+") return true;
+  if (sign !== "-") return false;
+
+  const before = text.slice(0, from - 1);
+
+  return before === "" || /\s$/.test(before) || /T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(before);
 }
 
 /** Later formats lose a contested range, but stay in the result as rejected. */

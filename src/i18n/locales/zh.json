@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "选择日期",
-    "tryTimePicker": "试用时间选择器"
+    "pickTime": "选择时间"
   },
   "settings": {
     "notes": {
-      "heading": "笔记中的日期"
+      "heading": "笔记中的日期和时间"
     },
     "commandOnly": {
-      "name": "注意：对已写好的日期，只有命令面板中的“{{command}}”才能打开日历"
+      "name": "注意：对已写好的日期或时间，只有命令面板中的“{{command}}”和“{{timeCommand}}”才能打开"
     },
     "calendar": {
       "heading": "日历"
     },
     "doubleClick": {
       "name": "双击",
-      "desc": "双击日期即可打开日历。"
+      "desc": "双击日期可打开日历，双击时间可打开时钟。"
     },
     "hover": {
       "heading": "悬停时",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "显示图标",
-      "desc": "点击将指针悬停在日期上时出现的 {{icon}}。",
+      "desc": "点击将指针悬停在日期或时间上时出现的 {{icon}} 或 {{clock}}。",
       "options": {
         "off": "禁用",
         "left": "放在左侧",
@@ -235,6 +235,10 @@
         "save": "保存"
       }
     },
+    "timeFormats": {
+      "heading": "时间格式",
+      "description": "Kalendae 在你的笔记中识别的时间格式，自上而下依次应用。"
+    },
     "formats": {
       "heading": "日期格式",
       "description": "Kalendae 在你的笔记中识别的日期格式，自上而下依次应用。",
@@ -257,6 +261,7 @@
         "pattern": "格式",
         "required": "（必填）",
         "optional": "（可选）",
+        "requiredWith12": "（与 h 或 hh 一起使用时必填）",
         "columns": {
           "tokens": "标记",
           "meaning": "含义",
@@ -267,18 +272,26 @@
           "month": "月",
           "day": "日",
           "weekday": "星期",
+          "hour": "小时",
+          "minute": "分钟",
+          "second": "秒",
+          "meridiem": "上午/下午",
           "literal": "原样保留"
         },
         "warning": "该格式会匹配任意 {{digits}} 位数字。建议加入分隔符。",
         "hint": "使用上面的标记编写格式。",
         "problem": {
+          "meridiemMissing": "12 小时制格式需要上午/下午：请加入 a 或 A。",
+          "meridiemStray": "上午/下午要与 12 小时制的小时搭配：请写 h 或 hh。",
           "adjacent": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符。",
           "adjacentWiden": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符，或把 {{from}} 写成 {{to}}。",
           "adjacentWidenBoth": "格式有歧义：{{first}} 与 {{second}} 连在一起。请加入分隔符，或写成 {{firstFixed}} 与 {{secondFixed}}。",
           "missing": {
             "year": "格式需要年份：请加入 YY 或 YYYY。",
             "month": "格式需要月份：请加入 M、MM、MMM 或 MMMM。",
-            "day": "格式需要日期：请加入 D、DD 或 Do。"
+            "day": "格式需要日期：请加入 D、DD 或 Do。",
+            "hour": "格式需要小时：请加入 H、HH、h 或 hh。",
+            "minute": "格式需要分钟：请加入 m 或 mm。"
           },
           "unknownTokens": "未知标记：{{chars}}",
           "brackets": "格式不能使用 [ 或 ]"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "请先在编辑视图中打开笔记。"
+    "noEditor": "请先在编辑视图中打开笔记。",
+    "noTimeFormat": "请先在设置中添加时间格式。"
   }
 }

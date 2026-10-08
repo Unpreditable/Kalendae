@@ -1,4 +1,5 @@
 import { setIcon } from "obsidian";
+import { MeridiemStyle } from "../detect/meridiem";
 import { t } from "../i18n/i18n";
 import { KalendaeSettings } from "../settings";
 import {
@@ -48,6 +49,13 @@ export interface ClockOptions {
   pattern: string;
   /** The language it was written in, for the AM/PM words. */
   locale?: string;
+  /** How the note spelled am/pm, which is how the toggle reads and what is written. */
+  meridiem?: MeridiemStyle;
+  /**
+   * A new time rather than a change to one. There is no original to keep, so
+   * ✓ writes even when nothing was touched.
+   */
+  insert?: boolean;
   settings: KalendaeSettings;
   onPick: (time: TimeValue) => void;
   onClose: () => void;
@@ -77,7 +85,9 @@ const UNIT_LABELS: Record<ClockUnit, string> = {
 export function createClock(options: ClockOptions): Panel {
   const shape = shapeOf(options.pattern);
   const token = shape.meridiemToken ?? "A";
-  const vocabulary = shape.twelveHour ? meridiemVocabulary(token, options.locale) : [];
+  const vocabulary = shape.twelveHour
+    ? meridiemVocabulary(token, options.locale, options.meridiem)
+    : [];
 
   // The time being built, which reaches the note only through OK.
   let time = options.value;
@@ -148,8 +158,10 @@ export function createClock(options: ClockOptions): Panel {
 
   function confirm(): void {
     const result = committed(options.value, time, shape, snap);
-    if (result === null) options.onClose();
-    else options.onPick(result);
+
+    if (result !== null) options.onPick(result);
+    else if (options.insert) options.onPick(time);
+    else options.onClose();
   }
 
   function render(): void {
@@ -181,7 +193,7 @@ export function createClock(options: ClockOptions): Panel {
     snapButton.setAttribute("aria-pressed", String(snap));
 
     if (am && pm) {
-      const words = meridiemWords(shown, token, options.locale);
+      const words = meridiemWords(shown, token, options.locale, options.meridiem);
       fillMeridiem(am, words.am, vocabulary);
       fillMeridiem(pm, words.pm, vocabulary);
       am.toggleClass("kalendae-clock-active", shown.hour < 12);
@@ -346,6 +358,21 @@ export function createClock(options: ClockOptions): Panel {
     if (event.key === "Escape") {
       event.preventDefault();
       options.onClose();
+      return;
+    }
+
+    // Tab goes round the panel and nowhere else: the dial, then each control,
+    // then the dial again. Left to the browser, the Tab after the last control
+    // walked out into the note with the clock still open over it.
+    if (event.key === "Tab") {
+      event.preventDefault();
+
+      const controls = dom.querySelectorAll<HTMLElement>("button:not([tabindex='-1'])");
+      const stops = [dom, ...Array.from(controls)];
+      const at = Math.max(0, stops.indexOf(event.target as HTMLElement));
+      const step = event.shiftKey ? -1 : 1;
+
+      stops[(at + step + stops.length) % stops.length].focus();
       return;
     }
 

@@ -102,3 +102,30 @@ describe("the sample dates", () => {
     expect(TOKEN_GROUPS.map((group) => group.key)).toEqual(["year", "month", "day", "weekday"]);
   });
 });
+
+describe("shadowedFormats for times", () => {
+  it("reports a time format an earlier one always beats", () => {
+    const shadows = shadowedFormats(
+      [
+        { id: "short", pattern: "H:mm" },
+        { id: "padded", pattern: "HH:mm" },
+      ],
+      "time",
+    );
+
+    expect(shadows.get("padded")?.by).toBe("H:mm");
+    expect(shadows.has("short")).toBe(false);
+  });
+
+  it("is quiet where the formats read different times", () => {
+    const shadows = shadowedFormats(
+      [
+        { id: "time-24", pattern: "HH:mm" },
+        { id: "time-12", pattern: "h:mm a" },
+      ],
+      "time",
+    );
+
+    expect(shadows.size).toBe(0);
+  });
+});

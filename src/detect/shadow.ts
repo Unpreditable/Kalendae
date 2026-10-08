@@ -1,5 +1,6 @@
-import { DateFormatEntry, checkFormat, renderExample } from "./formats";
-import { scanText } from "./scan";
+import { DateFormatEntry, FormatKind, checkFormat, renderExample } from "./formats";
+import { Candidate, scanText } from "./scan";
+import { checkTimeFormat, renderTimeExample } from "./time-formats";
 
 /**
  * Which formats in the list never get a turn.
@@ -64,20 +65,63 @@ export const SHADOW_DATES: readonly Date[] = [
   new Date(2026, 9, 25), //  2-digit month, 2-digit day, 25th
 ];
 
+/**
+ * The same idea for times: an hour of one digit and of two, both halves of the
+ * day, and the two twelves, which are where 12- and 24-hour formats disagree.
+ */
+export const SHADOW_TIMES: readonly Date[] = [
+  new Date(2026, 0, 1, 0, 5),
+  new Date(2026, 0, 1, 9, 30),
+  new Date(2026, 0, 1, 12, 0),
+  new Date(2026, 0, 1, 14, 5),
+  new Date(2026, 0, 1, 23, 59),
+];
+
+/** What telling one list's formats apart needs to know about that list. */
+interface Family {
+  unusable: (pattern: string) => boolean;
+  render: (pattern: string, on: Date) => string;
+  scan: (text: string, formats: DateFormatEntry[]) => Candidate[];
+  samples: readonly Date[];
+}
+
+const FAMILIES: Record<FormatKind, Family> = {
+  date: {
+    unusable: (pattern) => checkFormat(pattern) !== null,
+    render: renderExample,
+    scan: (text, formats) => scanText(text, formats),
+    samples: SHADOW_DATES,
+  },
+  time: {
+    unusable: (pattern) => checkTimeFormat(pattern) !== null,
+    render: renderTimeExample,
+    scan: (text, formats) => scanText(text, [], formats),
+    samples: SHADOW_TIMES,
+  },
+};
+
 /** Keyed by `DateFormatEntry.id`; a format with no entry is doing its job. */
-export function shadowedFormats(formats: DateFormatEntry[]): Map<string, Shadow> {
+export function shadowedFormats(
+  formats: DateFormatEntry[],
+  kind: FormatKind = "date",
+): Map<string, Shadow> {
+  const family = FAMILIES[kind];
   const shadows = new Map<string, Shadow>();
 
   for (const entry of formats) {
-    const shadow = shadowOf(entry, formats);
+    const shadow = shadowOf(entry, formats, family);
     if (shadow) shadows.set(entry.id, shadow);
   }
 
   return shadows;
 }
 
-function shadowOf(entry: DateFormatEntry, formats: DateFormatEntry[]): Shadow | null {
-  const beaten = beatenBy(entry, formats);
+function shadowOf(
+  entry: DateFormatEntry,
+  formats: DateFormatEntry[],
+  family: Family,
+): Shadow | null {
+  const beaten = beatenBy(entry, formats, family);
   if (!beaten) return null;
 
   const by = beaten.winner.pattern;
@@ -88,7 +132,7 @@ function shadowOf(entry: DateFormatEntry, formats: DateFormatEntry[]): Shadow | 
   // Would moving it up help, or merely change who is smothered? Ask by moving
   // it and looking, which is the same trick the whole check is built on.
   const lifted = moveAbove(formats, entry, beaten.winner);
-  const rival = beatenBy(beaten.winner, lifted);
+  const rival = beatenBy(beaten.winner, lifted, family);
 
   return { kind: rival && rival.wins === 0 ? "remove" : "move", by };
 }
@@ -100,18 +144,22 @@ interface Beaten {
 }
 
 /** Whether an earlier format takes this one's dates, and which one does. */
-function beatenBy(entry: DateFormatEntry, formats: DateFormatEntry[]): Beaten | null {
+function beatenBy(
+  entry: DateFormatEntry,
+  formats: DateFormatEntry[],
+  family: Family,
+): Beaten | null {
   // An unusable pattern matches nothing anywhere, which is a different problem
   // with its own answer on the row. Saying it is shadowed as well would be
   // true and useless.
-  if (checkFormat(entry.pattern)) return null;
+  if (family.unusable(entry.pattern)) return null;
 
   let wins = 0;
   let winner: DateFormatEntry | null = null;
 
-  for (const on of SHADOW_DATES) {
-    const text = renderExample(entry.pattern, on);
-    const found = scanText(text, formats);
+  for (const on of family.samples) {
+    const text = family.render(entry.pattern, on);
+    const found = family.scan(text, formats);
     const mine = found.find((candidate) => candidate.formatId === entry.id);
 
     if (!mine) continue;

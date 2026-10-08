@@ -93,6 +93,12 @@
   color: var(--text-muted);
 }
 
+/* The seconds a time format also reads, in brackets inside its example:
+   fainter than the time, so they read as "may be there". */
+.kalendae-format-optional {
+  color: var(--text-faint);
+}
+
 .kalendae-format-buttons {
   display: flex;
   gap: var(--size-4-1);
@@ -1113,6 +1119,16 @@
 .kalendae-panel .kalendae-clock-icon:hover {
   background-color: var(--background-modifier-hover);
   color: var(--text-normal);
+}
+
+/* Where the keyboard is. Obsidian rings a focused button with a shadow, and
+   these buttons switch their shadow off to sit flat in the panel — which left
+   Tab moving a focus nobody could see. The outline the calendar's focused day
+   uses, drawn inside the edge so the toggle's clipped corners keep it whole. */
+.kalendae-panel .kalendae-clock-icon:focus-visible,
+.kalendae-panel .kalendae-clock-meridiem-option:focus-visible {
+  outline: 2px solid var(--background-modifier-border-focus);
+  outline-offset: -2px;
 }
 
 /* Snap, while it is on: a filled circle, as the active big number and the

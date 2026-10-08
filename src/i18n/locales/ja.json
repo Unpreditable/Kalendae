@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "日付を選択",
-    "tryTimePicker": "時刻ピッカーを試す"
+    "pickTime": "時刻を選択"
   },
   "settings": {
     "notes": {
-      "heading": "ノート内の日付"
+      "heading": "ノート内の日付と時刻"
     },
     "commandOnly": {
-      "name": "注: すでに書かれた日付でカレンダーを開けるのはコマンドパレットの「{{command}}」だけです"
+      "name": "注: すでに書かれた日付や時刻を開けるのはコマンドパレットの「{{command}}」と「{{timeCommand}}」だけです"
     },
     "calendar": {
       "heading": "カレンダー"
     },
     "doubleClick": {
       "name": "ダブルクリック",
-      "desc": "日付をダブルクリックするとカレンダーが開きます。"
+      "desc": "日付をダブルクリックするとカレンダーが、時刻をダブルクリックすると時計が開きます。"
     },
     "hover": {
       "heading": "ホバー時",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "アイコンを表示",
-      "desc": "日付にポインタを合わせると表示される {{icon}} をクリックします。",
+      "desc": "日付や時刻にポインタを合わせると表示される {{icon}} または {{clock}} をクリックします。",
       "options": {
         "off": "無効",
         "left": "左に表示",
@@ -235,6 +235,10 @@
         "save": "保存"
       }
     },
+    "timeFormats": {
+      "heading": "時刻フォーマット",
+      "description": "Kalendae がノート内で認識する時刻フォーマット。上から順に適用されます。"
+    },
     "formats": {
       "heading": "日付フォーマット",
       "description": "Kalendae がノート内で認識する日付フォーマット。上から順に適用されます。",
@@ -257,6 +261,7 @@
         "pattern": "フォーマット",
         "required": "(必須)",
         "optional": "(任意)",
+        "requiredWith12": "(h または hh では必須)",
         "columns": {
           "tokens": "トークン",
           "meaning": "意味",
@@ -267,18 +272,26 @@
           "month": "月",
           "day": "日",
           "weekday": "曜日",
+          "hour": "時",
+          "minute": "分",
+          "second": "秒",
+          "meridiem": "午前/午後",
           "literal": "そのまま出力"
         },
         "warning": "このフォーマットは {{digits}} 桁のどんな数字にも一致します。区切り文字の追加を検討してください。",
         "hint": "上のトークンを使ってフォーマットを書いてください。",
         "problem": {
+          "meridiemMissing": "12時間制のフォーマットには午前/午後が必要です: a または A を追加してください。",
+          "meridiemStray": "午前/午後は12時間制の時と組み合わせます: h または hh と書いてください。",
           "adjacent": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加してください。",
           "adjacentWiden": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加するか、{{from}} を {{to}} と書いてください。",
           "adjacentWidenBoth": "フォーマットが曖昧です: {{first}} と {{second}} が続いています。区切り文字を追加するか、{{firstFixed}} と {{secondFixed}} と書いてください。",
           "missing": {
             "year": "フォーマットには年が必要です: YY または YYYY を追加してください。",
             "month": "フォーマットには月が必要です: M、MM、MMM、MMMM のいずれかを追加してください。",
-            "day": "フォーマットには日が必要です: D、DD、Do のいずれかを追加してください。"
+            "day": "フォーマットには日が必要です: D、DD、Do のいずれかを追加してください。",
+            "hour": "フォーマットには時が必要です: H、HH、h、hh のいずれかを追加してください。",
+            "minute": "フォーマットには分が必要です: m または mm を追加してください。"
           },
           "unknownTokens": "不明なトークン: {{chars}}",
           "brackets": "フォーマットに [ と ] は使えません"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "先に編集ビューでノートを開いてください。"
+    "noEditor": "先に編集ビューでノートを開いてください。",
+    "noTimeFormat": "先に設定で時刻フォーマットを追加してください。"
   }
 }

@@ -1,4 +1,5 @@
 import { moment } from "obsidian";
+import { MeridiemStyle, styleMeridiem } from "../detect/meridiem";
 
 /**
  * The clock's arithmetic: no DOM, no editor, no settings.
@@ -216,15 +217,19 @@ export function withMeridiem(time: TimeValue, pm: boolean): TimeValue {
 }
 
 /**
- * The words on the toggle's two halves: what the pattern would write at this
- * hour on each side of noon. Not a fixed pair — Ukrainian and Russian have four
- * words and Chinese six, chosen by the hour.
+ * The words on the toggle's two halves: what will be written at this hour on
+ * each side of noon. Not a fixed pair — Ukrainian and Russian have four words
+ * and Chinese six, chosen by the hour. Where the note spelled the English pair
+ * its own way, that spelling: the toggle goes on saying what will be written.
  */
 export function meridiemWords(
   time: TimeValue,
   token: "a" | "A",
   locale?: string,
+  style?: MeridiemStyle,
 ): { am: string; pm: string } {
+  if (style !== undefined) return { am: styleMeridiem("am", style), pm: styleMeridiem("pm", style) };
+
   return {
     am: formatTime(token, withMeridiem(time, false), locale),
     pm: formatTime(token, withMeridiem(time, true), locale),
@@ -232,11 +237,16 @@ export function meridiemWords(
 }
 
 /**
- * Every word a language writes for AM/PM across the day, in the order they
- * come. The toggle sizes itself to the longest so it does not jump as the hour
- * changes.
+ * Every word the toggle can show across the day, in the order they come. The
+ * toggle sizes itself to the longest so it does not jump as the hour changes.
  */
-export function meridiemVocabulary(token: "a" | "A", locale?: string): string[] {
+export function meridiemVocabulary(
+  token: "a" | "A",
+  locale?: string,
+  style?: MeridiemStyle,
+): string[] {
+  if (style !== undefined) return [styleMeridiem("am", style), styleMeridiem("pm", style)];
+
   const words = Array.from({ length: 24 }, (_, hour) =>
     formatTime(token, { hour, minute: 0, second: 0 }, locale),
   );

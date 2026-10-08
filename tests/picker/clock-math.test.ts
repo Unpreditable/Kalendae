@@ -286,3 +286,17 @@ describe("timeOf", () => {
     expect(timeOf(new Date(2026, 9, 3, 14, 37, 12))).toEqual(at(14, 37, 12));
   });
 });
+
+describe("the toggle in the note's own spelling", () => {
+  const dotted = { upper: true, dots: true, short: false };
+  const short = { upper: false, dots: false, short: true };
+
+  it("reads as the note spells am/pm", () => {
+    expect(meridiemWords(at(2), "a", "en", dotted)).toEqual({ am: "A.M.", pm: "P.M." });
+    expect(meridiemWords(at(14), "A", "en", short)).toEqual({ am: "a", pm: "p" });
+  });
+
+  it("sizes itself to those two words", () => {
+    expect(meridiemVocabulary("a", "en", dotted)).toEqual(["A.M.", "P.M."]);
+  });
+});

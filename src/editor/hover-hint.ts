@@ -33,6 +33,11 @@ export function hoverHint(getSettings: () => KalendaeSettings): Extension {
       if (settings.hoverDistance === "off" || pickerOpen(view.state)) return null;
 
       for (const detection of detectIn(view.state, settings, pos, pos)) {
+        // Dates only. A time does not say which day it belongs to, so a
+        // distance from now would be right in today's note and wrong in
+        // last week's.
+        if (detection.kind !== "date") continue;
+
         // A Tasks emoji in front of the date is part of the same target: the
         // outline already treats the pair as one, so the hint does as well.
         const from = settings.taskEmoji ? (detection.markerFrom ?? detection.from) : detection.from;

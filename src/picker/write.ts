@@ -1,5 +1,7 @@
 import { renderPattern } from "../detect/formats";
+import { MeridiemStyle } from "../detect/meridiem";
 import { cleanBoundaryAfter, cleanBoundaryBefore } from "../detect/scan";
+import { TimeOfDay, renderTime } from "../detect/time-formats";
 import { DayKey } from "./month";
 
 /**
@@ -59,4 +61,33 @@ export function stillThere(doc: string, from: number, to: number, expected: stri
   if (from < 0 || to > doc.length) return false;
 
   return doc.slice(from, to) === expected;
+}
+
+/**
+ * A time, in the format and the am/pm spelling the note already uses: the same
+ * promise `replacementFor` makes for a date, with one more thing to keep.
+ */
+export function timeReplacementFor(
+  pattern: string,
+  time: TimeOfDay,
+  locale?: string,
+  style?: MeridiemStyle,
+): string {
+  return renderTime(pattern, time, locale, style);
+}
+
+/** A new time, padded on any side that would otherwise glue it to a word. */
+export function timeInsertionFor(
+  doc: string,
+  from: number,
+  to: number,
+  pattern: string,
+  time: TimeOfDay,
+  locale?: string,
+  style?: MeridiemStyle,
+): string {
+  const before = cleanBoundaryBefore(doc, from) ? "" : " ";
+  const after = cleanBoundaryAfter(doc, to) ? "" : " ";
+
+  return before + timeReplacementFor(pattern, time, locale, style) + after;
 }

@@ -1,5 +1,6 @@
 import { App, ButtonComponent, Modal, Setting, setIcon } from "obsidian";
 import {
+  FormatKind,
   FormatProblem,
   FormatWarning,
   LITERAL_SAMPLE,
@@ -9,6 +10,14 @@ import {
   warnFormat,
   tokenGroupsPresent,
 } from "../detect/formats";
+import {
+  TIME_TOKEN_GROUPS,
+  TimeFormatProblem,
+  checkTimeFormat,
+  hourStyle,
+  renderTimeSample,
+  timeTokenGroupsPresent,
+} from "../detect/time-formats";
 import { t } from "../i18n/i18n";
 
 /**
@@ -32,9 +41,15 @@ export class FormatModal extends Modal {
     app: App,
     pattern: string,
     private readonly onSave: (pattern: string) => void,
+    private readonly kind: FormatKind,
   ) {
     super(app);
     this.draft = pattern;
+  }
+
+  /** The building blocks of the list this format belongs to. */
+  private get groups(): readonly { key: string; tokens: readonly string[]; required: boolean }[] {
+    return this.kind === "time" ? TIME_TOKEN_GROUPS : TOKEN_GROUPS;
   }
 
   onOpen(): void {
@@ -107,7 +122,7 @@ export class FormatModal extends Modal {
       cell.setAttribute("role", "columnheader");
     }
 
-    for (const group of TOKEN_GROUPS) {
+    for (const group of this.groups) {
       const row = this.tokenRow(table);
       this.tokenCell(row, "kalendae-format-token-list", group.tokens.join("  "));
 
@@ -115,17 +130,18 @@ export class FormatModal extends Modal {
       name.appendText(t(`settings.formats.modal.groups.${group.key}`));
       name.createSpan({
         cls: "kalendae-format-token-need",
-        text: t(
-          group.required ? "settings.formats.modal.required" : "settings.formats.modal.optional",
-        ),
+        text: t(needKey(group)),
       });
 
       // Only the required parts are marked. A tick against the day of the week
       // would claim a format is missing something when leaving it out is a
       // perfectly good format — the word "(Optional)" already says all there is
       // to say about it.
+      //
+      // am/pm is marked too, though it is neither: a 12-hour hour cannot do
+      // without it and a 24-hour one cannot have it. See `refresh`.
       const cell = this.tokenCell(row, "kalendae-format-token-mark", "");
-      if (group.required) {
+      if (group.required || group.key === MERIDIEM) {
         this.marks.set(group.key, cell.createSpan({ cls: "kalendae-format-mark" }));
       }
     }
@@ -168,19 +184,25 @@ export class FormatModal extends Modal {
    * being unavailable says the rest.
    */
   private refresh(): void {
-    this.result?.setText(renderExample(this.draft));
+    const time = this.kind === "time";
+    this.result?.setText(time ? renderTimeSample(this.draft) : renderExample(this.draft));
 
-    const present = tokenGroupsPresent(this.draft);
-    for (const group of TOKEN_GROUPS) {
+    const present: Set<string> = time
+      ? timeTokenGroupsPresent(this.draft)
+      : tokenGroupsPresent(this.draft);
+    for (const group of this.groups) {
       const mark = this.marks.get(group.key);
       if (!mark) continue;
-      const have = present.has(group.key);
-      mark.toggleClass("kalendae-format-mark-missing", !have);
-      setIcon(mark, have ? "check" : "x");
+      const state = group.key === MERIDIEM ? this.meridiemState(present) : present.has(group.key);
+
+      mark.toggleClass("kalendae-format-mark-missing", state === false);
+      if (state === null) mark.empty();
+      else setIcon(mark, state ? "check" : "x");
     }
 
-    const problem = checkFormat(this.draft);
-    const warning = problem ? null : warnFormat(this.draft);
+    const problem = time ? checkTimeFormat(this.draft) : checkFormat(this.draft);
+    // Only a date format can be a bare run of digits wide enough to warn about.
+    const warning = problem || time ? null : warnFormat(this.draft);
     const empty = this.draft === "";
 
     // One line, three jobs. An empty field is not a mistake but a start, so it
@@ -193,7 +215,23 @@ export class FormatModal extends Modal {
     this.save?.setDisabled(problem !== null);
   }
 
-  private line(empty: boolean, problem: FormatProblem | null, warning: FormatWarning | null): string {
+  /**
+   * Whether am/pm is as the hour needs it: there with `h` or `hh`, absent with
+   * `H` or `HH`. Null where there is nothing to say — a 24-hour format without
+   * it is simply complete, and a tick there would suggest it had been asked for.
+   */
+  private meridiemState(present: Set<string>): boolean | null {
+    const has = present.has(MERIDIEM);
+    if (hourStyle(this.draft) === "12") return has;
+
+    return has ? false : null;
+  }
+
+  private line(
+    empty: boolean,
+    problem: FormatProblem | TimeFormatProblem | null,
+    warning: FormatWarning | null,
+  ): string {
     if (empty) return t("settings.formats.modal.hint");
     if (problem) return describe(problem);
     if (warning) return t("settings.formats.modal.warning", { digits: warning.digits });
@@ -205,8 +243,18 @@ export class FormatModal extends Modal {
   }
 }
 
+/** The time's am/pm group, the one part that is required or not by what else is there. */
+const MERIDIEM = "meridiem";
+
+/** The words after a part's name: whether a format needs it. */
+function needKey(group: { key: string; required: boolean }): string {
+  if (group.key === MERIDIEM) return "settings.formats.modal.requiredWith12";
+
+  return group.required ? "settings.formats.modal.required" : "settings.formats.modal.optional";
+}
+
 /** The one problem worth reporting, in words. */
-function describe(problem: FormatProblem): string {
+function describe(problem: FormatProblem | TimeFormatProblem): string {
   switch (problem.code) {
     case "missing-component":
       return t(`settings.formats.modal.problem.missing.${problem.component}`);
@@ -214,22 +262,29 @@ function describe(problem: FormatProblem): string {
       return t("settings.formats.modal.problem.unknownTokens", { chars: problem.chars });
     case "bracket-pair":
       return t("settings.formats.modal.problem.brackets");
+    case "meridiem-missing":
+      return t("settings.formats.modal.problem.meridiemMissing");
+    case "meridiem-stray":
+      return t("settings.formats.modal.problem.meridiemStray");
     case "adjacent-numbers": {
       const names = { first: problem.first, second: problem.second };
-      if (problem.widen.length === 0) {
+      // A time format has no wider spelling to offer: its fixed widths are
+      // already the fix.
+      const widen = "widen" in problem ? problem.widen : [];
+      if (widen.length === 0) {
         return t("settings.formats.modal.problem.adjacent", names);
       }
-      if (problem.widen.length === 1) {
+      if (widen.length === 1) {
         return t("settings.formats.modal.problem.adjacentWiden", {
           ...names,
-          from: problem.widen[0].from,
-          to: problem.widen[0].to,
+          from: widen[0].from,
+          to: widen[0].to,
         });
       }
       return t("settings.formats.modal.problem.adjacentWidenBoth", {
         ...names,
-        firstFixed: problem.widen[0].to,
-        secondFixed: problem.widen[1].to,
+        firstFixed: widen[0].to,
+        secondFixed: widen[1].to,
       });
     }
   }

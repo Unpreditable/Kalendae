@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "Pasirinkti datą",
-    "tryTimePicker": "Išbandyti laiko parinkiklį"
+    "pickTime": "Pasirinkti laiką"
   },
   "settings": {
     "notes": {
-      "heading": "Datos užraše"
+      "heading": "Datos ir laikai užraše"
     },
     "commandOnly": {
-      "name": "Pastaba: jau parašytos datos kalendorių atveria tik „{{command}}“ komandų paletėje"
+      "name": "Pastaba: jau parašytą datą ar laiką atveria tik „{{command}}“ ir „{{timeCommand}}“ komandų paletėje"
     },
     "calendar": {
       "heading": "Kalendorius"
     },
     "doubleClick": {
       "name": "Dvigubas spustelėjimas",
-      "desc": "Dukart spustelėkite datą, kad atidarytumėte kalendorių."
+      "desc": "Dukart spustelėkite datą, kad atidarytumėte kalendorių, arba laiką, kad atidarytumėte laikrodį."
     },
     "hover": {
       "heading": "Užvedus pelę",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "Rodyti piktogramą",
-      "desc": "Spustelėkite {{icon}}, kuri pasirodo užvedus žymeklį ant datos.",
+      "desc": "Spustelėkite {{icon}} arba {{clock}}, kuri pasirodo užvedus žymeklį ant datos ar laiko.",
       "options": {
         "off": "Išjungta",
         "left": "Kairėje",
@@ -235,6 +235,10 @@
         "save": "Įrašyti"
       }
     },
+    "timeFormats": {
+      "heading": "Laiko formatai",
+      "description": "Laiko formatai, kuriuos Kalendae atpažįsta jūsų pastabose, taikomi iš viršaus į apačią."
+    },
     "formats": {
       "heading": "Datų formatai",
       "description": "Datų formatai, kuriuos Kalendae atpažįsta jūsų pastabose, taikomi iš viršaus į apačią.",
@@ -257,6 +261,7 @@
         "pattern": "Formatas",
         "required": "(Būtina)",
         "optional": "(Nebūtina)",
+        "requiredWith12": "(Būtina su h arba hh)",
         "columns": {
           "tokens": "Žymenys",
           "meaning": "Reikšmė",
@@ -267,18 +272,26 @@
           "month": "Mėnuo",
           "day": "Diena",
           "weekday": "Savaitės diena",
+          "hour": "Valanda",
+          "minute": "Minutė",
+          "second": "Sekundė",
+          "meridiem": "am/pm",
           "literal": "Paliekama kaip įvesta"
         },
         "warning": "Jūsų formatas atitinka bet kokį {{digits}} skaitmenų skaičių. Apsvarstykite skirtukus.",
         "hint": "Sudarykite formatą iš aukščiau esančių žymenų.",
         "problem": {
+          "meridiemMissing": "12 valandų formatui reikia am/pm: pridėkite a arba A.",
+          "meridiemStray": "am/pm rašoma su 12 valandų valanda: rašykite h arba hh.",
           "adjacent": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką.",
           "adjacentWiden": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką arba rašykite {{from}} kaip {{to}}.",
           "adjacentWidenBoth": "Formatas dviprasmiškas: {{first}} ir {{second}} eina be skirtuko. Pridėkite skirtuką arba rašykite juos kaip {{firstFixed}} ir {{secondFixed}}.",
           "missing": {
             "year": "Formatui reikia metų: pridėkite YY arba YYYY.",
             "month": "Formatui reikia mėnesio: pridėkite M, MM, MMM arba MMMM.",
-            "day": "Formatui reikia dienos: pridėkite D, DD arba Do."
+            "day": "Formatui reikia dienos: pridėkite D, DD arba Do.",
+            "hour": "Formatui reikia valandos: pridėkite H, HH, h arba hh.",
+            "minute": "Formatui reikia minutės: pridėkite m arba mm."
           },
           "unknownTokens": "Nežinomas žymuo: {{chars}}",
           "brackets": "Formate negalima naudoti [ ar ]"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje."
+    "noEditor": "Pirmiausia atverkite pastabą redagavimo rodinyje.",
+    "noTimeFormat": "Pirmiausia nustatymuose pridėkite laiko formatą."
   }
 }

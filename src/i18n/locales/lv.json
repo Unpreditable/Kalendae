@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "Izvēlēties datumu",
-    "tryTimePicker": "Izmēģināt laika atlasītāju"
+    "pickTime": "Izvēlēties laiku"
   },
   "settings": {
     "notes": {
-      "heading": "Datumi piezīmē"
+      "heading": "Datumi un laiki piezīmē"
     },
     "commandOnly": {
-      "name": "Piezīme: jau uzrakstītam datumam kalendāru atver tikai „{{command}}” komandu paletē"
+      "name": "Piezīme: jau uzrakstītu datumu vai laiku atver tikai „{{command}}” un „{{timeCommand}}” komandu paletē"
     },
     "calendar": {
       "heading": "Kalendārs"
     },
     "doubleClick": {
       "name": "Dubultklikšķis",
-      "desc": "Veic dubultklikšķi uz datuma, lai atvērtu kalendāru."
+      "desc": "Veic dubultklikšķi uz datuma, lai atvērtu kalendāru, vai uz laika, lai atvērtu pulksteni."
     },
     "hover": {
       "heading": "Virzot peli",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "Rādīt ikonu",
-      "desc": "Noklikšķini uz {{icon}}, kas parādās, kad kursors ir virs datuma.",
+      "desc": "Noklikšķini uz {{icon}} vai {{clock}}, kas parādās, kad kursors ir virs datuma vai laika.",
       "options": {
         "off": "Izslēgta",
         "left": "Pa kreisi",
@@ -235,6 +235,10 @@
         "save": "Saglabāt"
       }
     },
+    "timeFormats": {
+      "heading": "Laika formāti",
+      "description": "Laika formāti, ko Kalendae atpazīst tavās piezīmēs, tiek lietoti no augšas uz leju."
+    },
     "formats": {
       "heading": "Datumu formāti",
       "description": "Datumu formāti, ko Kalendae atpazīst tavās piezīmēs, tiek lietoti no augšas uz leju.",
@@ -257,6 +261,7 @@
         "pattern": "Formāts",
         "required": "(Obligāts)",
         "optional": "(Neobligāts)",
+        "requiredWith12": "(Obligāts ar h vai hh)",
         "columns": {
           "tokens": "Apzīmējumi",
           "meaning": "Nozīme",
@@ -267,18 +272,26 @@
           "month": "Mēnesis",
           "day": "Diena",
           "weekday": "Nedēļas diena",
+          "hour": "Stunda",
+          "minute": "Minūte",
+          "second": "Sekunde",
+          "meridiem": "am/pm",
           "literal": "Paliek, kā ierakstīts"
         },
         "warning": "Tavs formāts atbilst jebkuram {{digits}} ciparu skaitlim. Apsver atdalītāju pievienošanu.",
         "hint": "Uzraksti formātu, izmantojot augstāk esošos apzīmējumus.",
         "problem": {
+          "meridiemMissing": "12 stundu formātam vajag am/pm: pievieno a vai A.",
+          "meridiemStray": "am/pm lieto ar 12 stundu stundu: raksti h vai hh.",
           "adjacent": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju.",
           "adjacentWiden": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju vai raksti {{from}} kā {{to}}.",
           "adjacentWidenBoth": "Formāts ir divdomīgs: {{first}} un {{second}} saplūst kopā. Pievieno atdalītāju vai raksti tos kā {{firstFixed}} un {{secondFixed}}.",
           "missing": {
             "year": "Formātam vajag gadu: pievieno YY vai YYYY.",
             "month": "Formātam vajag mēnesi: pievieno M, MM, MMM vai MMMM.",
-            "day": "Formātam vajag dienu: pievieno D, DD vai Do."
+            "day": "Formātam vajag dienu: pievieno D, DD vai Do.",
+            "hour": "Formātam vajag stundu: pievieno H, HH, h vai hh.",
+            "minute": "Formātam vajag minūti: pievieno m vai mm."
           },
           "unknownTokens": "Nezināms apzīmējums: {{chars}}",
           "brackets": "Formātā nedrīkst izmantot [ vai ]"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "Vispirms atver piezīmi rediģēšanas skatā."
+    "noEditor": "Vispirms atver piezīmi rediģēšanas skatā.",
+    "noTimeFormat": "Vispirms iestatījumos pievieno laika formātu."
   }
 }

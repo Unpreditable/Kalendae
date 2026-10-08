@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "Escolher data",
-    "tryTimePicker": "Experimentar o seletor de hora"
+    "pickTime": "Escolher hora"
   },
   "settings": {
     "notes": {
-      "heading": "Datas em uma nota"
+      "heading": "Datas e horas em uma nota"
     },
     "commandOnly": {
-      "name": "Nota: apenas “{{command}}” na paleta de comandos abre o calendário em uma data já escrita"
+      "name": "Nota: apenas “{{command}}” e “{{timeCommand}}” na paleta de comandos abrem uma data ou uma hora já escrita"
     },
     "calendar": {
       "heading": "Calendário"
     },
     "doubleClick": {
       "name": "Duplo clique",
-      "desc": "Dê um duplo clique em uma data para abrir o calendário."
+      "desc": "Dê um duplo clique em uma data para abrir o calendário, ou em uma hora para abrir o relógio."
     },
     "hover": {
       "heading": "Ao passar o mouse",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "Mostrar ícone",
-      "desc": "Clique no {{icon}} que aparece quando o ponteiro está sobre uma data.",
+      "desc": "Clique no {{icon}} ou no {{clock}} que aparece quando o ponteiro está sobre uma data ou uma hora.",
       "options": {
         "off": "Desativado",
         "left": "À esquerda",
@@ -235,6 +235,10 @@
         "save": "Guardar"
       }
     },
+    "timeFormats": {
+      "heading": "Formatos de hora",
+      "description": "Os formatos de hora que o Kalendae reconhece nas suas notas, aplicados de cima para baixo."
+    },
     "formats": {
       "heading": "Formatos de data",
       "description": "Os formatos de data que o Kalendae reconhece nas suas notas, aplicados de cima para baixo.",
@@ -257,6 +261,7 @@
         "pattern": "Formato",
         "required": "(Obrigatório)",
         "optional": "(Opcional)",
+        "requiredWith12": "(Obrigatório com h ou hh)",
         "columns": {
           "tokens": "Marcadores",
           "meaning": "Significado",
@@ -267,18 +272,26 @@
           "month": "Mês",
           "day": "Dia",
           "weekday": "Dia da semana",
+          "hour": "Hora",
+          "minute": "Minuto",
+          "second": "Segundo",
+          "meridiem": "am/pm",
           "literal": "Mantido como digitado"
         },
         "warning": "Seu formato corresponde a qualquer número de {{digits}} dígitos. Considere adicionar separadores.",
         "hint": "Escreva um formato usando os marcadores acima.",
         "problem": {
+          "meridiemMissing": "Um formato de 12 horas precisa de am/pm: adicione a ou A.",
+          "meridiemStray": "am/pm acompanha uma hora de 12 horas: escreva h ou hh.",
           "adjacent": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador.",
           "adjacentWiden": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador ou escreva {{from}} como {{to}}.",
           "adjacentWidenBoth": "Seu formato é ambíguo: {{first}} e {{second}} ficam juntos. Adicione um separador ou escreva-os como {{firstFixed}} e {{secondFixed}}.",
           "missing": {
             "year": "Um formato precisa de um ano: adicione YY ou YYYY.",
             "month": "Um formato precisa de um mês: adicione M, MM, MMM ou MMMM.",
-            "day": "Um formato precisa de um dia: adicione D, DD ou Do."
+            "day": "Um formato precisa de um dia: adicione D, DD ou Do.",
+            "hour": "Um formato precisa de uma hora: adicione H, HH, h ou hh.",
+            "minute": "Um formato precisa de um minuto: adicione m ou mm."
           },
           "unknownTokens": "Marcador desconhecido: {{chars}}",
           "brackets": "Seu formato não pode usar [ nem ]"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "Abra uma nota no modo de edição primeiro."
+    "noEditor": "Abra uma nota no modo de edição primeiro.",
+    "noTimeFormat": "Adicione primeiro um formato de hora nas configurações."
   }
 }

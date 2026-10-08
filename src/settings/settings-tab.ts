@@ -10,7 +10,8 @@ import {
   moment,
   setIcon,
 } from "obsidian";
-import { BUILT_IN_FORMATS, DateFormatEntry, renderExample } from "../detect/formats";
+import { BUILT_IN_FORMATS, DateFormatEntry, FormatKind, renderExample } from "../detect/formats";
+import { BUILT_IN_TIME_FORMATS } from "../detect/time-formats";
 import {
   ClockCommit,
   KalendaeSettings,
@@ -25,8 +26,15 @@ import {
   reorderById,
 } from "../settings";
 import { TASK_MARKERS } from "../detect/markers";
-import { shadowedFormats } from "../detect/shadow";
-import { CUSTOM_PREFIX, editFormat, releaseSortable, renderFormatRow } from "./format-list";
+import { Shadow, shadowedFormats } from "../detect/shadow";
+import {
+  CUSTOM_PREFIX,
+  FormatList,
+  editFormat,
+  releaseSortable,
+  fillTimeExample,
+  renderFormatRow,
+} from "./format-list";
 import { HoverPage, hoverSummary } from "./hover-page";
 import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
@@ -64,6 +72,7 @@ export class KalendaeSettingTab extends PluginSettingTab {
     // Once for the list, not once per row: every row's verdict depends on all
     // the others, and every row would otherwise recompute the same answer.
     const shadows = shadowedFormats(this.kalendae.settings.formats);
+    const timeShadows = shadowedFormats(this.kalendae.settings.timeFormats, "time");
 
     return [
       {
@@ -291,51 +300,83 @@ export class KalendaeSettingTab extends PluginSettingTab {
           },
         ],
       },
-      {
-        // Heading, explanation and rows are one list, so the framework's own
-        // grouping is what binds them together and the add button sits in the
-        // list header beside the title. The formats keep their array indices
-        // because the intro row is only ever prepended in `items`, never in
-        // `settings.formats`.
-        type: "list",
-        cls: "kalendae-format-list",
-        heading: t("settings.formats.heading"),
-        // The framework's own add affordance rather than a hand-rolled header
-        // button: a + in the list header on desktop, tooltipped with the name,
-        // and a tappable "+ Add format" row under the list on mobile. It hands
-        // back whichever element was pressed, which is what the menu anchors to.
-        addItem: {
-          name: t("settings.formats.add"),
-          action: (el) => this.openAddMenu(el),
-        },
-        items: [
-          {
-            // A first item rather than a description on the heading, which a
-            // group has no field for. The class is what keeps it reading as
-            // prose instead of as another format's title.
-            name: t("settings.formats.description"),
-            render: (setting) => setting.settingEl.addClass("kalendae-format-intro"),
-          },
-          ...this.kalendae.settings.formats.map((entry, index) => ({
-            name: entry.pattern,
-            render: (setting: Setting, group: SettingGroup) =>
-              renderFormatRow(
-                setting,
-                group,
-                this.app,
-                this.kalendae,
-                index,
-                {
-                  onEdit: (id, pattern) => this.editFormat(id, pattern),
-                  onDelete: (at) => void this.deleteFormat(at),
-                  onReorder: (ids) => void this.reorderFormat(ids),
-                },
-                shadows.get(entry.id),
-              ),
-          })),
-        ],
-      },
+      this.formatGroup(
+        "date",
+        t("settings.formats.heading"),
+        t("settings.formats.description"),
+        shadows,
+      ),
+      // Directly below the date list rather than under Time picker: the two
+      // lists are the same kind of setting, and that section is about what
+      // the clock does once it is open.
+      this.formatGroup(
+        "time",
+        t("settings.timeFormats.heading"),
+        t("settings.timeFormats.description"),
+        timeShadows,
+      ),
     ];
+  }
+
+  /** The list a kind names, as the row code wants it. */
+  private list(kind: FormatKind): FormatList {
+    return kind === "time"
+      ? { kind, entries: this.kalendae.settings.timeFormats, minimum: 0 }
+      : { kind, entries: this.kalendae.settings.formats, minimum: 1 };
+  }
+
+  /** One of the two format lists, as a definition. */
+  private formatGroup(
+    kind: FormatKind,
+    heading: string,
+    description: string,
+    shadows: Map<string, Shadow>,
+  ): SettingDefinitionItem<keyof KalendaeSettings> {
+    const list = this.list(kind);
+
+    return {
+      // Heading, explanation and rows are one list, so the framework's own
+      // grouping is what binds them together and the add button sits in the
+      // list header beside the title. The formats keep their array indices
+      // because the intro row is only ever prepended in `items`, never in
+      // the settings.
+      type: "list",
+      cls: "kalendae-format-list",
+      heading,
+      // The framework's own add affordance rather than a hand-rolled header
+      // button: a + in the list header on desktop, tooltipped with the name,
+      // and a tappable "+ Add format" row under the list on mobile. It hands
+      // back whichever element was pressed, which is what the menu anchors to.
+      addItem: {
+        name: t("settings.formats.add"),
+        action: (el) => this.openAddMenu(el, kind),
+      },
+      items: [
+        {
+          // A first item rather than a description on the heading, which a
+          // group has no field for. The class is what keeps it reading as
+          // prose instead of as another format's title.
+          name: description,
+          render: (setting) => setting.settingEl.addClass("kalendae-format-intro"),
+        },
+        ...list.entries.map((entry, index) => ({
+          name: entry.pattern,
+          render: (setting: Setting, group: SettingGroup) =>
+            renderFormatRow(
+              setting,
+              group,
+              list,
+              index,
+              {
+                onEdit: (id, pattern) => this.editFormat(id, pattern, kind),
+                onDelete: (at) => void this.deleteFormat(at, kind),
+                onReorder: (ids) => void this.reorderFormat(ids, kind),
+              },
+              shadows.get(entry.id),
+            ),
+        })),
+      ],
+    };
   }
 
   /**
@@ -462,19 +503,20 @@ export class KalendaeSettingTab extends PluginSettingTab {
   }
 
   /** The catalogue, minus what is already in the list, plus a way to write one. */
-  private openAddMenu(anchor: HTMLElement): void {
-    const present = new Set(this.kalendae.settings.formats.map((entry) => entry.pattern));
+  private openAddMenu(anchor: HTMLElement, kind: FormatKind): void {
+    const present = new Set(this.list(kind).entries.map((entry) => entry.pattern));
+    const builtIn = kind === "time" ? BUILT_IN_TIME_FORMATS : BUILT_IN_FORMATS;
     // Obsidian's Appearance -> "Native menus" setting would otherwise hand this
     // to the OS, which draws it outside the theme and nothing like the menus
     // beside it. The DOM menu is the one that matches the rest of the app.
     const menu = new Menu().setUseNativeMenu(false);
 
-    for (const entry of BUILT_IN_FORMATS) {
+    for (const entry of builtIn) {
       if (present.has(entry.pattern)) continue;
       menu.addItem((item) => {
-        const title = formatOption(entry.pattern);
+        const title = formatOption(entry.pattern, kind);
         const row = title.firstElementChild;
-        item.setTitle(title).onClick(() => void this.addFormat({ ...entry }));
+        item.setTitle(title).onClick(() => void this.addFormat({ ...entry }, kind));
         // The row now sits in the item's title element, which sizes to its
         // content. Marked so `styles.css` can let it fill the item: the menu
         // offers no class of its own, and reaching up with `:has()` is what the
@@ -485,7 +527,7 @@ export class KalendaeSettingTab extends PluginSettingTab {
 
     menu.addSeparator();
     menu.addItem((item) =>
-      item.setTitle(t("settings.formats.addCustom")).onClick(() => this.addCustom()),
+      item.setTitle(t("settings.formats.addCustom")).onClick(() => this.addCustom(kind)),
     );
 
     const rect = anchor.getBoundingClientRect();
@@ -495,33 +537,44 @@ export class KalendaeSettingTab extends PluginSettingTab {
   }
 
   /** A custom format only joins the list once it is worth having. */
-  private addCustom(): void {
-    editFormat(this.app, "", (pattern) => {
-      void this.addFormat({ id: `${CUSTOM_PREFIX}${Date.now().toString(36)}`, pattern });
-    });
+  private addCustom(kind: FormatKind): void {
+    editFormat(
+      this.app,
+      "",
+      (pattern) => {
+        void this.addFormat({ id: `${CUSTOM_PREFIX}${Date.now().toString(36)}`, pattern }, kind);
+      },
+      kind,
+    );
   }
 
-  private editFormat(id: string, pattern: string): void {
-    editFormat(this.app, pattern, (updated) => {
-      const entry = this.kalendae.settings.formats.find((item) => item.id === id);
-      if (!entry) return;
-      entry.pattern = updated;
-      void this.persist();
-    });
+  private editFormat(id: string, pattern: string, kind: FormatKind): void {
+    editFormat(
+      this.app,
+      pattern,
+      (updated) => {
+        const entry = this.list(kind).entries.find((item) => item.id === id);
+        if (!entry) return;
+        entry.pattern = updated;
+        void this.persist();
+      },
+      kind,
+    );
   }
 
-  private async addFormat(entry: DateFormatEntry): Promise<void> {
-    this.kalendae.settings.formats.push(entry);
+  private async addFormat(entry: DateFormatEntry, kind: FormatKind): Promise<void> {
+    this.list(kind).entries.push(entry);
     await this.persist();
   }
 
-  private async deleteFormat(index: number): Promise<void> {
-    this.kalendae.settings.formats.splice(index, 1);
+  private async deleteFormat(index: number, kind: FormatKind): Promise<void> {
+    this.list(kind).entries.splice(index, 1);
     await this.persist();
   }
 
-  private async reorderFormat(ids: string[]): Promise<void> {
-    const reordered = reorderById(this.kalendae.settings.formats, ids);
+  private async reorderFormat(ids: string[], kind: FormatKind): Promise<void> {
+    const entries = this.list(kind).entries;
+    const reordered = reorderById(entries, ids);
 
     // Refused. Sortable moved the row before telling us, so the list on screen
     // now shows an order the settings do not hold, and every row's index is
@@ -535,9 +588,10 @@ export class KalendaeSettingTab extends PluginSettingTab {
 
     // A drop that changed nothing still ends a drag, and rewriting the settings
     // to the order they already hold would redraw the list for no reason.
-    if (reordered === this.kalendae.settings.formats) return;
+    if (reordered === entries) return;
 
-    this.kalendae.settings.formats = reordered;
+    if (kind === "time") this.kalendae.settings.timeFormats = reordered;
+    else this.kalendae.settings.formats = reordered;
     await this.persist();
   }
 
@@ -572,7 +626,10 @@ function renderCommandOnly(setting: Setting): void {
  * language.
  */
 function commandOnlyText(): string {
-  return t("settings.commandOnly.name", { command: t("commands.pickDate") });
+  return t("settings.commandOnly.name", {
+    command: t("commands.pickDate"),
+    timeCommand: t("commands.pickTime"),
+  });
 }
 
 /**
@@ -593,12 +650,14 @@ const TYPING_KEYS = new Set<string>(["typeToInsert", "typeTrigger", "formatTrigg
  * it: spaces cannot line a column up in a proportional font, and the example
  * is the half a reader is actually choosing between.
  */
-function formatOption(pattern: string): DocumentFragment {
+function formatOption(pattern: string, kind: FormatKind): DocumentFragment {
   return createFragment((fragment) => {
     const row = fragment.createSpan({ cls: "kalendae-format-option" });
 
     row.createSpan({ cls: "kalendae-format-pattern", text: pattern });
-    row.createSpan({ cls: "kalendae-format-example", text: renderExample(pattern) });
+    const example = row.createSpan({ cls: "kalendae-format-example" });
+    if (kind === "time") fillTimeExample(example, pattern);
+    else example.setText(renderExample(pattern));
   });
 }
 

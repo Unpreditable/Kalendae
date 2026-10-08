@@ -40,7 +40,7 @@ const PARSE_BUDGET_MS = 3000;
 
 export function detectDates(state: EditorState, settings: KalendaeSettings): DetectionResult {
   const text = state.doc.toString();
-  const candidates = scanText(text, settings.formats);
+  const candidates = scanText(text, settings.formats, settings.timeFormats);
 
   // Parse only as far as the last candidate: a note whose dates all sit in the
   // first screen costs nothing extra just because it is long.
@@ -91,7 +91,7 @@ export function detectIn(
   const tree = syntaxTree(state);
   const upto = frontmatterEnd(state.doc.sliceString(0, Math.min(end, FRONTMATTER_PREFIX)));
 
-  return scanText(state.doc.sliceString(start, end), settings.formats).map((candidate) =>
+  return scanText(state.doc.sliceString(start, end), settings.formats, settings.timeFormats).map((candidate) =>
     withContext(tree, upto, shiftBy(candidate, start), settings),
   );
 }

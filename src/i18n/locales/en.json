@@ -2,17 +2,17 @@
   "commands": {
     "pickDate_comment": "Command palette entry, shown after the plugin name, so keep it short. Opens the calendar on the date at the cursor, or writes a new date in at the cursor when there is none. 'Pick' is the reader choosing a day from a calendar, not selecting text.",
     "pickDate": "Pick a date",
-    "tryTimePicker_comment": "Command palette entry. Temporary: opens the time picker on the current time so its look can be checked, and changes nothing in the note.",
-    "tryTimePicker": "Try the time picker"
+    "pickTime_comment": "Command palette entry, shown after the plugin name, so keep it short. Opens the clock on the time at the cursor, or writes a new time in at the cursor when there is none. Also the screen-reader label of the clock icon beside a time.",
+    "pickTime": "Pick a time"
   },
   "settings": {
     "notes": {
       "notes_comment": "Heading of the settings section covering how a date behaves in a note: what opens the calendar, and what is drawn around a date under the pointer.",
-      "heading": "Dates in a note"
+      "heading": "Dates and times in a note"
     },
     "commandOnly": {
-      "name_comment": "Small line at the top of the 'Dates in a note' section, shown only when the double-click, the hover icon and the Tasks emoji are all switched off, so nothing in a note opens the calendar any more. {{command}} is replaced by the name of the Pick a date command, taken from commands.pickDate so it matches the command palette whatever the command is called — keep the marker, and quote it with your language's quotation marks. Keep 'Note:', or your language's equivalent, as an opener. For 'command palette', use the words your language's Obsidian uses for it. 'on an existing date' is load-bearing and must be kept: typing a date is a separate setting that still works, and without those words the sentence is untrue. The reader chose this, so word it as a fact, not a warning.",
-      "name": "Note: Only “{{command}}” from the command palette opens the calendar on an existing date"
+      "name_comment": "Small line at the top of the 'Dates and times in a note' section, shown only when the double-click, the hover icon and the Tasks emoji are all switched off, so nothing in a note opens the calendar or the clock any more. {{command}} is replaced by the name of the Pick a date command and {{timeCommand}} by the name of the Pick a time command, taken from commands.pickDate and commands.pickTime so they match the command palette whatever the commands are called — keep the marker, and quote it with your language's quotation marks. Keep 'Note:', or your language's equivalent, as an opener. For 'command palette', use the words your language's Obsidian uses for it. 'on an existing date' is load-bearing and must be kept: typing a date is a separate setting that still works, and without those words the sentence is untrue. The reader chose this, so word it as a fact, not a warning.",
+      "name": "Note: Only “{{command}}” and “{{timeCommand}}” from the command palette open an existing date or time"
     },
     "calendar": {
       "calendar_comment": "Heading of the settings section covering what the calendar itself shows once open.",
@@ -22,10 +22,10 @@
       "name_comment": "Settings row label for the toggle that lets a double-click on a date open the calendar.",
       "name": "Double-click",
       "desc_comment": "Description under that toggle.",
-      "desc": "Double-click a date to open the calendar."
+      "desc": "Double-click a date to open the calendar, or a time to open the clock."
     },
     "hover": {
-      "heading_comment": "Label of the row in 'Dates in a note' that opens a page of everything a date does while the pointer is over it, and the title of that page.",
+      "heading_comment": "Label of the row in 'Dates and times in a note' that opens a page of everything a date does while the pointer is over it, and the title of that page.",
       "heading": "On hover",
       "preview": {
         "heading_comment": "Heading over the sample dates at the bottom of the On hover page.",
@@ -57,8 +57,8 @@
     "hoverIcon": {
       "name_comment": "Row label on the On hover page, for the dropdown controlling the small icon that appears beside a date while the pointer is over it.",
       "name": "Show icon",
-      "desc_comment": "Description under that dropdown. {{icon}} is replaced by the icon itself, drawn inline — keep the marker, and put it where the icon reads naturally in your language.",
-      "desc": "Click the {{icon}} that appears when the pointer is over a date.",
+      "desc_comment": "Description under that dropdown. {{icon}} is replaced by the icon itself, drawn inline — keep the marker, and put it where the icon reads naturally in your language. {{clock}} is replaced by the clock icon in the same way; keep both markers.",
+      "desc": "Click the {{icon}} or {{clock}} that appears when the pointer is over a date or a time.",
       "options": {
         "off_comment": "Dropdown option: no icon appears at all.",
         "off": "Disabled",
@@ -388,6 +388,12 @@
         "save": "Save"
       }
     },
+    "timeFormats": {
+      "heading_comment": "Heading of the settings list of time formats, directly below the Date formats list and built the same way.",
+      "heading": "Time formats",
+      "description_comment": "The line under the heading. The same sentence as the Date formats list's, with 'time' for 'date'.",
+      "description": "The time formats Kalendae recognises in your notes, applied top to bottom."
+    },
     "formats": {
       "heading_comment": "Heading above the list of date formats the plugin looks for.",
       "heading": "Date formats",
@@ -426,6 +432,8 @@
         "required": "(Required)",
         "optional_comment": "Shown after the name of a part a format may leave out, currently only the day of the week.",
         "optional": "(Optional)",
+        "requiredWith12_comment": "Shown after 'am/pm' in the time format editor. h and hh are the 12-hour hour tokens and must stay as written: a format using one of them needs am/pm, and a format using H or HH must not have it.",
+        "requiredWith12": "(Required with h or hh)",
         "columns_comment": "Headings of the three columns in the token table: the tokens themselves, what each one writes, and whether the format being edited uses one.",
         "columns": {
           "tokens": "Tokens",
@@ -441,6 +449,14 @@
           "day": "Day",
           "weekday_comment": "Row for the weekday tokens d, dd, ddd, dddd. The only optional part, and the only row with no tick or cross beside it — there is nothing to satisfy.",
           "weekday": "Day of the week",
+          "hour_comment": "Row name in the token table of the time format editor.",
+          "hour": "Hour",
+          "minute_comment": "Row name in the token table of the time format editor.",
+          "minute": "Minute",
+          "second_comment": "Row name in the token table of the time format editor. Optional: a format without it still reads times that have seconds.",
+          "second": "Second",
+          "meridiem_comment": "Row name in the token table of the time format editor, for the a and A tokens. Written lowercase as the two words are.",
+          "meridiem": "am/pm",
           "literal_comment": "Last row of the token table, describing the punctuation between tokens rather than a part of a date. Everything that is not a letter is written into the note exactly as typed, so this row has no tick.",
           "literal": "Kept as typed"
         },
@@ -449,6 +465,10 @@
         "hint_comment": "Shown where the error message goes while the format field is still empty. Not an error — nothing is wrong yet — so it is worded as a next step and shown in ordinary text rather than the error colour.",
         "hint": "Write a format using the tokens above.",
         "problem": {
+          "meridiemMissing_comment": "Shown when a time format uses a 12-hour hour (h or hh) with nothing to say morning or afternoon.",
+          "meridiemMissing": "A 12-hour format needs am/pm: add a or A.",
+          "meridiemStray_comment": "Shown when a time format has am/pm (a or A) beside a 24-hour hour (H or HH).",
+          "meridiemStray": "am/pm goes with a 12-hour hour: write h or hh.",
           "adjacent_comment": "Shown when a one-or-two-digit token touches another number and neither can be given a fixed width. {{first}} and {{second}} are the two tokens, not translated. Such a format cannot be read back reliably, so it cannot be saved.",
           "adjacent": "Your format is ambiguous: {{first}} and {{second}} run together. Add a separator.",
           "adjacentWiden_comment": "The same problem where one of the two tokens has a fixed-width form, as YYMDD does: {{from}} is M or D and {{to}} is MM or DD. Two ways out, and widening the token keeps the format's shape.",
@@ -461,7 +481,11 @@
             "month_comment": "Shown beside the buttons when the format has no month. The tokens are not translated.",
             "month": "A format needs a month: add M, MM, MMM or MMMM.",
             "day_comment": "Shown beside the buttons when the format has no day of the month. The tokens are not translated.",
-            "day": "A format needs a day: add D, DD or Do."
+            "day": "A format needs a day: add D, DD or Do.",
+            "hour_comment": "Shown under the format field when a time format has no hour.",
+            "hour": "A format needs an hour: add H, HH, h or hh.",
+            "minute_comment": "Shown under the format field when a time format has no minute.",
+            "minute": "A format needs a minute: add m or mm."
           },
           "unknownTokens_comment": "Shown beside the buttons when the format contains letters Kalendae has no token for. {{chars}} is those letters as typed, and may be more than one run of them separated by commas.",
           "unknownTokens": "Unknown token: {{chars}}",
@@ -475,7 +499,7 @@
       }
     },
     "typing": {
-      "heading_comment": "Heading of the settings section covering the list of dates that opens while you type. Its own section because it is about writing a date that is not in the note yet, where the 'Dates in a note' section above is about opening the calendar on one already written.",
+      "heading_comment": "Heading of the settings section covering the list of dates that opens while you type. Its own section because it is about writing a date that is not in the note yet, where the 'Dates and times in a note' section above is about opening the calendar on one already written.",
       "heading": "Typing a date"
     },
     "typeToInsert": {
@@ -718,6 +742,8 @@
   },
   "notices": {
     "noEditor_comment": "Notice shown when the Pick a date command runs somewhere there is no editor to read.",
-    "noEditor": "Open a note in editing view first."
+    "noEditor": "Open a note in editing view first.",
+    "noTimeFormat_comment": "Notice shown when the Pick a time command runs on an empty spot and the Time formats list in settings is empty, so there is no format to write a new time in.",
+    "noTimeFormat": "Add a time format in settings first."
   }
 }

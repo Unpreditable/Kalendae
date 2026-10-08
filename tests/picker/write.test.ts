@@ -1,7 +1,13 @@
 import { moment } from "obsidian";
 import { BUILT_IN_FORMATS } from "../../src/detect/formats";
 import { scanText } from "../../src/detect/scan";
-import { insertionFor, replacementFor, stillThere } from "../../src/picker/write";
+import {
+  insertionFor,
+  replacementFor,
+  stillThere,
+  timeInsertionFor,
+  timeReplacementFor,
+} from "../../src/picker/write";
 
 /**
  * What gets written into the note. The promise being tested is the plugin's
@@ -144,5 +150,30 @@ describe("writing back in the language a date was read in", () => {
     const day = { year: 2026, month: 9, day: 7 };
 
     expect(replacementFor("YYYY-MM-DD", day, "ru")).toBe("2026-10-07");
+  });
+});
+
+describe("writing a time", () => {
+  const half = { hour: 16, minute: 30, second: 0 };
+
+  it("keeps the note's format", () => {
+    expect(timeReplacementFor("HH:mm", half)).toBe("16:30");
+    expect(timeReplacementFor("h:mm a", half, "en")).toBe("4:30 pm");
+    expect(timeReplacementFor("HH:mm:ss", { ...half, second: 9 })).toBe("16:30:09");
+  });
+
+  it("keeps the note's am/pm spelling", () => {
+    expect(timeReplacementFor("h:mma", half, "en", { upper: false, dots: false, short: true })).toBe(
+      "4:30p",
+    );
+    expect(timeReplacementFor("h:mm a", half, "en", { upper: true, dots: true, short: false })).toBe(
+      "4:30 P.M.",
+    );
+  });
+
+  it("pads a side that would glue a new time to a word", () => {
+    expect(timeInsertionFor("call at", 7, 7, "HH:mm", half)).toBe(" 16:30");
+    expect(timeInsertionFor("at  ok", 3, 3, "HH:mm", half)).toBe("16:30");
+    expect(timeInsertionFor("atok", 2, 2, "HH:mm", half)).toBe(" 16:30 ");
   });
 });

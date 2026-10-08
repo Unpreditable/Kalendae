@@ -1,9 +1,9 @@
 import { App, Setting, SettingGroup, setIcon, setTooltip } from "obsidian";
 import Sortable from "sortablejs";
-import { DateFormatEntry, checkFormat, renderExample } from "../detect/formats";
+import { DateFormatEntry, FormatKind, checkFormat, renderExample } from "../detect/formats";
+import { checkTimeFormat, timeSampleParts } from "../detect/time-formats";
 import { Shadow } from "../detect/shadow";
 import { FormatModal } from "./format-modal";
-import { KalendaeHost } from "./host";
 import { t } from "../i18n/i18n";
 
 /**
@@ -19,6 +19,18 @@ import { t } from "../i18n/i18n";
 /** Marks a format the user wrote, as opposed to one picked from the catalogue. */
 export const CUSTOM_PREFIX = "custom-";
 
+/** One of the two lists a row can belong to. */
+export interface FormatList {
+  kind: FormatKind;
+  entries: DateFormatEntry[];
+  /**
+   * How few rows the list may hold. One for dates, which always need a format
+   * to write a new date in; none for times, where an empty list is how they
+   * are switched off.
+   */
+  minimum: number;
+}
+
 export interface FormatListActions {
   onEdit: (id: string, pattern: string) => void;
   onDelete: (index: number) => void;
@@ -29,13 +41,12 @@ export interface FormatListActions {
 export function renderFormatRow(
   setting: Setting,
   group: SettingGroup,
-  app: App,
-  host: KalendaeHost,
+  list: FormatList,
   index: number,
   actions: FormatListActions,
   shadow: Shadow | undefined,
 ): void {
-  const entry = host.settings.formats[index];
+  const entry = list.entries[index];
   if (!entry) return;
 
   setting.settingEl.empty();
@@ -45,8 +56,8 @@ export function renderFormatRow(
 
   const custom = entry.id.startsWith(CUSTOM_PREFIX);
 
-  renderHandle(setting.settingEl, host);
-  ensureSortable(group.listEl, actions);
+  renderHandle(setting.settingEl, list);
+  ensureSortable(group.listEl, list.kind, actions);
   renderKind(setting.settingEl, custom);
 
   setting.settingEl.createDiv({
@@ -54,7 +65,7 @@ export function renderFormatRow(
     text: entry.pattern || t("settings.formats.newFormat"),
   });
   renderShadow(setting.settingEl, shadow);
-  setting.settingEl.createDiv({ cls: "kalendae-format-example", text: example(entry) });
+  fillExample(setting.settingEl.createDiv({ cls: "kalendae-format-example" }), entry, list.kind);
 
   const buttons = setting.settingEl.createDiv({ cls: "kalendae-format-buttons" });
   if (custom) {
@@ -66,7 +77,7 @@ export function renderFormatRow(
   }
   // Withheld at one format: the list must never empty out, and a delete button
   // that refuses to delete is worse than no button.
-  if (host.settings.formats.length > 1) {
+  if (list.entries.length > list.minimum) {
     iconButton(buttons, "trash-2", t("settings.formats.delete"), () => actions.onDelete(index));
   }
 }
@@ -75,12 +86,12 @@ export function renderFormatRow(
  * The grip. Sortable does the dragging; this only has to be the thing you take
  * hold of, and to stop inviting a drag there is nothing to reorder.
  */
-function renderHandle(row: HTMLElement, host: KalendaeHost): void {
+function renderHandle(row: HTMLElement, list: FormatList): void {
   const handle = row.createDiv({ cls: "kalendae-format-handle" });
   setIcon(handle, "grip-vertical");
   handle.setAttribute("aria-label", t("settings.formats.reorder"));
 
-  if (host.settings.formats.length < 2) handle.addClass("kalendae-format-handle-idle");
+  if (list.entries.length < 2) handle.addClass("kalendae-format-handle-idle");
 }
 
 /**
@@ -107,14 +118,13 @@ function renderHandle(row: HTMLElement, host: KalendaeHost): void {
  * alone it pins one detached list, with all its rows and their closures, per
  * visit to the tab, and every drag anywhere in the app walks past them.
  */
-let sortable: Sortable | null = null;
+const sortables = new Map<FormatKind, Sortable>();
 
-function ensureSortable(listEl: HTMLElement, actions: FormatListActions): void {
+function ensureSortable(listEl: HTMLElement, kind: FormatKind, actions: FormatListActions): void {
   if (Sortable.get(listEl)) return;
   // Whatever this replaces is bound to an element no longer in the document.
-  releaseSortable();
-
-  sortable = Sortable.create(listEl, {
+  sortables.get(kind)?.destroy();
+  sortables.set(kind, Sortable.create(listEl, {
     draggable: ".kalendae-format-row",
     handle: ".kalendae-format-handle",
     animation: 150,
@@ -140,7 +150,7 @@ function ensureSortable(listEl: HTMLElement, actions: FormatListActions): void {
       const rows = listEl.querySelectorAll<HTMLElement>(".kalendae-format-row");
       actions.onReorder(Array.from(rows, (row) => row.dataset.formatId ?? ""));
     },
-  });
+  }));
 }
 
 /**
@@ -151,8 +161,8 @@ function ensureSortable(listEl: HTMLElement, actions: FormatListActions): void {
  * the host window is destroyed.
  */
 export function releaseSortable(): void {
-  sortable?.destroy();
-  sortable = null;
+  for (const sortable of sortables.values()) sortable.destroy();
+  sortables.clear();
 }
 
 /**
@@ -232,13 +242,43 @@ function iconButton(parent: HTMLElement, icon: string, label: string, onClick: (
 }
 
 /** Opens the editor for a format, new or existing. */
-export function editFormat(app: App, pattern: string, onSave: (pattern: string) => void): void {
-  new FormatModal(app, pattern, onSave).open();
+export function editFormat(
+  app: App,
+  pattern: string,
+  onSave: (pattern: string) => void,
+  kind: FormatKind,
+): void {
+  new FormatModal(app, pattern, onSave, kind).open();
 }
 
-/** Today in this format, or a note that it is unfinished. */
-function example(entry: DateFormatEntry): string {
-  return checkFormat(entry.pattern) === null
-    ? renderExample(entry.pattern)
-    : t("settings.formats.unfinished");
+/**
+ * Today in a date format, a sample time in a time format, or a note that the
+ * format is unfinished.
+ */
+function fillExample(el: HTMLElement, entry: DateFormatEntry, kind: FormatKind): void {
+  if (kind === "time" && checkTimeFormat(entry.pattern) === null) {
+    fillTimeExample(el, entry.pattern);
+    return;
+  }
+
+  const usable = kind === "date" && checkFormat(entry.pattern) === null;
+  el.setText(usable ? renderExample(entry.pattern) : t("settings.formats.unfinished"));
+}
+
+/**
+ * A sample time in a format: `9:05[:07] pm`.
+ *
+ * A time format reads its time with seconds too, and the row is where that is
+ * said. One time with the seconds in brackets rather than two times and an
+ * "or": it is shorter, it shows where the seconds go, and it needs no word
+ * translated. The brackets are drawn fainter than the time, so they read as
+ * "may be there" rather than as part of what is written.
+ */
+export function fillTimeExample(el: HTMLElement, pattern: string): void {
+  const { before, seconds, after } = timeSampleParts(pattern);
+
+  el.empty();
+  el.appendText(before);
+  if (seconds !== "") el.createSpan({ cls: "kalendae-format-optional", text: `[${seconds}]` });
+  el.appendText(after);
 }

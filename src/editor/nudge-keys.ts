@@ -54,7 +54,8 @@ function step(view: EditorView, settings: KalendaeSettings, by: 1 | -1): boolean
   if (ranges.length > 1 || !main.empty) return false;
 
   const target = targetAt(view.state, commandScopes(settings), main.head);
-  if (target === null) return false;
+  // Times are not stepped yet; the keys fall through to the editor.
+  if (target === null || target.kind !== "date") return false;
 
   const last = view.state.field(lastStep);
   const meant = last?.from === target.from && last.text === target.text ? last.meant : undefined;

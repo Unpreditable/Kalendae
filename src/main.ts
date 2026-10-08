@@ -1,6 +1,5 @@
 import { MarkdownView, Notice, Plugin, moment } from "obsidian";
-import { setDetectionLocales } from "./detect/formats";
-import { tryClock } from "./editor/clock-tooltip";
+import { FormatKind, setDetectionLocales } from "./detect/formats";
 import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
@@ -8,6 +7,8 @@ import { defaultWeekStart } from "./picker/month";
 import {
   BASE_LOCALE,
   DEFAULT_SETTINGS,
+  defaultTimeFormats,
+  normaliseStoredTimeFormats,
   KalendaeSettings,
   enabledLocales,
   commandScopes,
@@ -39,22 +40,15 @@ export default class KalendaePlugin extends Plugin {
       id: "pick-date",
       name: t("commands.pickDate"),
       editorCallback: (_editor, ctx) => {
-        this.pickDate(ctx instanceof MarkdownView ? ctx : null);
+        this.pick(ctx instanceof MarkdownView ? ctx : null, "date");
       },
     });
 
-    // Temporary, with clock-tooltip.ts.
     this.addCommand({
-      id: "try-time-picker",
-      name: t("commands.tryTimePicker"),
+      id: "pick-time",
+      name: t("commands.pickTime"),
       editorCallback: (_editor, ctx) => {
-        const view = ctx instanceof MarkdownView ? editorViewIn(ctx.contentEl) : null;
-        if (!view) {
-          new Notice(t("notices.noEditor"));
-          return;
-        }
-
-        tryClock(view);
+        this.pick(ctx instanceof MarkdownView ? ctx : null, "time");
       },
     });
   }
@@ -81,8 +75,13 @@ export default class KalendaePlugin extends Plugin {
    * a code block, frontmatter and the inside of a wikilink are all as editable
    * as prose whatever those toggles are set to. The toggles decide what the
    * plugin draws over a note unasked, which is a different question.
+   *
+   * Both commands come through here. With the cursor on a date or a time,
+   * either one opens the panel that fits what is there, so a hotkey never does
+   * the wrong thing; `inserts` matters only on an empty spot, where one writes
+   * a date and the other a time.
    */
-  private pickDate(view: MarkdownView | null): void {
+  private pick(view: MarkdownView | null, inserts: FormatKind): void {
     const editorView = view && editorViewIn(view.contentEl);
     if (!editorView) {
       new Notice(t("notices.noEditor"));
@@ -90,14 +89,26 @@ export default class KalendaePlugin extends Plugin {
     }
 
     const at = editorView.state.selection.main.head;
-    const target = targetAt(editorView.state, commandScopes(this.settings), at) ?? {
+    const found = targetAt(editorView.state, commandScopes(this.settings), at);
+    if (found !== null) {
+      showPicker(editorView, found);
+      return;
+    }
+
+    const formats = inserts === "time" ? this.settings.timeFormats : this.settings.formats;
+    if (formats.length === 0) {
+      // Only the time list can be empty; the date list always keeps one.
+      new Notice(t("notices.noTimeFormat"));
+      return;
+    }
+
+    showPicker(editorView, {
       from: at,
       to: at,
       text: "",
-      pattern: this.settings.formats[0].pattern,
-    };
-
-    showPicker(editorView, target);
+      pattern: formats[0].pattern,
+      kind: inserts,
+    });
   }
 
   async loadSettings(): Promise<void> {
@@ -121,6 +132,12 @@ export default class KalendaePlugin extends Plugin {
       ...readClockCommit(stored ?? {}),
       ...migrateTriggers(stored),
       formats: normaliseStoredFormats(stored?.formats),
+      // Seeded once from the region, like weekStart, and an ordinary setting
+      // afterwards — an emptied list included.
+      timeFormats: normaliseStoredTimeFormats(
+        stored?.timeFormats,
+        defaultTimeFormats(moment.localeData().longDateFormat("LT")),
+      ),
       quickDates: normaliseStoredQuickDates(stored?.quickDates),
     };
   }

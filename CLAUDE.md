@@ -43,9 +43,9 @@ any source change auto-reloads the plugin without restarting Obsidian.
 
 ## Architecture
 
-**Purpose**: change a date — and later a time — that is *already written* in a note by picking it
-from a calendar, rather than retyping it. The differentiator from date-inserter plugins is that
-this one edits existing dates in place.
+**Purpose**: change a date or a time that is *already written* in a note by picking it from a
+calendar or a clock, rather than retyping it. The differentiator from date-inserter plugins is that
+this one edits existing dates and times in place.
 
 ### Surfaces
 
@@ -88,33 +88,38 @@ grep -c "class EditorView" main.js                          # must be 0
 |---|---|
 | [src/main.ts](src/main.ts) | Plugin entry point; settings load/save, command and editor-extension registration |
 | [src/editor/DatePickerExtension.ts](src/editor/DatePickerExtension.ts) | Composes the whole editor layer; owns the live-`EditorView` registry that `editorViewIn()` reads |
-| [src/editor/decorations.ts](src/editor/decorations.ts) | Marks each date in view and hangs the icon widget off it, paired by a shared id |
+| [src/editor/decorations.ts](src/editor/decorations.ts) | Marks each date and time in view and hangs the icon widget off it — a calendar or a clock — paired by a shared id |
 | [src/editor/hover-state.ts](src/editor/hover-state.ts) | `StateField` holding which date the pointer is on |
-| [src/editor/picker-tooltip.ts](src/editor/picker-tooltip.ts) | The tooltip, the three ways to open it, and the write-back transaction |
+| [src/editor/picker-tooltip.ts](src/editor/picker-tooltip.ts) | The tooltip, the ways to open it, the calendar or the clock mounted by the target's kind, and both write-back transactions |
 | [src/editor/hover-hint.ts](src/editor/hover-hint.ts) | The hint above a date once the pointer rests on it; `fillHint()` is shared with the settings preview |
 | [src/picker/month.ts](src/picker/month.ts) | Pure calendar arithmetic: `buildMonth()`, `clampDay()`, `shiftMonths()`, `firstDayOf()` |
 | [src/picker/panel.ts](src/picker/panel.ts) | The calendar's DOM and keyboard; knows nothing of CodeMirror |
-| [src/picker/write.ts](src/picker/write.ts) | `replacementFor()` and the `stillThere()` guard |
+| [src/picker/clock-math.ts](src/picker/clock-math.ts) | Pure clock arithmetic: a pattern's shape, dial angles and rings, snapping, arrow steps, the AM/PM toggle's words |
+| [src/picker/clock.ts](src/picker/clock.ts) | The clock dial's DOM, SVG, pointer and keyboard; knows nothing of CodeMirror |
+| [src/picker/write.ts](src/picker/write.ts) | `replacementFor()`, its twin for a time, and the `stillThere()` guard |
 | [src/picker/hint.ts](src/picker/hint.ts) | `hintFor()`: a date's distance from today, weekday and orb colour, worded by moment in the app's language |
 | [src/picker/quick.ts](src/picker/quick.ts) | The quick-date language: `parseRule()`, `formatRule()`, `resolveRule()` and `QUICK_PRESETS` |
 | [src/picker/quick-text.ts](src/picker/quick-text.ts) | A rule, a step and a slot read back in words, for the calendar and both settings surfaces |
 | [src/detect/formats.ts](src/detect/formats.ts) | Moment-token → regex compiler, `checkFormat()`, `renderPattern()`, `BUILT_IN_FORMATS` |
-| [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding; the three gates below |
+| [src/detect/time-formats.ts](src/detect/time-formats.ts) | Time formats beside the date ones: `checkTimeFormat()`, `withSeconds()`, `renderTime()`, `BUILT_IN_TIME_FORMATS` |
+| [src/detect/meridiem.ts](src/detect/meridiem.ts) | How a note spells am/pm, read off a time and put back on the one that replaces it |
+| [src/detect/scan.ts](src/detect/scan.ts) | `scanText()` — pure candidate finding for both lists; the three gates below |
 | [src/detect/markers.ts](src/detect/markers.ts) | `markerBefore()` — the Tasks emoji in front of a date, and where the pair starts |
 | [src/detect/context.ts](src/detect/context.ts) | `classifyContext()` — where in the note a candidate sits, via `syntaxTree()` |
 | [src/detect/detect.ts](src/detect/detect.ts) | `detectDates()` for a whole note, `detectIn()` for a range; both apply the scope settings |
 | [src/detect/shadow.ts](src/detect/shadow.ts) | `shadowedFormats()` — which formats an earlier one always beats to its dates |
 | [src/settings.ts](src/settings.ts) | `KalendaeSettings`, defaults, `migrateTriggers()`, `normaliseStoredFormats()`, `reorderById()` |
 | [src/settings/settings-tab.ts](src/settings/settings-tab.ts) | Settings UI via `getSettingDefinitions()` (1.13+ native layout) |
-| [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand; the Sortable binding |
-| [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern |
+| [src/settings/format-list.ts](src/settings/format-list.ts) | One format row, drawn by hand, for either list; one Sortable per list |
+| [src/settings/format-modal.ts](src/settings/format-modal.ts) | The editor for a custom pattern, date or time |
 | [src/settings/hover-page.ts](src/settings/hover-page.ts) | The On hover page: icon, outline, the hint's two dropdowns, and the box that previews them under the pointer |
 | [src/settings/sections-page.ts](src/settings/sections-page.ts) | The scope toggles and their worked example |
 | [src/settings/quick-dates-page.ts](src/settings/quick-dates-page.ts) | The four quick-date slots and the switch that hides the row |
 | [src/settings/quick-date-modal.ts](src/settings/quick-date-modal.ts) | The editor for a quick date of your own: a rule field with suggestions, and a date to test it on |
 | [src/i18n/i18n.ts](src/i18n/i18n.ts) | i18next init; every user-visible string goes through `t()` |
 
-Times do not exist yet, and neither does anything that writes more than one date at a time.
+Nothing writes more than one date at a time yet. A date and a time side by side are two things,
+each edited on its own; nothing treats `2026-10-04 14:30` as one.
 
 ### The picker
 
@@ -122,6 +127,12 @@ Four ways in, all dispatching one state effect, which is why every way in after 
 almost nothing: the hover icon, a double-click on the date, a click on a Tasks emoji in front of
 it, and the `pick-date` command with the caret on one. `showPicker()` is the only entry point; the
 effects behind it are private.
+
+A time comes in the same ways, less the Tasks emoji, and there is no second path for it. The target
+a way in hands over carries its `kind`, and `picker-tooltip.ts` mounts the calendar or the clock
+from it. `pick-date` and `pick-time` open whichever panel fits what the caret is on, and differ
+only on an empty spot, where one writes a date and the other a time. The step keys and the distance
+hint read the same detections and skip a time.
 
 Two rules the editor layer must keep, both paid for by a spike that is now deleted:
 
@@ -185,6 +196,22 @@ A candidate must pass three gates, in order:
 A marker is not a gate. `scanText()` records where a Tasks emoji in front of a candidate starts and
 changes nothing else — an unmarked date is found exactly as before, and what the marker is worth is
 the editor layer's question.
+
+Times are a second list through the same three gates, with their own small compiler in
+`time-formats.ts` rather than a place in the date one: a format is a date or a time and never
+both, and `m` and `M` sharing a token table is one typo from a bug. What is theirs alone:
+
+- Dates are scanned first, so a string both could read (`12.10.25`) is a date.
+- Among times the fullest reading wins and list order settles only equal lengths — otherwise
+  `HH:mm` above `h:mm a` takes the `12:05` out of `12:05 am`.
+- Every time format also reads its time with seconds, on the separator between its hour and
+  minute (`withSeconds()`). The candidate carries the pattern that read it, so the write-back
+  keeps the seconds a time had and adds none it did not.
+- A colon with a digit beyond it disqualifies a time on either side, as a dot does a date:
+  `14:05` is not found inside `14:05:09` or `1:14:05`.
+- moment reads `pm`, `PM`, `p.m.` and `p` alike and writes only the first, so the spelling is
+  read off the match (`meridiem.ts`) and written back. A bare `a` or `p` counts only attached
+  to the time: "at 2:05 a friend called" is not 2:05 am.
 
 Gate 3 being the authority is why gate 1 only has to be non-lossy. Use `moment.utc(...)`, not a
 bare `moment(...)`: the namespace stays callable under `esModuleInterop`, which the Jest tsconfig

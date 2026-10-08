@@ -177,6 +177,12 @@ export interface KalendaeSettings {
   /** Ordered and never empty; the first format that matches a range claims it. */
   formats: DateFormatEntry[];
   /**
+   * The time formats, in priority order, as `formats` is for dates. May be
+   * empty, which switches times off; the first one is what a new time is
+   * written in.
+   */
+  timeFormats: DateFormatEntry[];
+  /**
    * Locale codes whose month and weekday names can be typed, and are looked
    * for in a note.
    *
@@ -242,6 +248,7 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   hoverIcon: "left",
   taskEmoji: true,
   formats: [{ id: "iso", pattern: "YYYY-MM-DD" }],
+  timeFormats: [{ id: "time-24", pattern: "HH:mm" }],
   languages: [],
   scopeHeadings: true,
   scopeInlineCode: false,
@@ -507,6 +514,55 @@ export function normaliseStoredFormats(stored: unknown): DateFormatEntry[] {
     .map(({ id, pattern }) => ({ id, pattern }));
 
   return kept.length > 0 ? kept : [...DEFAULT_SETTINGS.formats];
+}
+
+/**
+ * The one time format a vault starts with, from how its region writes time.
+ *
+ * Handed moment's own short time for the app's language rather than reading it
+ * here, so this stays pure. A 12-hour region gets the format that needs am/pm
+ * to match — it leaves `3:16` and `01:30` alone — and everywhere else gets the
+ * padded 24-hour time that daily notes, Tasks and Dataview all write.
+ *
+ * Which side am/pm stands on is the region's too. Korean, Hindi and a handful
+ * of others write it first — `오후 2:05` — and `h:mm a` reads nothing they
+ * write, which would look like times not working at all.
+ */
+export function defaultTimeFormats(shortTime: string): DateFormatEntry[] {
+  const tokens = shortTime.replace(/\[[^\]]*\]/g, "");
+  const hour = tokens.indexOf("h");
+  if (hour < 0) return [{ id: "time-24", pattern: "HH:mm" }];
+
+  const meridiem = tokens.search(/[aA]/);
+
+  return meridiem >= 0 && meridiem < hour
+    ? [{ id: "time-12-leading", pattern: "a h:mm" }]
+    : [{ id: "time-12", pattern: "h:mm a" }];
+}
+
+/**
+ * The stored time list, or the seed for a vault that has never had one.
+ *
+ * Unlike the date list an empty one is kept: emptying it is how times are
+ * switched off, and seeding it again on the next load would switch them back
+ * on behind the reader's back. Only a list that was never stored is seeded.
+ */
+export function normaliseStoredTimeFormats(
+  stored: unknown,
+  fallback: DateFormatEntry[],
+): DateFormatEntry[] {
+  if (!Array.isArray(stored)) return [...fallback];
+
+  const seen = new Set<string>();
+
+  return stored
+    .filter(isStoredFormat)
+    .filter((entry) => {
+      if (seen.has(entry.id)) return false;
+      seen.add(entry.id);
+      return true;
+    })
+    .map(({ id, pattern }) => ({ id, pattern }));
 }
 
 /**

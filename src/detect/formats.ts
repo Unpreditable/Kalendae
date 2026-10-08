@@ -9,6 +9,9 @@ import { moment } from "obsidian";
  * compiler is a fast pre-filter, not the authority.
  */
 
+/** A format is one or the other, never both: there is a list for each. */
+export type FormatKind = "date" | "time";
+
 export interface CompiledFormat {
   pattern: string;
   matcher: RegExp;
@@ -364,6 +367,11 @@ export function setDetectionLocales(codes: readonly string[]): void {
 
   locales = next;
   cache = null;
+}
+
+/** The languages detection reads, for the time formats, which keep their own tokens. */
+export function detectionLocales(): readonly string[] {
+  return locales;
 }
 
 function tokenCache(): TokenCache {

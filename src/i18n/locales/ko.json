@@ -1,21 +1,21 @@
 {
   "commands": {
     "pickDate": "날짜 선택",
-    "tryTimePicker": "시간 선택기 사용해 보기"
+    "pickTime": "시간 선택"
   },
   "settings": {
     "notes": {
-      "heading": "노트의 날짜"
+      "heading": "노트의 날짜와 시간"
     },
     "commandOnly": {
-      "name": "참고: 이미 쓰인 날짜의 달력은 명령어 팔레트의 “{{command}}”로만 열 수 있습니다"
+      "name": "참고: 이미 쓰인 날짜나 시간은 명령어 팔레트의 “{{command}}”와 “{{timeCommand}}”로만 열 수 있습니다"
     },
     "calendar": {
       "heading": "달력"
     },
     "doubleClick": {
       "name": "더블 클릭",
-      "desc": "날짜를 더블 클릭하면 달력이 열립니다."
+      "desc": "날짜를 더블 클릭하면 달력이, 시간을 더블 클릭하면 시계가 열립니다."
     },
     "hover": {
       "heading": "마우스를 올렸을 때",
@@ -37,7 +37,7 @@
     },
     "hoverIcon": {
       "name": "아이콘 표시",
-      "desc": "날짜 위에 포인터를 올리면 나타나는 {{icon}} 을(를) 클릭하세요.",
+      "desc": "날짜나 시간 위에 포인터를 올리면 나타나는 {{icon}} 또는 {{clock}} 을(를) 클릭하세요.",
       "options": {
         "off": "사용 안 함",
         "left": "왼쪽에 표시",
@@ -235,6 +235,10 @@
         "save": "저장"
       }
     },
+    "timeFormats": {
+      "heading": "시간 형식",
+      "description": "Kalendae가 노트에서 인식하는 시간 형식이며, 위에서부터 차례로 적용됩니다."
+    },
     "formats": {
       "heading": "날짜 형식",
       "description": "Kalendae가 노트에서 인식하는 날짜 형식이며, 위에서부터 차례로 적용됩니다.",
@@ -257,6 +261,7 @@
         "pattern": "형식",
         "required": "(필수)",
         "optional": "(선택)",
+        "requiredWith12": "(h 또는 hh와 함께 필수)",
         "columns": {
           "tokens": "토큰",
           "meaning": "의미",
@@ -267,18 +272,26 @@
           "month": "월",
           "day": "일",
           "weekday": "요일",
+          "hour": "시",
+          "minute": "분",
+          "second": "초",
+          "meridiem": "오전/오후",
           "literal": "입력한 그대로"
         },
         "warning": "이 형식은 {{digits}}자리 숫자면 무엇이든 일치합니다. 구분자를 넣는 것을 고려하세요.",
         "hint": "위의 토큰으로 형식을 작성하세요.",
         "problem": {
+          "meridiemMissing": "12시간 형식에는 오전/오후가 필요합니다: a 또는 A를 넣으세요.",
+          "meridiemStray": "오전/오후는 12시간제 시와 함께 씁니다: h 또는 hh로 쓰세요.",
           "adjacent": "형식이 모호합니다: {{first}}과(와) {{second}}이(가) 붙어 있습니다. 구분자를 넣으세요.",
           "adjacentWiden": "형식이 모호합니다: {{first}}과(와) {{second}}이(가) 붙어 있습니다. 구분자를 넣거나 {{from}}을(를) {{to}}로 쓰세요.",
           "adjacentWidenBoth": "형식이 모호합니다: {{first}}과(와) {{second}}이(가) 붙어 있습니다. 구분자를 넣거나 {{firstFixed}}과(와) {{secondFixed}}로 쓰세요.",
           "missing": {
             "year": "형식에는 연도가 필요합니다: YY 또는 YYYY를 넣으세요.",
             "month": "형식에는 월이 필요합니다: M, MM, MMM, MMMM 중 하나를 넣으세요.",
-            "day": "형식에는 일이 필요합니다: D, DD, Do 중 하나를 넣으세요."
+            "day": "형식에는 일이 필요합니다: D, DD, Do 중 하나를 넣으세요.",
+            "hour": "형식에는 시가 필요합니다: H, HH, h, hh 중 하나를 넣으세요.",
+            "minute": "형식에는 분이 필요합니다: m 또는 mm을 넣으세요."
           },
           "unknownTokens": "알 수 없는 토큰: {{chars}}",
           "brackets": "형식에는 [ 나 ] 를 쓸 수 없습니다"
@@ -445,6 +458,7 @@
     }
   },
   "notices": {
-    "noEditor": "먼저 편집 화면에서 노트를 여세요."
+    "noEditor": "먼저 편집 화면에서 노트를 여세요.",
+    "noTimeFormat": "먼저 설정에서 시간 형식을 추가하세요."
   }
 }

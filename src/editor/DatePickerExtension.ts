@@ -1,7 +1,6 @@
 import { Extension } from "@codemirror/state";
 import { EditorView, ViewPlugin } from "@codemirror/view";
 import { KalendaeSettings } from "../settings";
-import { clockTooltip } from "./clock-tooltip";
 import { dateDecorations } from "./decorations";
 import { hoverHint } from "./hover-hint";
 import { hotDate, hoverHandlers } from "./hover-state";
@@ -59,8 +58,6 @@ export function datePickerExtension(getSettings: () => KalendaeSettings): Extens
     // by dispatching the same effect.
     dateDecorations(getSettings, (target, view) => showPicker(view, target)),
     pickerTooltip(getSettings),
-    // Temporary, with its command; see clock-tooltip.ts.
-    clockTooltip(getSettings),
     hoverHint(getSettings),
     nudgeKeys(getSettings),
   ];

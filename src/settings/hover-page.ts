@@ -277,16 +277,21 @@ function iconAnchor(parent: HTMLElement, side: "left" | "right"): void {
  * click, and the reader can then look for that shape in their note rather than
  * for the word "calendar". Translators are given the sentence with an {{icon}}
  * marker to place, which is why this is assembled rather than interpolated.
+ * A time shows a clock where a date shows a calendar, so the sentence carries
+ * both.
  */
 function hoverIconDesc(): DocumentFragment {
   const description = createFragment();
-  const [before, after] = t("settings.hoverIcon.desc").split("{{icon}}");
+  const icons: Record<string, string> = { "{{icon}}": "calendar", "{{clock}}": "clock" };
 
-  description.appendText(before);
-  if (after !== undefined) {
-    const icon = description.createSpan({ cls: "kalendae-inline-icon" });
-    setIcon(icon, "calendar");
-    description.appendText(after);
+  // Split on the markers and keep them, so each lands where the translator
+  // put it and in the order their language wants.
+  for (const part of t("settings.hoverIcon.desc").split(/({{icon}}|{{clock}})/)) {
+    if (part in icons) {
+      setIcon(description.createSpan({ cls: "kalendae-inline-icon" }), icons[part]);
+    } else {
+      description.appendText(part);
+    }
   }
 
   return description;

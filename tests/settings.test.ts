@@ -12,6 +12,8 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   reorderById,
+  defaultTimeFormats,
+  normaliseStoredTimeFormats,
   readClockCommit,
   readHoverHint,
   readStepKeys,
@@ -438,5 +440,51 @@ describe("readClockCommit", () => {
 
   it("falls back to OK for a value it does not know", () => {
     expect(readClockCommit({ clockCommit: "hover" as never })).toEqual({ clockCommit: "ok" });
+  });
+});
+
+describe("time formats in settings", () => {
+  const fallback = [{ id: "time-12", pattern: "h:mm a" }];
+
+  it("starts on 24 hours where nothing says otherwise", () => {
+    expect(DEFAULT_SETTINGS.timeFormats).toEqual([{ id: "time-24", pattern: "HH:mm" }]);
+  });
+
+  it("seeds 12 hours where the region writes time that way", () => {
+    expect(defaultTimeFormats("h:mm A")).toEqual([{ id: "time-12", pattern: "h:mm a" }]);
+  });
+
+  it("seeds am/pm first where the region writes it first", () => {
+    // Korean, Hindi and others: `오후 2:05`. `h:mm a` would read nothing they write.
+    expect(defaultTimeFormats("A h:mm")).toEqual([{ id: "time-12-leading", pattern: "a h:mm" }]);
+    expect(defaultTimeFormats("a h:mm [बजे]")).toEqual([
+      { id: "time-12-leading", pattern: "a h:mm" },
+    ]);
+  });
+
+  it("seeds 24 hours everywhere else", () => {
+    expect(defaultTimeFormats("HH:mm")).toEqual([{ id: "time-24", pattern: "HH:mm" }]);
+    expect(defaultTimeFormats("H:mm")).toEqual([{ id: "time-24", pattern: "HH:mm" }]);
+  });
+
+  it("seeds a vault that has never stored a time list", () => {
+    expect(normaliseStoredTimeFormats(undefined, fallback)).toEqual(fallback);
+    expect(normaliseStoredTimeFormats("nonsense", fallback)).toEqual(fallback);
+  });
+
+  it("keeps an emptied list empty: that is how times are switched off", () => {
+    expect(normaliseStoredTimeFormats([], fallback)).toEqual([]);
+  });
+
+  it("keeps what is stored, minus what is not a format or repeats an id", () => {
+    const stored = [
+      { id: "time-24-short", pattern: "H:mm" },
+      { id: "time-24-short", pattern: "HH:mm" },
+      "junk",
+      { pattern: "no id" },
+    ];
+    expect(normaliseStoredTimeFormats(stored, fallback)).toEqual([
+      { id: "time-24-short", pattern: "H:mm" },
+    ]);
   });
 });
