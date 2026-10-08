@@ -109,10 +109,10 @@
       }
     },
     "stepKeys": {
-      "name_comment": "Settings row label for the dropdown choosing the key that, held with the up or down arrow, changes the day, month or year the caret is on by one. The arrows are drawn as symbols; keep them.",
-      "name": "Change a date with ↑ and ↓",
-      "desc_comment": "Description under that dropdown. 'it' is the key chosen in the dropdown.",
-      "desc": "Hold it and press ↑ or ↓ to change the day, month, or year at the caret.",
+      "name_comment": "Settings row label for the dropdown choosing the key that, held with the up or down arrow, changes the part of a date or a time the caret is on by one: the day, month or year, or the hour, minute, second or am/pm. The arrows are drawn as symbols; keep them.",
+      "name": "Change a date or time with ↑ and ↓",
+      "desc_comment": "Description under that dropdown. 'it' is the key chosen in the dropdown. 'The part' is one number or word of the date or time, whichever the caret touches. '↑/↓' means either arrow key; keep the symbols.",
+      "desc": "Hold it and press ↑/↓ to change the part of a date or time at the caret, e.g., month, minute, etc.",
       "clash_comment": "Warning line under that description, one per clash, shown when an Obsidian hotkey uses the same keys. A hotkey takes the keys first, so the date does not change. {{keys}} is replaced by the key combination, such as 'Alt + ↑'; {{command}} by the command's name as the Hotkeys screen shows it. Keep both markers, and quote the command with your language's quotation marks. 'setting' is this dropdown; 'existing hotkey' is the one in Obsidian's Hotkeys settings.",
       "clash": "Conflict: {{keys}} runs “{{command}}”, update setting or existing hotkey.",
       "options": {

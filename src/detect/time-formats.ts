@@ -1,5 +1,5 @@
 import { moment } from "obsidian";
-import { DateFormatEntry, detectionLocales } from "./formats";
+import { DateFormatEntry, TokenSpan, detectionLocales } from "./formats";
 import { MeridiemStyle, styleMeridiem } from "./meridiem";
 
 /**
@@ -158,20 +158,45 @@ export function withSeconds(pattern: string): string | null {
 
 /** A fresh global regex for the pattern; see `compileFormat` for why fresh. */
 export function compileTimeFormat(pattern: string): RegExp {
+  return new RegExp(sources(split(pattern)).join(""), "g");
+}
+
+/** What each piece of a pattern reads, as regex source. */
+function sources(pieces: Piece[]): string[] {
+  return pieces.map((piece, index) => {
+    if (!piece.isToken) return escapeLiteral(piece.text);
+    if (piece.text in NUMBERS) return NUMBERS[piece.text];
+
+    // A bare `a` or `p` is a time's only when it is attached to one. After a
+    // space it is as likely the next word: "at 2:05 a friend called".
+    const attached = index > 0 && pieces[index - 1].isToken;
+    return meridiemSource(attached);
+  });
+}
+
+/**
+ * Where each token of the pattern sits in the text, or null when the pattern
+ * does not cover the text whole. `tokenSpans`, for a time: the hour is as many
+ * digits as the note wrote and am/pm as long as the note spelled it, so both
+ * are read off the text.
+ */
+export function timeSpans(text: string, pattern: string): TokenSpan[] | null {
   const pieces = split(pattern);
-  const source = pieces
-    .map((piece, index) => {
-      if (!piece.isToken) return escapeLiteral(piece.text);
-      if (piece.text in NUMBERS) return NUMBERS[piece.text];
-
-      // A bare `a` or `p` is a time's only when it is attached to one. After a
-      // space it is as likely the next word: "at 2:05 a friend called".
-      const attached = index > 0 && pieces[index - 1].isToken;
-      return meridiemSource(attached);
-    })
+  const source = sources(pieces)
+    .map((piece) => `(${piece})`)
     .join("");
+  const match = new RegExp(`^${source}$`).exec(text);
+  if (match === null) return null;
 
-  return new RegExp(source, "g");
+  const spans: TokenSpan[] = [];
+  let at = 0;
+  pieces.forEach((piece, index) => {
+    const length = match[index + 1].length;
+    if (piece.isToken) spans.push({ token: piece.text, from: at, to: at + length });
+    at += length;
+  });
+
+  return spans;
 }
 
 /**

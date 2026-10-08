@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Muuda kuupäeva klahvidega ↑ ja ↓",
-      "desc": "Hoia seda all ja vajuta ↑ või ↓, et muuta kursori kohal olevat päeva, kuud või aastat.",
+      "name": "Muuda kuupäeva või kellaaega klahvidega ↑ ja ↓",
+      "desc": "Hoia seda all ja vajuta ↑/↓, et muuta kursori kohal olevat kuupäeva või kellaaja osa, nt kuud, minutit jne.",
       "clash": "Konflikt: {{keys}} käivitab käsu „{{command}}“, muuda seadet või olemasolevat kiirklahvi.",
       "options": {
         "ctrl": "Ctrl",

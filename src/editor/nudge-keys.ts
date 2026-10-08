@@ -1,12 +1,14 @@
 import { Extension, Prec, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, KeyBinding, keymap } from "@codemirror/view";
 import { Platform } from "obsidian";
-import { nudge } from "../picker/nudge";
+import { nudge, nudgeTime } from "../picker/nudge";
 import { KalendaeSettings, StepKeys, commandScopes } from "../settings";
+import { DateTarget } from "./decorations";
 import { targetAt } from "./picker-tooltip";
 
 /**
- * The arrow keys, held with a modifier, step the part of a date the caret is on.
+ * The arrow keys, held with a modifier, step the part of a date or a time the
+ * caret is on.
  *
  * Every modifier the settings offer is bound, and each press asks this
  * computer's setting whether it is the one in force — so changing the dropdown takes effect at
@@ -54,8 +56,8 @@ function step(view: EditorView, settings: KalendaeSettings, by: 1 | -1): boolean
   if (ranges.length > 1 || !main.empty) return false;
 
   const target = targetAt(view.state, commandScopes(settings), main.head);
-  // Times are not stepped yet; the keys fall through to the editor.
-  if (target === null || target.kind !== "date") return false;
+  if (target === null) return false;
+  if (target.kind === "time") return stepTime(view, target, main.head, by);
 
   const last = view.state.field(lastStep);
   const meant = last?.from === target.from && last.text === target.text ? last.meant : undefined;
@@ -69,6 +71,28 @@ function step(view: EditorView, settings: KalendaeSettings, by: 1 | -1): boolean
     effects: remember.of({ from: target.from, text: next.text, meant: next.meant }),
     // Not an `input.type` event, so history never folds two presses into one
     // undo: each press is its own step back.
+    userEvent: "kalendae.step",
+    scrollIntoView: true,
+  });
+
+  return true;
+}
+
+/** A time has no day meant to remember, so a press is the write and nothing else. */
+function stepTime(view: EditorView, target: DateTarget, head: number, by: 1 | -1): boolean {
+  const next = nudgeTime(
+    target.text,
+    target.pattern,
+    target.locale,
+    target.meridiem,
+    head - target.from,
+    by,
+  );
+  if (next === null) return false;
+
+  view.dispatch({
+    changes: { from: target.from, to: target.to, insert: next.text },
+    selection: { anchor: target.from + next.caret },
     userEvent: "kalendae.step",
     scrollIntoView: true,
   });

@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Mainīt datumu ar ↑ un ↓",
-      "desc": "Turiet to nospiestu un spiediet ↑ vai ↓, lai mainītu dienu, mēnesi vai gadu pie kursora.",
+      "name": "Mainīt datumu vai laiku ar ↑ un ↓",
+      "desc": "Turiet to nospiestu un spiediet ↑/↓, lai mainītu datuma vai laika daļu pie kursora, piem., mēnesi, minūti utt.",
       "clash": "Konflikts: {{keys}} izpilda „{{command}}”, mainiet iestatījumu vai esošo īsinājumtaustiņu.",
       "options": {
         "ctrl": "Ctrl",

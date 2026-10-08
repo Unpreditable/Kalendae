@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Modifier une date avec ↑ et ↓",
-      "desc": "Maintenez-la et appuyez sur ↑ ou ↓ pour changer le jour, le mois ou l’année sous le curseur.",
+      "name": "Modifier une date ou une heure avec ↑ et ↓",
+      "desc": "Maintenez-la et appuyez sur ↑/↓ pour changer la partie de la date ou de l’heure sous le curseur, p. ex. le mois, la minute, etc.",
       "clash": "Conflit : {{keys}} lance « {{command}} », modifiez le réglage ou le raccourci existant.",
       "options": {
         "ctrl": "Ctrl",

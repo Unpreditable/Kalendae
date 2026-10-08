@@ -1,6 +1,7 @@
 import { moment } from "obsidian";
 import { setDetectionLocales, tokenSpans } from "../../src/detect/formats";
-import { nudge, partAt, stepDay } from "../../src/picker/nudge";
+import { meridiemStyleOf } from "../../src/detect/meridiem";
+import { nudge, nudgeTime, partAt, stepDay } from "../../src/picker/nudge";
 
 /**
  * The arrow keys on a date, with no editor in sight: which part the caret is
@@ -187,6 +188,90 @@ describe("nudge", () => {
       setDetectionLocales(["en", "uk"]);
 
       expect(nudge("6 вересня 2026", "D MMMM YYYY", "uk", 4, 1)?.text).toBe("6 жовтня 2026");
+    });
+  });
+});
+
+describe("nudgeTime", () => {
+  it("steps the hour under the caret and leaves the caret where it was", () => {
+    expect(nudgeTime("14:05", "HH:mm", undefined, undefined, 1, 1)).toEqual({
+      text: "15:05",
+      caret: 1,
+    });
+  });
+
+  it("steps the minute by one", () => {
+    expect(nudgeTime("14:32", "HH:mm", undefined, undefined, 4, 1)?.text).toBe("14:33");
+    expect(nudgeTime("14:32", "HH:mm", undefined, undefined, 4, -1)?.text).toBe("14:31");
+  });
+
+  it("carries a minute step into the hour", () => {
+    expect(nudgeTime("14:59", "HH:mm", undefined, undefined, 5, 1)?.text).toBe("15:00");
+    expect(nudgeTime("15:00", "HH:mm", undefined, undefined, 5, -1)?.text).toBe("14:59");
+  });
+
+  it("carries a second step into the minute and the hour", () => {
+    expect(nudgeTime("14:59:59", "HH:mm:ss", undefined, undefined, 8, 1)?.text).toBe("15:00:00");
+  });
+
+  it("leaves the seconds alone on a minute step", () => {
+    expect(nudgeTime("14:32:47", "HH:mm:ss", undefined, undefined, 4, 1)?.text).toBe("14:33:47");
+  });
+
+  it("wraps at midnight, having no day to carry into", () => {
+    expect(nudgeTime("23:59", "HH:mm", undefined, undefined, 5, 1)?.text).toBe("00:00");
+    expect(nudgeTime("00:00", "HH:mm", undefined, undefined, 5, -1)?.text).toBe("23:59");
+    expect(nudgeTime("23:05", "HH:mm", undefined, undefined, 1, 1)?.text).toBe("00:05");
+  });
+
+  it("crosses noon on an hour step", () => {
+    expect(nudgeTime("11:30 am", "h:mm a", undefined, undefined, 1, 1)?.text).toBe("12:30 pm");
+    expect(nudgeTime("12:30 pm", "h:mm a", undefined, undefined, 1, -1)?.text).toBe("11:30 am");
+  });
+
+  it("switches the half of the day on am/pm, whichever key it was", () => {
+    expect(nudgeTime("2:05 pm", "h:mm a", undefined, undefined, 6, 1)?.text).toBe("2:05 am");
+    expect(nudgeTime("2:05 pm", "h:mm a", undefined, undefined, 6, -1)?.text).toBe("2:05 am");
+    expect(nudgeTime("2:05 am", "h:mm a", undefined, undefined, 6, 1)?.text).toBe("2:05 pm");
+  });
+
+  it("keeps the note's spelling of am/pm", () => {
+    const dotted = meridiemStyleOf("11:05 P.M.") ?? undefined;
+    const short = meridiemStyleOf("2:05p") ?? undefined;
+
+    expect(nudgeTime("11:05 P.M.", "h:mm a", undefined, dotted, 1, 1)?.text).toBe("12:05 A.M.");
+    expect(nudgeTime("2:05p", "h:mma", undefined, short, 5, 1)?.text).toBe("2:05a");
+  });
+
+  it("follows an hour that changes width", () => {
+    expect(nudgeTime("9:05", "H:mm", undefined, undefined, 1, 1)).toEqual({
+      text: "10:05",
+      caret: 2,
+    });
+    expect(nudgeTime("10:05", "H:mm", undefined, undefined, 2, -1)).toEqual({
+      text: "9:05",
+      caret: 1,
+    });
+  });
+
+  it("keeps a caret on the minute there when the hour ahead of it grows", () => {
+    expect(nudgeTime("9:59", "H:mm", undefined, undefined, 4, 1)).toEqual({
+      text: "10:00",
+      caret: 5,
+    });
+  });
+
+  it("is null when the caret touches no part", () => {
+    expect(nudgeTime("14 - 05", "HH - mm", undefined, undefined, 3, 1)).toBeNull();
+  });
+
+  describe("in a language with am/pm words of its own", () => {
+    afterEach(() => setDetectionLocales(["en"]));
+
+    it("reads the word and writes the other one", () => {
+      setDetectionLocales(["en", "ko"]);
+
+      expect(nudgeTime("오후 2:05", "a h:mm", "ko", undefined, 1, 1)?.text).toBe("오전 2:05");
     });
   });
 });

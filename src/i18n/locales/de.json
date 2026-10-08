@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Datum mit ↑ und ↓ ändern",
-      "desc": "Gedrückt halten und ↑ oder ↓ drücken, um Tag, Monat oder Jahr an der Einfügemarke zu ändern.",
+      "name": "Datum oder Uhrzeit mit ↑ und ↓ ändern",
+      "desc": "Gedrückt halten und ↑/↓ drücken, um den Teil eines Datums oder einer Uhrzeit an der Einfügemarke zu ändern, z. B. Monat, Minute usw.",
       "clash": "Konflikt: {{keys}} führt „{{command}}“ aus, ändere die Einstellung oder das bestehende Tastenkürzel.",
       "options": {
         "ctrl": "Strg",

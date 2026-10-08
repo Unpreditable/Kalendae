@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Keisti datą klavišais ↑ ir ↓",
-      "desc": "Laikykite jį nuspaudę ir spauskite ↑ arba ↓, kad pakeistumėte dieną, mėnesį ar metus ties žymekliu.",
+      "name": "Keisti datą ar laiką klavišais ↑ ir ↓",
+      "desc": "Laikykite jį nuspaudę ir spauskite ↑/↓, kad pakeistumėte datos ar laiko dalį ties žymekliu, pvz., mėnesį, minutę ir t. t.",
       "clash": "Konfliktas: {{keys}} vykdo „{{command}}“, pakeiskite nustatymą arba esamą spartųjį klavišą.",
       "options": {
         "ctrl": "Ctrl",

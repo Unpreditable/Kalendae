@@ -1,8 +1,11 @@
 import { TokenSpan, readDate, renderPattern, tokenSpans } from "../detect/formats";
+import { MeridiemStyle } from "../detect/meridiem";
+import { readTime, renderTime, timeSpans } from "../detect/time-formats";
 import { DayKey, clampDay } from "./month";
 
 /**
- * One press of the arrow keys on a date: the part under the caret moves by one.
+ * One press of the arrow keys on a date or a time: the part under the caret
+ * moves by one.
  *
  * Pure, like `month.ts` beside it — no DOM, no editor. The editor layer finds
  * the date and writes the result; everything about what a step means is here,
@@ -102,13 +105,67 @@ export function nudge(
   const step = stepDay(from, partOf(span.token), by, meant ?? from.day);
   const next = renderPattern(pattern, step.day, locale);
 
-  const landed = tokenSpans(next, pattern)?.[index];
-  const caret =
-    landed === undefined
-      ? Math.min(offset, next.length)
-      : offset === span.to
-        ? landed.to
-        : landed.from + Math.min(offset - span.from, landed.to - landed.from);
+  const caret = caretAfter(offset, span, tokenSpans(next, pattern)?.[index], next.length);
 
   return { text: next, caret, meant: step.meant };
+}
+
+/** Where the caret goes once the part it was on has been rewritten. */
+function caretAfter(
+  offset: number,
+  span: TokenSpan,
+  landed: TokenSpan | undefined,
+  length: number,
+): number {
+  if (landed === undefined) return Math.min(offset, length);
+  if (offset === span.to) return landed.to;
+
+  return landed.from + Math.min(offset - span.from, landed.to - landed.from);
+}
+
+/** How far one press moves a time, in seconds, by the token under the caret. */
+function secondsOf(token: string, by: 1 | -1): number {
+  // am/pm has two values, so either key is the other one.
+  if (token === "a" || token === "A") return 12 * 3600;
+  if (token.startsWith("s")) return by;
+
+  return token.startsWith("m") ? 60 * by : 3600 * by;
+}
+
+const DAY = 24 * 3600;
+
+/**
+ * The time one step on from `text`, with the caret at `offset` into it: `nudge`,
+ * for a time.
+ *
+ * A step is the time moved by one of what the caret is on, so it carries as a
+ * day step carries into the month — 14:59 goes on to 15:00. Midnight wraps: a
+ * time on its own has no day to carry into. The seconds a time has are kept and
+ * none are added, the pattern being the one that read it, and am/pm is written
+ * in the spelling the note had it in.
+ */
+export function nudgeTime(
+  text: string,
+  pattern: string,
+  locale: string | undefined,
+  style: MeridiemStyle | undefined,
+  offset: number,
+  by: 1 | -1,
+): Pick<Nudge, "text" | "caret"> | null {
+  const spans = timeSpans(text, pattern);
+  const index = spans === null ? null : partAt(spans, offset);
+  const from = readTime(text, pattern, locale);
+  if (spans === null || index === null || from === null) return null;
+
+  const span = spans[index];
+  const was = from.hour * 3600 + from.minute * 60 + from.second;
+  const now = (was + secondsOf(span.token, by) + DAY) % DAY;
+  const time = {
+    hour: Math.floor(now / 3600),
+    minute: Math.floor(now / 60) % 60,
+    second: now % 60,
+  };
+  const next = renderTime(pattern, time, locale, style);
+
+  return { text: next, caret: caretAfter(offset, span, timeSpans(next, pattern)?.[index], next.length) };
 }

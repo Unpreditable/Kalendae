@@ -10,6 +10,7 @@ import {
   renderTimeExample,
   renderTimeSample,
   timeSampleParts,
+  timeSpans,
   timeTokenGroupsPresent,
   withSeconds,
 } from "../../src/detect/time-formats";
@@ -25,6 +26,30 @@ const finds = (pattern: string, text: string) =>
   Array.from(text.matchAll(compileTimeFormat(pattern)), (match) => match[0]);
 
 afterEach(() => setDetectionLocales(["en"]));
+
+describe("timeSpans", () => {
+  it("places every token of a time with seconds", () => {
+    expect(timeSpans("14:05:09", "HH:mm:ss")).toEqual([
+      { token: "HH", from: 0, to: 2 },
+      { token: "mm", from: 3, to: 5 },
+      { token: "ss", from: 6, to: 8 },
+    ]);
+  });
+
+  it("measures the hour by the digits the text holds", () => {
+    expect(timeSpans("9:05", "H:mm")?.[0]).toEqual({ token: "H", from: 0, to: 1 });
+    expect(timeSpans("19:05", "H:mm")?.[0]).toEqual({ token: "H", from: 0, to: 2 });
+  });
+
+  it("measures am/pm by the spelling the text holds", () => {
+    expect(timeSpans("2:05 p.m.", "h:mm a")?.[2]).toEqual({ token: "a", from: 5, to: 9 });
+    expect(timeSpans("2:05p", "h:mma")?.[2]).toEqual({ token: "a", from: 4, to: 5 });
+  });
+
+  it("is null for text the pattern does not cover whole", () => {
+    expect(timeSpans("14:05 and more", "HH:mm")).toBeNull();
+  });
+});
 
 describe("checkTimeFormat", () => {
   it("accepts the built-in formats and their kin", () => {

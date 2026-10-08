@@ -72,8 +72,8 @@
       }
     },
     "stepKeys": {
-      "name": "Cambiar una fecha con ↑ y ↓",
-      "desc": "Mantenla pulsada y pulsa ↑ o ↓ para cambiar el día, el mes o el año donde está el cursor.",
+      "name": "Cambiar una fecha u hora con ↑ y ↓",
+      "desc": "Mantenla pulsada y pulsa ↑/↓ para cambiar la parte de la fecha u hora donde está el cursor, p. ej., el mes, el minuto, etc.",
       "clash": "Conflicto: {{keys}} ejecuta «{{command}}», cambia este ajuste o el atajo existente.",
       "options": {
         "ctrl": "Ctrl",
