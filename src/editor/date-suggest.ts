@@ -277,6 +277,12 @@ export class KalendaeDateSuggest extends EditorSuggest<Entry> {
       localeOf(entry),
     );
 
+    // Closed here rather than left to the next `onTrigger`. Obsidian asks the
+    // suggesters in order and stops at the first that claims the caret, so with
+    // another plugin's ahead of this one the question never arrives, and the
+    // menu stays open over a range the write has just replaced.
+    this.close();
+
     editor.replaceRange(insert, range.start, range.end);
     editor.setCursor(editor.offsetToPos(from + insert.length));
   }
