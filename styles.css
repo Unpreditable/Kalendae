@@ -711,6 +711,16 @@
   outline: none;
 }
 
+/* A calendar opened by another plugin, with no note under it: fixed to the
+   window at the spot it was opened from. The position is set on the element as
+   custom properties, not as inline styles. */
+.kalendae-panel.kalendae-panel-popup {
+  left: var(--kalendae-popup-left, 0);
+  position: fixed;
+  top: var(--kalendae-popup-top, 0);
+  z-index: var(--layer-popover);
+}
+
 .kalendae-panel .kalendae-panel-header {
   align-items: center;
   display: flex;

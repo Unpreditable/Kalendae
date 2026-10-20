@@ -96,6 +96,9 @@ grep -c "class EditorView" main.js                          # must be 0
 | [src/picker/panel.ts](src/picker/panel.ts) | The calendar's DOM and keyboard; knows nothing of CodeMirror |
 | [src/picker/clock-math.ts](src/picker/clock-math.ts) | Pure clock arithmetic: a pattern's shape, dial angles and rings, snapping, arrow steps, the AM/PM toggle's words |
 | [src/picker/clock.ts](src/picker/clock.ts) | The clock dial's DOM, SVG, pointer and keyboard; knows nothing of CodeMirror |
+| [src/api.ts](src/api.ts) | The `api` other plugins reach through `app.plugins.getPlugin("kalendae").api`; `docs/kalendae-api.d.ts` is its copyable twin |
+| [src/picker/popup.ts](src/picker/popup.ts) | The calendar opened from another plugin, with no editor: mounted on the window, closed by Escape, a pick, an outside click, a scroll or a resize |
+| [src/picker/popup-math.ts](src/picker/popup-math.ts) | Pure placement for that popup: below its anchor, above when there is no room, held inside the window |
 | [src/picker/write.ts](src/picker/write.ts) | `replacementFor()`, its twin for a time, and the `stillThere()` guard |
 | [src/picker/hint.ts](src/picker/hint.ts) | `hintFor()`: a date's distance from today, weekday and orb colour, worded by moment in the app's language |
 | [src/picker/quick.ts](src/picker/quick.ts) | The quick-date language: `parseRule()`, `formatRule()`, `resolveRule()` and `QUICK_PRESETS` |

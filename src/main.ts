@@ -4,6 +4,7 @@ import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
 import { defaultWeekStart } from "./picker/month";
+import { closePopup } from "./picker/popup";
 import {
   BASE_LOCALE,
   DEFAULT_SETTINGS,
@@ -20,6 +21,7 @@ import {
   readStepKeys,
 } from "./settings";
 import { KalendaeSettingTab } from "./settings/settings-tab";
+import { KalendaeApi, createApi } from "./api";
 import { t } from "./i18n/i18n";
 
 export default class KalendaePlugin extends Plugin {
@@ -28,9 +30,17 @@ export default class KalendaePlugin extends Plugin {
   // toggles mutate it themselves and call saveSettings().
   settings: KalendaeSettings = DEFAULT_SETTINGS;
 
+  // For other plugins, reached through app.plugins.getPlugin("kalendae").api.
+  // Reads the settings when called, so it always sees the current ones.
+  readonly api: KalendaeApi = createApi(this.app, () => this.settings);
+
   async onload(): Promise<void> {
     await this.loadSettings();
     this.applyLanguages();
+
+    // A calendar another plugin opened goes with the plugin, and its caller
+    // hears null rather than waiting on a promise that never settles.
+    this.register(closePopup);
 
     this.addSettingTab(new KalendaeSettingTab(this.app, this));
     this.registerEditorExtension(datePickerExtension(() => this.settings));

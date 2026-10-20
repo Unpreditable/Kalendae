@@ -193,6 +193,20 @@ Symlink this folder into `<vault>/.obsidian/plugins/kalendae/` and install
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for bug reports, feature requests, and translations.
 
+### Using the calendar from your plugin
+
+Other plugins can open Kalendae's calendar beside an element or at a click, and get back the day the user picks:
+
+```ts
+const kalendae = this.app.plugins.getPlugin("kalendae");
+if (kalendae?.api?.pickDate) {
+  const day = await kalendae.api.pickDate({ value: "2026-10-19", anchor: event });
+  // "2026-10-24", or null if the user closed the calendar
+}
+```
+
+`pattern` sets the format of `value` and of the result (`YYYY-MM-DD` by default), and an empty `value` opens on today. Your plugin writes the date itself. Copy [docs/kalendae-api.d.ts](docs/kalendae-api.d.ts) for the types.
+
 ---
 
 ## License
