@@ -1,7 +1,7 @@
 {
   "id": "kalendae",
   "name": "Kalendae",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "minAppVersion": "1.13.0",
   "description": "Change any date or time in a note with a calendar or a clock instead of retyping it. Type new dates in plain words (@next friday), or step them with Ctrl/Option + ↑/↓.",
   "author": "Vitaly Ditman",
