@@ -209,6 +209,13 @@ if (kalendae?.api?.pickDate) {
 
 ---
 
+## More plugins by the author
+
+- **[GTD Tasks](https://community.obsidian.md/plugins/gtd-tasks)** — Gather tasks from across your notes into one sidebar, sorted into the Getting Things Done horizons: Today, This Week, Next Week, This Month and Someday. Works with the Tasks plugin.
+- **[Littera Nexa](https://community.obsidian.md/plugins/littera-nexa)** — Link to a note by typing its name, with no `[[` needed. It suggests notes and aliases as you type.
+
+---
+
 ## License
 
 [GPL-3.0-only](LICENSE)
