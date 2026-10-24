@@ -23,6 +23,8 @@
         "heading": "Priekšskatījums",
         "desc": "Novieto kursoru virs rāmja zemāk.",
         "hovered": "Šādi datumi izskatās piezīmē, kad virzi kursoru virs tiem.",
+        "descTouch": "Pieskaries rāmim zemāk.",
+        "hoveredTouch": "Šādi datumi izskatās piezīmē, kad tiem pieskaries.",
         "nothing": "Viss ir izslēgts, tāpēc, virzot kursoru virs datuma, nekas nemainās."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Attālums dienās",
         "rounded": "Noapaļots attālums",
         "orb": "Lodīte",
+        "caret": "Norāde pie teksta kursora",
         "none": "Nerādīt neko"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Izslēgta",
         "green-red": "Zaļš nākotnē, sarkans pagātnē",
         "red-green": "Sarkans nākotnē, zaļš pagātnē"
+      }
+    },
+    "caretHint": {
+      "name": "Pie teksta kursora",
+      "help": "Tālruņos un planšetdatoros nevar virzīt peli virs teksta, tāpēc norāde parādās, kad teksta kursors atrodas uz datuma. Izvēlies “Visur”, lai to redzētu arī datorā.",
+      "options": {
+        "touch": "Skārienekrānos",
+        "always": "Visur"
       }
     },
     "stepKeys": {

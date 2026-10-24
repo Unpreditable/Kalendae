@@ -34,6 +34,10 @@
         "desc": "Hover over the box below.",
         "hovered_comment": "Replaces the line above while the pointer is inside the box, when the sample dates show the look a date has under the pointer.",
         "hovered": "This is how dates look when you hover over them in a note.",
+        "descTouch_comment": "Replaces 'Hover over the box below.' on a device with no mouse or trackpad, such as a phone, where a tap lights the box instead.",
+        "descTouch": "Tap the box below.",
+        "hoveredTouch_comment": "Replaces 'This is how dates look when you hover over them in a note.' on a device with no mouse or trackpad, after the box has been tapped.",
+        "hoveredTouch": "This is how dates look when you tap them in a note.",
         "nothing_comment": "Replaces the line above when the icon, the outline and the hint are all switched off on this page, so a date under the pointer looks no different and the box shows nothing either.",
         "nothing": "Everything is off, so hovering over a date changes nothing."
       },
@@ -50,6 +54,8 @@
         "rounded": "Rounded distance",
         "orb_comment": "Part of that summary: the coloured orb is on.",
         "orb": "Orb",
+        "caret_comment": "Part of that summary: the hint also appears at the text cursor on computers, set by the 'At the text cursor' dropdown being 'Everywhere'.",
+        "caret": "Hint at the cursor",
         "none_comment": "The whole summary beside the On hover row when the icon, the outline and the hint are all switched off. Read together with the row's name: 'On hover: Show nothing'.",
         "none": "Show nothing"
       }
@@ -79,7 +85,7 @@
       "name": "Show outline"
     },
     "hoverHint": {
-      "name_comment": "Row label on the On hover page. The row holds two dropdowns, Distance and Orb colour, for a small line that appears above a date once the pointer rests on it, such as '● Thursday · in 3 days'.",
+      "name_comment": "Row label on the On hover page. The row holds three dropdowns, Distance, Orb colour and At the caret, for a small line that appears above a date once the pointer rests on it, such as '● Thursday · in 3 days'.",
       "name": "Show hint",
       "desc_comment": "Description under that row. 'a short pause' is the moment the pointer has to rest on a date before the line appears.",
       "desc": "Show how far the date is from today, after a short pause."
@@ -106,6 +112,18 @@
         "green-red": "Green ahead, red past",
         "red-green_comment": "Dropdown option: red for today and later dates, green for past dates.",
         "red-green": "Red ahead, green past"
+      }
+    },
+    "caretHint": {
+      "name_comment": "Label above the third dropdown in the Show hint row: on which devices the same line also appears when the text cursor rests on a date, as it does under the mouse pointer. A (?) button sits beside it. Disabled while Distance is off.",
+      "name": "At the text cursor",
+      "help_comment": "Opens under the Show hint row when the (?) beside 'At the text cursor' is pressed, and closes when it is pressed again. 'Everywhere' is the dropdown option below; keep it matching that translation.",
+      "help": "Phones and tablets have no hover, so the hint shows when your text cursor rests on a date. Pick Everywhere to see it on a computer too.",
+      "options": {
+        "touch_comment": "Dropdown option, the default: only on devices with no mouse or trackpad, such as a phone or a tablet.",
+        "touch": "On touch screens",
+        "always_comment": "Dropdown option: on computers as well as touch screens.",
+        "always": "Everywhere"
       }
     },
     "stepKeys": {

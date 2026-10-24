@@ -23,6 +23,8 @@
         "heading": "Aperçu",
         "desc": "Survolez le cadre ci-dessous.",
         "hovered": "Voici l'apparence des dates quand vous les survolez dans une note.",
+        "descTouch": "Touchez le cadre ci-dessous.",
+        "hoveredTouch": "Voici l'apparence des dates quand vous les touchez dans une note.",
         "nothing": "Tout est désactivé : survoler une date ne change rien."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Écart en jours",
         "rounded": "Écart arrondi",
         "orb": "Pastille",
+        "caret": "Indication au curseur",
         "none": "Ne rien afficher"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Désactivée",
         "green-red": "Vert à venir, rouge passé",
         "red-green": "Rouge à venir, vert passé"
+      }
+    },
+    "caretHint": {
+      "name": "Au curseur de texte",
+      "help": "Les téléphones et les tablettes n'ont pas de survol : l'indication s'affiche quand votre curseur de texte se trouve sur une date. Choisissez « Partout » pour la voir aussi sur ordinateur.",
+      "options": {
+        "touch": "Sur écran tactile",
+        "always": "Partout"
       }
     },
     "stepKeys": {

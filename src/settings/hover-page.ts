@@ -1,8 +1,22 @@
-import { DropdownComponent, Setting, SettingPage, moment, setIcon } from "obsidian";
+import {
+  DropdownComponent,
+  ExtraButtonComponent,
+  Setting,
+  SettingPage,
+  moment,
+  setIcon,
+} from "obsidian";
+import { ANY_HOVER } from "../editor/caret-hint-rule";
 import { HOVER_TIME, fillHint } from "../editor/hover-hint";
 import { hintFor } from "../picker/hint";
 import { DayKey, todayKey } from "../picker/month";
-import { HOVER_DISTANCES, HOVER_ORBS, HOVER_ICONS, KalendaeSettings } from "../settings";
+import {
+  CARET_HINTS,
+  HOVER_DISTANCES,
+  HOVER_ORBS,
+  HOVER_ICONS,
+  KalendaeSettings,
+} from "../settings";
 import { KalendaeHost } from "./host";
 import { t } from "../i18n/i18n";
 
@@ -29,6 +43,9 @@ export class HoverPage extends SettingPage {
   /** Whether the hints are up, which they are only once the pause has passed. */
   private hinting = false;
   private hintTimer: number | null = null;
+  /** Whether the preview asks for a hover or a tap; see `applyLight()`. */
+  private readonly canHover = window.matchMedia(ANY_HOVER);
+  private readonly onHoverChange = (): void => this.applyLight();
 
   constructor(
     private readonly host: KalendaeHost,
@@ -42,6 +59,7 @@ export class HoverPage extends SettingPage {
   hide(): void {
     super.hide();
     this.light(false);
+    this.canHover.removeEventListener("change", this.onHoverChange);
     if (!this.changed) return;
     this.changed = false;
     this.onChanged();
@@ -51,6 +69,9 @@ export class HoverPage extends SettingPage {
     this.containerEl.empty();
     this.containerEl.addClass("kalendae-settings-page");
     const settings = this.host.settings;
+    // Removed first, so a page drawn twice is still listening once.
+    this.canHover.removeEventListener("change", this.onHoverChange);
+    this.canHover.addEventListener("change", this.onHoverChange);
 
     new Setting(this.containerEl)
       .setName(t("settings.hoverIcon.name"))
@@ -72,21 +93,44 @@ export class HoverPage extends SettingPage {
       }),
     );
 
-    // The distance and the orb side by side in one row, each labelled above
-    // its dropdown. Both are parts of the one hint, and an orb dropdown that
-    // came and went with the distance made every row below it jump.
+    // The distance, the orb and the caret side by side in one row, each
+    // labelled above its dropdown. All are parts of the one hint, and an orb
+    // dropdown that came and went with the distance made every row below it
+    // jump.
     const hintRow = new Setting(this.containerEl)
       .setName(t("settings.hoverHint.name"))
       .setDesc(t("settings.hoverHint.desc"))
       .setClass("kalendae-hint-row");
-    // Under the name rather than beside it: two labelled dropdowns are too
-    // wide for the control column, and below they line up with the text.
+    // Under the name rather than beside it: labelled dropdowns are too wide
+    // for the control column, and below they line up with the text. Each cell
+    // keeps its label over its dropdown, so a narrow screen wraps whole cells.
     const table = hintRow.settingEl.createDiv({ cls: "kalendae-hint-table" });
-    table.createDiv({ cls: "kalendae-hint-label", text: t("settings.hoverDistance.name") });
-    table.createDiv({ cls: "kalendae-hint-label", text: t("settings.hoverOrb.name") });
+    const cell = (label: string): { labelEl: HTMLElement; dropdown: DropdownComponent } => {
+      const element = table.createDiv({ cls: "kalendae-hint-cell" });
+      const labelEl = element.createDiv({ cls: "kalendae-hint-label", text: label });
+      return { labelEl, dropdown: new DropdownComponent(element) };
+    };
 
-    const distance = new DropdownComponent(table.createDiv());
-    const orb = new DropdownComponent(table.createDiv());
+    const distance = cell(t("settings.hoverDistance.name")).dropdown;
+    const orb = cell(t("settings.hoverOrb.name")).dropdown;
+    const caretCell = cell(t("settings.caretHint.name"));
+    const caret = caretCell.dropdown;
+
+    // A button that opens a line of text rather than a tooltip: a tooltip
+    // needs a hover, and the phones this choice is for have none.
+    const help = hintRow.settingEl.createDiv({
+      cls: "kalendae-hint-help",
+      text: t("settings.caretHint.help"),
+    });
+    const helpButton = new ExtraButtonComponent(caretCell.labelEl).setIcon("circle-help");
+    const helpEl = helpButton.extraSettingsEl;
+    helpEl.setAttribute("aria-label", t("settings.caretHint.name"));
+    helpEl.setAttribute("aria-expanded", "false");
+    helpButton.onClick(() => {
+      const open = !help.hasClass("kalendae-hint-help-open");
+      help.toggleClass("kalendae-hint-help-open", open);
+      helpEl.setAttribute("aria-expanded", String(open));
+    });
 
     for (const value of HOVER_DISTANCES) {
       distance.addOption(value, t(`settings.hoverDistance.options.${value}`));
@@ -94,14 +138,18 @@ export class HoverPage extends SettingPage {
     for (const value of HOVER_ORBS) {
       orb.addOption(value, t(`settings.hoverOrb.options.${value}`));
     }
+    for (const value of CARET_HINTS) {
+      caret.addOption(value, t(`settings.caretHint.options.${value}`));
+    }
 
     // Disabled rather than hidden while there is no distance: an orb alone is a
-    // colour with nothing to explain it. Its value is kept for when the
-    // distance comes back.
+    // colour with nothing to explain it, and a caret with no hint to show has
+    // nothing to decide. Their values are kept for when the distance comes back.
     distance.setValue(settings.hoverDistance).onChange((value) => {
       settings.hoverDistance =
         HOVER_DISTANCES.find((wording) => wording === value) ?? settings.hoverDistance;
       orb.setDisabled(settings.hoverDistance === "off");
+      caret.setDisabled(settings.hoverDistance === "off");
       this.save();
     });
     orb
@@ -109,6 +157,13 @@ export class HoverPage extends SettingPage {
       .setDisabled(settings.hoverDistance === "off")
       .onChange((value) => {
         settings.hoverOrb = HOVER_ORBS.find((colours) => colours === value) ?? settings.hoverOrb;
+        this.save();
+      });
+    caret
+      .setValue(settings.caretHint)
+      .setDisabled(settings.hoverDistance === "off")
+      .onChange((value) => {
+        settings.caretHint = CARET_HINTS.find((devices) => devices === value) ?? settings.caretHint;
         this.save();
       });
 
@@ -182,8 +237,10 @@ export class HoverPage extends SettingPage {
       element.toggleClass("kalendae-hot", lit);
     });
 
+    // Worded for a tap on a device with no hover, as the box lights on one.
     const desc = nothing ? "nothing" : lit ? "hovered" : "desc";
-    this.previewDescEl?.setText(t(`settings.hover.preview.${desc}`));
+    const touch = desc !== "nothing" && !this.canHover.matches ? "Touch" : "";
+    this.previewDescEl?.setText(t(`settings.hover.preview.${desc}${touch}`));
   }
 
   private save(): void {
@@ -313,6 +370,7 @@ export function hoverSummary(settings: KalendaeSettings): string {
   if (settings.hoverDistance !== "off") {
     on.push(t(`settings.hover.summary.${settings.hoverDistance}`));
     if (settings.hoverOrb !== "off") on.push(t("settings.hover.summary.orb"));
+    if (settings.caretHint === "always") on.push(t("settings.hover.summary.caret"));
   }
   // The same separator as the sections summary, for the same reasons.
   return on.length === 0 ? t("settings.hover.summary.none") : on.join(" · ");

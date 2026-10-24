@@ -23,6 +23,8 @@
         "heading": "Vorschau",
         "desc": "Fahre mit dem Zeiger über das Feld unten.",
         "hovered": "So sehen Datumsangaben in einer Notiz aus, wenn du mit dem Zeiger darüberfährst.",
+        "descTouch": "Tippe auf das Feld unten.",
+        "hoveredTouch": "So sehen Datumsangaben in einer Notiz aus, wenn du darauf tippst.",
         "nothing": "Alles ist ausgeschaltet, daher ändert sich beim Überfahren eines Datums nichts."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Abstand in Tagen",
         "rounded": "Gerundeter Abstand",
         "orb": "Kugel",
+        "caret": "Hinweis am Cursor",
         "none": "Nichts anzeigen"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Deaktiviert",
         "green-red": "Grün kommend, rot vergangen",
         "red-green": "Rot kommend, grün vergangen"
+      }
+    },
+    "caretHint": {
+      "name": "Am Textcursor",
+      "help": "Smartphones und Tablets kennen kein Überfahren mit dem Zeiger, daher erscheint der Hinweis, wenn dein Textcursor auf einem Datum steht. Wähle „Überall“, um ihn auch am Computer zu sehen.",
+      "options": {
+        "touch": "Auf Touchscreens",
+        "always": "Überall"
       }
     },
     "stepKeys": {

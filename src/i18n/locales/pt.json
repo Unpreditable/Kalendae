@@ -23,6 +23,8 @@
         "heading": "Pré-visualização",
         "desc": "Passe o ponteiro sobre a caixa abaixo.",
         "hovered": "É assim que as datas aparecem quando você passa o ponteiro sobre elas numa nota.",
+        "descTouch": "Toque na caixa abaixo.",
+        "hoveredTouch": "É assim que as datas aparecem quando você toca nelas numa nota.",
         "nothing": "Tudo está desativado, então passar o ponteiro sobre uma data não muda nada."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Distância em dias",
         "rounded": "Distância arredondada",
         "orb": "Orbe",
+        "caret": "Dica no cursor",
         "none": "Não mostrar nada"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Desativado",
         "green-red": "Verde à frente, vermelho no passado",
         "red-green": "Vermelho à frente, verde no passado"
+      }
+    },
+    "caretHint": {
+      "name": "No cursor de texto",
+      "help": "Celulares e tablets não têm como passar o ponteiro, então a dica aparece quando o cursor de texto está sobre uma data. Escolha “Em todo lugar” para vê-la também no computador.",
+      "options": {
+        "touch": "Em telas sensíveis ao toque",
+        "always": "Em todo lugar"
       }
     },
     "stepKeys": {

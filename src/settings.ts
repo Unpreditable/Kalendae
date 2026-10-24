@@ -57,15 +57,34 @@ export const HOVER_ORBS = ["off", "green-red", "red-green"] as const;
 
 export type HoverOrb = (typeof HOVER_ORBS)[number];
 
-/** Both hint settings out of what was stored, each falling back to its default. */
-export function readHoverHint(
-  stored: Partial<Pick<KalendaeSettings, "hoverDistance" | "hoverOrb">>,
-): Pick<KalendaeSettings, "hoverDistance" | "hoverOrb"> {
+/**
+ * Which devices also show the hint while the caret rests on a date, the way a
+ * pointer resting on it does.
+ *
+ * Touch screens by default: a finger has no hover, so on a phone the caret is
+ * the only way to the hint at all. Everywhere adds computers, for whoever wants
+ * it there too. There is no computers-only choice, because the caret is for the
+ * devices hover cannot reach, and no "off": the distance's own "off" turns the
+ * hint off everywhere.
+ *
+ * Synced with the rest of data.json, so each device decides at run time which
+ * kind it is; see `caretHintApplies()`.
+ */
+export const CARET_HINTS = ["touch", "always"] as const;
+
+export type CaretHint = (typeof CARET_HINTS)[number];
+
+type HintSettings = Pick<KalendaeSettings, "hoverDistance" | "hoverOrb" | "caretHint">;
+
+/** The hint settings out of what was stored, each falling back to its default. */
+export function readHoverHint(stored: Partial<HintSettings>): HintSettings {
   return {
     hoverDistance:
       HOVER_DISTANCES.find((value) => value === stored.hoverDistance) ??
       DEFAULT_SETTINGS.hoverDistance,
     hoverOrb: HOVER_ORBS.find((value) => value === stored.hoverOrb) ?? DEFAULT_SETTINGS.hoverOrb,
+    caretHint:
+      CARET_HINTS.find((value) => value === stored.caretHint) ?? DEFAULT_SETTINGS.caretHint,
   };
 }
 
@@ -209,6 +228,8 @@ export interface KalendaeSettings {
   hoverDistance: HoverDistance;
   /** Its orb; see HOVER_ORBS. */
   hoverOrb: HoverOrb;
+  /** Where the hint also follows the caret; see CARET_HINTS. */
+  caretHint: CaretHint;
   showWeekNumbers: boolean;
   weekStart: WeekStart;
   /** The line naming the exact text a pick will write into the note. */
@@ -258,6 +279,7 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   showHoverFrame: true,
   hoverDistance: "off",
   hoverOrb: "green-red",
+  caretHint: "touch",
   showWeekNumbers: false,
   weekStart: "monday",
   showWritesPreview: true,

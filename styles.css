@@ -652,17 +652,45 @@
 }
 
 .kalendae-hint-table {
-  display: grid;
+  display: flex;
   flex-basis: 100%;
-  gap: var(--size-4-1) var(--size-4-6);
-  grid-template-columns: max-content max-content;
+  flex-wrap: wrap;
+  gap: var(--size-4-3) var(--size-4-6);
   padding-inline-start: var(--size-4-8);
   padding-top: var(--size-4-2);
 }
 
+.kalendae-hint-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+}
+
 .kalendae-hint-label {
+  align-items: center;
   color: var(--text-muted);
+  display: flex;
   font-size: var(--font-ui-smaller);
+  gap: var(--size-4-1);
+}
+
+.kalendae-hint-label .clickable-icon {
+  --icon-size: var(--icon-xs);
+  padding: 0;
+}
+
+/* The caret's explanation, closed until its (?) is pressed. */
+.kalendae-hint-help {
+  color: var(--text-muted);
+  display: none;
+  flex-basis: 100%;
+  font-size: var(--font-ui-smaller);
+  padding-inline-start: var(--size-4-8);
+  padding-top: var(--size-4-2);
+}
+
+.kalendae-hint-help.kalendae-hint-help-open {
+  display: block;
 }
 
 

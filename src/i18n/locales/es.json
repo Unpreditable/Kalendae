@@ -23,6 +23,8 @@
         "heading": "Vista previa",
         "desc": "Pasa el puntero por el recuadro de abajo.",
         "hovered": "Así se ven las fechas cuando pasas el puntero sobre ellas en una nota.",
+        "descTouch": "Toca el recuadro de abajo.",
+        "hoveredTouch": "Así se ven las fechas cuando las tocas en una nota.",
         "nothing": "Todo está desactivado, así que pasar el puntero sobre una fecha no cambia nada."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Distancia en días",
         "rounded": "Distancia redondeada",
         "orb": "Orbe",
+        "caret": "Indicación en el cursor",
         "none": "No mostrar nada"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Desactivado",
         "green-red": "Verde futuro, rojo pasado",
         "red-green": "Rojo futuro, verde pasado"
+      }
+    },
+    "caretHint": {
+      "name": "En el cursor de texto",
+      "help": "Los teléfonos y las tabletas no permiten pasar el puntero, así que la indicación aparece cuando el cursor de texto está sobre una fecha. Elige «En todas partes» para verla también en el ordenador.",
+      "options": {
+        "touch": "En pantallas táctiles",
+        "always": "En todas partes"
       }
     },
     "stepKeys": {

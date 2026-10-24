@@ -407,20 +407,30 @@ describe("readStepKeys", () => {
 
 describe("readHoverHint", () => {
   it("starts with the hint off, and the orb ready for when it is turned on", () => {
-    expect(readHoverHint({})).toEqual({ hoverDistance: "off", hoverOrb: "green-red" });
+    expect(readHoverHint({})).toEqual({
+      hoverDistance: "off",
+      hoverOrb: "green-red",
+      caretHint: "touch",
+    });
   });
 
   it("keeps what was chosen", () => {
-    expect(readHoverHint({ hoverDistance: "rounded", hoverOrb: "red-green" })).toEqual({
+    expect(
+      readHoverHint({ hoverDistance: "rounded", hoverOrb: "red-green", caretHint: "always" }),
+    ).toEqual({
       hoverDistance: "rounded",
       hoverOrb: "red-green",
+      caretHint: "always",
     });
   });
 
   it("falls back to the default for a value it does not know", () => {
-    expect(readHoverHint({ hoverDistance: "weeks", hoverOrb: "blue" } as never)).toEqual({
+    expect(
+      readHoverHint({ hoverDistance: "weeks", hoverOrb: "blue", caretHint: "pen" } as never),
+    ).toEqual({
       hoverDistance: "off",
       hoverOrb: "green-red",
+      caretHint: "touch",
     });
   });
 });

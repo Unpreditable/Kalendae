@@ -23,6 +23,8 @@
         "heading": "Peržiūra",
         "desc": "Užveskite žymeklį ant žemiau esančio rėmelio.",
         "hovered": "Taip datos atrodo užrašuose, kai užvedate ant jų žymeklį.",
+        "descTouch": "Bakstelėkite žemiau esantį rėmelį.",
+        "hoveredTouch": "Taip datos atrodo užrašuose, kai jas bakstelite.",
         "nothing": "Viskas išjungta, todėl užvedus žymeklį ant datos niekas nesikeičia."
       },
       "summary": {
@@ -32,6 +34,7 @@
         "days": "Atstumas dienomis",
         "rounded": "Suapvalintas atstumas",
         "orb": "Rutuliukas",
+        "caret": "Užuomina prie teksto žymeklio",
         "none": "Nieko nerodyti"
       }
     },
@@ -69,6 +72,14 @@
         "off": "Išjungta",
         "green-red": "Žalia ateityje, raudona praeityje",
         "red-green": "Raudona ateityje, žalia praeityje"
+      }
+    },
+    "caretHint": {
+      "name": "Prie teksto žymeklio",
+      "help": "Telefonuose ir planšetėse negalima užvesti pelės, todėl užuomina rodoma, kai teksto žymeklis yra ant datos. Pasirinkite „Visur“, kad ją matytumėte ir kompiuteryje.",
+      "options": {
+        "touch": "Jutikliniuose ekranuose",
+        "always": "Visur"
       }
     },
     "stepKeys": {
