@@ -35,7 +35,13 @@ npm run build                  # TypeScript check + eslint + production bundle â
 npm test                       # Jest unit tests (pure logic only, no Obsidian API)
 npm run validate-translations  # every locale has exactly en.json's keys, none blank
 npm run release-check          # all three, in the order the Release workflow runs them
+npm run test:e2e               # build, then the end-to-end specs in a real Obsidian
+npm run test:all               # the unit tests, then the end-to-end specs
 ```
+
+The two end-to-end commands run on this machine only, through `../ObsidianE2EHarness`, and are not
+part of `release-check` or CI. An Obsidian window takes the keyboard while they run. Spec files in
+`e2e/specs/` must not gain imports â€” see `e2e/README.md`.
 
 **During development**: symlink this folder into `<vault>/.obsidian/plugins/kalendae/` and install
 the [Hot Reload](https://github.com/pjeby/hot-reload) community plugin. With `npm run dev` running,
