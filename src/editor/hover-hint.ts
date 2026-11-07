@@ -15,6 +15,7 @@ import { dayFor, todayKey } from "../picker/month";
 import { KalendaeSettings } from "../settings";
 import { ANY_HOVER, caretHintApplies, touches } from "./caret-hint-rule";
 import { pickerOpen } from "./picker-tooltip";
+import { inTable } from "./table-cell";
 
 /**
  * The line above a date saying how far it is from today, once the pointer has
@@ -96,10 +97,13 @@ function hintDom(target: HintTarget): HTMLElement {
  * The classes that let styles.css reach the hint's host, which carries the pale
  * background, without `:has()`, which Obsidian's review refuses.
  */
-function hostMarks(target: HintTarget): string[] {
-  return target.iconLeft
-    ? ["kalendae-hint-host", "kalendae-hint-host-icon-left"]
-    : ["kalendae-hint-host"];
+function hostMarks(target: HintTarget, view: EditorView): string[] {
+  const marks = ["kalendae-hint-host"];
+  if (target.iconLeft) marks.push("kalendae-hint-host-icon-left");
+  // A table's icon is slimmer, and the hint, hung outside the table, cannot
+  // tell from where it sits.
+  if (inTable(view)) marks.push("kalendae-hint-host-in-table");
+  return marks;
 }
 
 /** The pointer's hint in each editor while it is up, so the caret's can stand in for it. */
@@ -125,7 +129,7 @@ export function hoverHint(getSettings: () => KalendaeSettings): Extension {
           // CodeMirror hangs every hover tooltip in a host of its own, and
           // the host carries the background. Marked from here while the hint
           // is in it, so the marks stay off every other plugin's hover tooltip.
-          const marks = hostMarks(target);
+          const marks = hostMarks(target, view);
           let host: HTMLElement | null = null;
           return {
             dom,
@@ -181,10 +185,10 @@ function caretTooltip(target: HintTarget): Tooltip {
     end: target.to,
     above: true,
     arrow: false,
-    create: () => {
+    create: (view) => {
       // Built like the host a hover tooltip hangs in, with the same marks, so
       // the two hints are one look and one set of rules in styles.css.
-      const dom = createDiv({ cls: ["cm-tooltip-hover", ...hostMarks(target)] });
+      const dom = createDiv({ cls: ["cm-tooltip-hover", ...hostMarks(target, view)] });
       dom.appendChild(hintDom(target));
       return { dom };
     },

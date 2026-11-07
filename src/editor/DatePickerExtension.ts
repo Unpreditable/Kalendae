@@ -6,6 +6,7 @@ import { caretHint, hoverHint } from "./hover-hint";
 import { hotDate, hoverHandlers } from "./hover-state";
 import { nudgeKeys } from "./nudge-keys";
 import { pickerTooltip, showPicker } from "./picker-tooltip";
+import { tableCellTooltips } from "./table-cell";
 
 /**
  * Everything Kalendae adds to an editor, in one extension.
@@ -58,6 +59,7 @@ export function datePickerExtension(getSettings: () => KalendaeSettings): Extens
     // by dispatching the same effect.
     dateDecorations(getSettings, (target, view) => showPicker(view, target)),
     pickerTooltip(getSettings),
+    tableCellTooltips(),
     hoverHint(getSettings),
     caretHint(getSettings),
     nudgeKeys(getSettings),

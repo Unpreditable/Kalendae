@@ -404,6 +404,15 @@
   opacity: 1;
 }
 
+/* A table cell being edited is an editor of its own, and its scroller is the
+   size of the cell's text with overflow hidden — so the frame, a hair outside
+   the date, and the icon beside it were cut off at the cell's text. A cell is
+   as wide as its text, so there is nothing in it to scroll. `kalendae-in-table`
+   is set by `table-cell.ts`; five classes to beat Obsidian's four. */
+.markdown-source-view.mod-cm6 .cm-table-widget .cm-editor.kalendae-in-table .cm-scroller {
+  overflow: visible;
+}
+
 /* Zero-width anchor holding the icon out of the flow. */
 .kalendae-icon-anchor {
   position: relative;
@@ -456,6 +465,27 @@
 .kalendae-icon-left .kalendae-icon {
   padding-inline: 0.3em 0.45em;
   right: 0;
+}
+
+/* A slimmer icon in a table. A table clips at its own edge, with about 24px
+   of padding outside the first and last column; the icon above needs about
+   28px. Less padding around the glyph, and a frame that reaches out by as much
+   less. */
+.cm-table-widget .kalendae-date {
+  --kalendae-icon-space: 1.35em;
+}
+
+.cm-table-widget .kalendae-icon-right .kalendae-icon {
+  padding-inline: 0.15em 0.1em;
+}
+
+.cm-table-widget .kalendae-icon-left .kalendae-icon {
+  padding-inline: 0.1em 0.15em;
+}
+
+/* The hint's left edge on the slimmer frame's: 1.35em, as above. */
+.cm-tooltip.cm-tooltip-hover.kalendae-hint-host-icon-left.kalendae-hint-host-in-table {
+  margin-left: calc(-1.35 * var(--font-text-size));
 }
 
 /* A Tasks emoji standing in for the icon.
