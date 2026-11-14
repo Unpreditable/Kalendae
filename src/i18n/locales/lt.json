@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Pirmoji savaitės diena"
     },
+    "weekend": {
+      "name": "Savaitgalis",
+      "none": "Nėra",
+      "days": "Savaitgalio dienos",
+      "daysDesc": "Kalendorius pažymi pasirinktas dienas fonu.",
+      "preview": "Kalendoriaus peržiūra"
+    },
     "writesPreview": {
       "name": "Naujos datos peržiūra"
     },
@@ -124,7 +131,7 @@
       "description": "Jos rodomos po kalendoriumi, po „Šiandien“.",
       "shortcuts": "Mygtukai",
       "shortcutsDesc": "Rašykite trumpus pavadinimus. Kalendorius nukerpa tai, kas netelpa eilutėje.",
-      "sample": "Peržiūra",
+      "sample": "Kalendoriaus peržiūra",
       "show": "Rodyti greitąsias datas",
       "none": "Nėra",
       "off": "Išjungta",

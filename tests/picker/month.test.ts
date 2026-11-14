@@ -5,7 +5,9 @@ import {
   clampDay,
   dayFor,
   defaultWeekStart,
+  defaultWeekend,
   firstDayOf,
+  isWeekend,
   sameDay,
   shiftMonths,
   todayKey,
@@ -200,6 +202,40 @@ describe("defaultWeekStart", () => {
 
   it("never leaves the caller without an answer", () => {
     expect(typeof defaultWeekStart()).toBe("string");
+  });
+});
+
+describe("defaultWeekend", () => {
+  type WeekInfo = { firstDay?: number; weekend?: number[] };
+  const proto = Intl.Locale.prototype as Intl.Locale & { getWeekInfo?: () => WeekInfo };
+  const original = proto.getWeekInfo;
+
+  afterEach(() => {
+    proto.getWeekInfo = original;
+  });
+
+  it("turns the region's Friday and Saturday into the setting's days", () => {
+    // Intl counts Monday as 1 through Sunday as 7.
+    proto.getWeekInfo = () => ({ firstDay: 6, weekend: [5, 6] });
+    expect(defaultWeekend()).toEqual(["friday", "saturday"]);
+  });
+
+  it("reads Intl's 7 as Sunday", () => {
+    proto.getWeekInfo = () => ({ firstDay: 1, weekend: [6, 7] });
+    expect(defaultWeekend()).toEqual(["sunday", "saturday"]);
+  });
+
+  it("falls back to Saturday and Sunday when the browser cannot say", () => {
+    proto.getWeekInfo = undefined;
+    expect(defaultWeekend()).toEqual(["sunday", "saturday"]);
+  });
+});
+
+describe("isWeekend", () => {
+  it("asks by moment's day number, 0 being Sunday", () => {
+    expect(isWeekend(["friday", "saturday"], 5)).toBe(true);
+    expect(isWeekend(["friday", "saturday"], 0)).toBe(false);
+    expect(isWeekend([], 6)).toBe(false);
   });
 });
 

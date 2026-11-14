@@ -142,19 +142,44 @@ export function defaultWeekStart(): WeekStart {
   return WEEK_STARTS[regionFirstDay() ?? moment.localeData().firstDayOfWeek()];
 }
 
+/**
+ * The weekend for a reader who has never said, asked of the region the way
+ * `defaultWeekStart()` is, and Saturday and Sunday where the browser cannot
+ * say. moment has nothing to fall back on here: it knows a locale's first day
+ * of the week but not its weekend.
+ */
+export function defaultWeekend(): WeekStart[] {
+  const days = regionWeekInfo()?.weekend;
+  if (days === undefined) return ["sunday", "saturday"];
+
+  // Intl counts Monday as 1 through Sunday as 7; moment counts Sunday as 0.
+  return WEEK_STARTS.filter((_, day) => days.some((intl) => intl % 7 === day));
+}
+
 /** 0 to 6 from the machine's region, or null where the browser cannot say. */
 function regionFirstDay(): number | null {
-  type WithWeekInfo = { getWeekInfo?: () => { firstDay: number } };
+  const first = regionWeekInfo()?.firstDay;
+
+  // Intl counts Monday as 1 through Sunday as 7; moment counts Sunday as 0.
+  return first === undefined ? null : first % 7;
+}
+
+/** What `Intl.Locale.getWeekInfo()` reports for the machine's region, if anything. */
+function regionWeekInfo(): { firstDay?: number; weekend?: number[] } | null {
+  type WithWeekInfo = { getWeekInfo?: () => { firstDay?: number; weekend?: number[] } };
 
   try {
     const locale = new Intl.Locale(navigator.language) as Intl.Locale & WithWeekInfo;
-    const first = locale.getWeekInfo?.().firstDay;
 
-    // Intl counts Monday as 1 through Sunday as 7; moment counts Sunday as 0.
-    return first === undefined ? null : first % 7;
+    return locale.getWeekInfo?.() ?? null;
   } catch {
     return null;
   }
+}
+
+/** Whether moment's day `day` (0 is Sunday) is one the reader counts as the weekend. */
+export function isWeekend(weekend: readonly WeekStart[], day: number): boolean {
+  return weekend.includes(WEEK_STARTS[day]);
 }
 
 export function sameDay(one: DayKey, other: DayKey): boolean {

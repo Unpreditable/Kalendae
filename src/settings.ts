@@ -164,6 +164,20 @@ export const WEEK_STARTS = [
 export type WeekStart = (typeof WEEK_STARTS)[number];
 
 /**
+ * The weekend days as stored, or null when what was stored is not a list at
+ * all — which is the first run, and the caller asks the region instead.
+ *
+ * Named days, as `weekStart` is, and kept in moment's order without repeats so
+ * two saves of the same choice write the same file. Anything that is not a day
+ * is dropped. An empty list is a real answer: no weekend, nothing shaded.
+ */
+export function normaliseStoredWeekend(stored: unknown): WeekStart[] | null {
+  if (!Array.isArray(stored)) return null;
+
+  return WEEK_STARTS.filter((day) => stored.includes(day));
+}
+
+/**
  * Where a date is allowed to be for the plugin to offer to edit it.
  *
  * Text is always in scope and has no flag. The rest are off by default, not
@@ -232,6 +246,8 @@ export interface KalendaeSettings {
   caretHint: CaretHint;
   showWeekNumbers: boolean;
   weekStart: WeekStart;
+  /** The days the calendar shades as the weekend, in moment's order; may be empty. */
+  weekend: WeekStart[];
   /** The line naming the exact text a pick will write into the note. */
   showWritesPreview: boolean;
   /**
@@ -282,6 +298,7 @@ export const DEFAULT_SETTINGS: KalendaeSettings = {
   caretHint: "touch",
   showWeekNumbers: false,
   weekStart: "monday",
+  weekend: ["sunday", "saturday"],
   showWritesPreview: true,
   snapMinutes: true,
   clockCommit: "ok",

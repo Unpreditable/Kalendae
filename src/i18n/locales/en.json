@@ -154,6 +154,18 @@
       "name_comment": "Settings row label for the dropdown choosing which day a week starts on in the calendar.",
       "name": "First day of the week"
     },
+    "weekend": {
+      "name_comment": "Settings row label that opens a page choosing which days the calendar shades as the weekend. Also the page's title.",
+      "name": "Weekend",
+      "none_comment": "Shown on that row when no day is chosen, so the calendar shades nothing.",
+      "none": "None",
+      "days_comment": "Row label on the weekend page, beside seven buttons with the short weekday names.",
+      "days": "Weekend days",
+      "daysDesc_comment": "Under that label. Selecting a day's button adds it to the weekend or takes it out.",
+      "daysDesc": "The calendar shades the days you select.",
+      "preview_comment": "Heading over a small calendar of the current month showing the shading.",
+      "preview": "Calendar preview"
+    },
     "writesPreview": {
       "name_comment": "Settings row label for the toggle showing, in the calendar, the exact text a pick will write into the note.",
       "name": "Preview the new date"
@@ -194,7 +206,7 @@
       "shortcutsDesc_comment": "Line under that heading. The shortcuts sit on one row under the calendar and keep the width their names need; when the row runs out of space they are cut off at the end with an ellipsis.",
       "shortcutsDesc": "Keep names short. The calendar cuts off whatever does not fit the row.",
       "sample_comment": "Heading over the calendar shown at the foot of the page, which is what the reader's own settings currently produce.",
-      "sample": "Preview",
+      "sample": "Calendar preview",
       "show_comment": "Settings row label for the switch that hides the quick-date row without clearing what is in it.",
       "show": "Show quick dates",
       "none_comment": "Value shown on the Quick dates row when no slot is filled.",

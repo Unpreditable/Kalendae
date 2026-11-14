@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "주의 첫 요일"
     },
+    "weekend": {
+      "name": "주말",
+      "none": "없음",
+      "days": "주말 요일",
+      "daysDesc": "선택한 요일을 달력에 음영으로 표시합니다.",
+      "preview": "달력 미리보기"
+    },
     "writesPreview": {
       "name": "새 날짜 미리 보기"
     },
@@ -124,7 +131,7 @@
       "description": "달력 아래, ‘오늘’ 뒤에 놓입니다.",
       "shortcuts": "버튼",
       "shortcutsDesc": "이름은 짧게 쓰세요. 줄에 들어가지 않는 부분은 달력이 잘라냅니다.",
-      "sample": "미리보기",
+      "sample": "달력 미리보기",
       "show": "빠른 날짜 표시",
       "none": "없음",
       "off": "끔",

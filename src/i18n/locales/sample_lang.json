@@ -38,6 +38,13 @@
     "weekStart": {
       "name": ""
     },
+    "weekend": {
+      "name": "",
+      "none": "",
+      "days": "",
+      "daysDesc": "",
+      "preview": ""
+    },
     "writesPreview": {
       "name": ""
     },

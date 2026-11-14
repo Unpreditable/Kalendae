@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "每周的第一天"
     },
+    "weekend": {
+      "name": "周末",
+      "none": "无",
+      "days": "周末日期",
+      "daysDesc": "日历会为所选的日子加上底色。",
+      "preview": "日历预览"
+    },
     "writesPreview": {
       "name": "新日期预览"
     },
@@ -124,7 +131,7 @@
       "description": "它们位于日历下方，排在“今天”之后。",
       "shortcuts": "按钮",
       "shortcutsDesc": "名称请写短一些。放不下的部分会被日历截断。",
-      "sample": "预览",
+      "sample": "日历预览",
       "show": "显示快捷日期",
       "none": "无",
       "off": "关闭",

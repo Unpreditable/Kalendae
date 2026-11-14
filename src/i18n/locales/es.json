@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Primer día de la semana"
     },
+    "weekend": {
+      "name": "Fin de semana",
+      "none": "Ninguno",
+      "days": "Días del fin de semana",
+      "daysDesc": "El calendario sombrea los días que elijas.",
+      "preview": "Vista previa del calendario"
+    },
     "writesPreview": {
       "name": "Vista previa de la nueva fecha"
     },
@@ -124,7 +131,7 @@
       "description": "Aparecen bajo el calendario, después de Hoy.",
       "shortcuts": "Botones",
       "shortcutsDesc": "Usa nombres cortos. El calendario recorta lo que no cabe en la fila.",
-      "sample": "Vista previa",
+      "sample": "Vista previa del calendario",
       "show": "Mostrar fechas rápidas",
       "none": "Ninguna",
       "off": "Desactivado",

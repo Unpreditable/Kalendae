@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Erster Tag der Woche"
     },
+    "weekend": {
+      "name": "Wochenende",
+      "none": "Keine",
+      "days": "Wochenendtage",
+      "daysDesc": "Der Kalender hebt die gewählten Tage farbig hervor.",
+      "preview": "Kalendervorschau"
+    },
     "writesPreview": {
       "name": "Neues Datum vorab anzeigen"
     },
@@ -124,7 +131,7 @@
       "description": "Sie stehen unter dem Kalender, nach Heute.",
       "shortcuts": "Schaltflächen",
       "shortcutsDesc": "Halte die Namen kurz. Der Kalender schneidet ab, was nicht in die Zeile passt.",
-      "sample": "Vorschau",
+      "sample": "Kalendervorschau",
       "show": "Schnelldaten anzeigen",
       "none": "Keine",
       "off": "Aus",

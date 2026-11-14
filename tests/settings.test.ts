@@ -1,4 +1,5 @@
 import {
+  normaliseStoredWeekend,
   DEFAULT_SETTINGS,
   HOVER_ICONS,
   KalendaeSettings,
@@ -495,6 +496,24 @@ describe("time formats in settings", () => {
     ];
     expect(normaliseStoredTimeFormats(stored, fallback)).toEqual([
       { id: "time-24-short", pattern: "H:mm" },
+    ]);
+  });
+});
+
+describe("normaliseStoredWeekend", () => {
+  it("asks for the region's answer when nothing was stored", () => {
+    expect(normaliseStoredWeekend(undefined)).toBeNull();
+    expect(normaliseStoredWeekend("saturday")).toBeNull();
+  });
+
+  it("keeps an emptied weekend empty", () => {
+    expect(normaliseStoredWeekend([])).toEqual([]);
+  });
+
+  it("drops what is not a day, repeats and all, and keeps moment's order", () => {
+    expect(normaliseStoredWeekend(["saturday", "funday", 3, "friday", "saturday"])).toEqual([
+      "friday",
+      "saturday",
     ]);
   });
 });

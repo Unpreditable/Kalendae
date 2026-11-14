@@ -40,6 +40,7 @@ import { KalendaeHost } from "./host";
 import { QuickDatesPage, quickDatesSummary } from "./quick-dates-page";
 import { LanguagesPage, languagesSummary } from "./languages-page";
 import { SectionsPage, scopeSummary } from "./sections-page";
+import { WeekendPage, weekendSummary } from "./weekend-page";
 import { boundCommands, stepClashes } from "./step-clash";
 import { TypingHelpPage } from "./typing-help-page";
 import { t } from "../i18n/i18n";
@@ -149,6 +150,14 @@ export class KalendaeSettingTab extends PluginSettingTab {
               defaultValue: DEFAULT_SETTINGS.weekStart,
               options: weekStartOptions(),
             },
+          },
+          {
+            // A page for the preview's sake: seven day buttons fit on the tab,
+            // a month showing what they do does not.
+            name: t("settings.weekend.name"),
+            type: "page",
+            displayValue: () => weekendSummary(this.kalendae.settings),
+            page: () => new WeekendPage(this.kalendae, () => this.update()),
           },
           {
             name: t("settings.weekNumbers.name"),

@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Nädala esimene päev"
     },
+    "weekend": {
+      "name": "Nädalavahetus",
+      "none": "Puudub",
+      "days": "Nädalavahetuse päevad",
+      "daysDesc": "Kalender varjutab valitud päevad.",
+      "preview": "Kalendri eelvaade"
+    },
     "writesPreview": {
       "name": "Uue kuupäeva eelvaade"
     },
@@ -124,7 +131,7 @@
       "description": "Need on kalendri all, Täna järel.",
       "shortcuts": "Nupud",
       "shortcutsDesc": "Hoia nimed lühikesed. Kalender lõikab ära selle, mis ritta ei mahu.",
-      "sample": "Eelvaade",
+      "sample": "Kalendri eelvaade",
       "show": "Näita kiirkuupäevi",
       "none": "Puuduvad",
       "off": "Väljas",

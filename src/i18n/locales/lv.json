@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Nedēļas pirmā diena"
     },
+    "weekend": {
+      "name": "Nedēļas nogale",
+      "none": "Nav",
+      "days": "Nedēļas nogales dienas",
+      "daysDesc": "Kalendārs iekrāso izvēlētās dienas.",
+      "preview": "Kalendāra priekšskatījums"
+    },
     "writesPreview": {
       "name": "Jaunā datuma priekšskatījums"
     },
@@ -124,7 +131,7 @@
       "description": "Tie ir zem kalendāra, aiz „Šodien“.",
       "shortcuts": "Pogas",
       "shortcutsDesc": "Rakstiet īsus nosaukumus. Kalendārs nogriež to, kas rindā neietilpst.",
-      "sample": "Priekšskatījums",
+      "sample": "Kalendāra priekšskatījums",
       "show": "Rādīt ātros datumus",
       "none": "Nav",
       "off": "Izslēgts",

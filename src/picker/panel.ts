@@ -1,7 +1,15 @@
 import { moment, setIcon } from "obsidian";
 import { KalendaeSettings } from "../settings";
 import { t } from "../i18n/i18n";
-import { DayKey, buildMonth, firstDayOf, sameDay, shiftMonths, todayKey } from "./month";
+import {
+  DayKey,
+  buildMonth,
+  firstDayOf,
+  isWeekend,
+  sameDay,
+  shiftMonths,
+  todayKey,
+} from "./month";
 import { resolveRule } from "./quick";
 import { labelFor, ruleFor } from "./quick-text";
 import { replacementFor } from "./write";
@@ -27,6 +35,13 @@ export interface PanelOptions {
   settings: KalendaeSettings;
   onPick: (day: DayKey) => void;
   onClose: () => void;
+  /**
+   * A calendar to look at, not to use: the settings page draws one to show
+   * what its choices do. No chevrons, no footer, no date filled in, and
+   * nothing answers a click or a key. Drawn by this same function rather than
+   * by a copy, so the preview cannot drift from the picker it previews.
+   */
+  preview?: boolean;
 }
 
 export interface Panel {
@@ -47,9 +62,19 @@ export function createPanel(options: PanelOptions): Panel {
   // and back to the 31st. A day arrow is a new choice of day and resets it.
   let meant = focused.day;
 
+  const live = options.preview !== true;
+  dom.toggleClass("kalendae-panel-preview", !live);
+
   const header = dom.createDiv({ cls: "kalendae-panel-header" });
   const label = createSpan({ cls: "kalendae-panel-month" });
   const grid = dom.createDiv({ cls: "kalendae-panel-grid" });
+
+  if (!live) {
+    header.append(label);
+    render();
+    return { dom, focus: () => {} };
+  }
+
   const footer = dom.createDiv({ cls: "kalendae-panel-footer" });
 
   const step = (months: number) => {
@@ -150,13 +175,16 @@ export function createPanel(options: PanelOptions): Panel {
     if (options.settings.showWeekNumbers) {
       head.createDiv({ cls: "kalendae-panel-weeknumber", text: t("picker.weekColumn") });
     }
+    const weekend = (offset: number): boolean =>
+      isWeekend(options.settings.weekend, (firstDay + offset) % 7);
     for (let offset = 0; offset < 7; offset += 1) {
-      head.createDiv({ cls: "kalendae-panel-weekday", text: names[(firstDay + offset) % 7] });
+      const name = head.createDiv({ cls: "kalendae-panel-weekday", text: names[(firstDay + offset) % 7] });
+      name.toggleClass("kalendae-weekend", weekend(offset));
     }
 
     const weeks = buildMonth(focused.year, focused.month, {
       firstDay,
-      selected: options.value,
+      selected: live ? options.value : null,
       today,
     });
 
@@ -166,23 +194,28 @@ export function createPanel(options: PanelOptions): Panel {
         row.createDiv({ cls: "kalendae-panel-weeknumber", text: String(week.weekNumber) });
       }
 
-      for (const day of week.days) {
+      week.days.forEach((day, offset) => {
         const cell = row.createEl("button", {
           cls: "kalendae-panel-day",
           text: String(day.day),
         });
+        cell.toggleClass("kalendae-weekend", weekend(offset));
         cell.toggleClass("kalendae-day-outside", day.outside);
         cell.toggleClass("kalendae-day-selected", day.selected);
         cell.toggleClass("kalendae-day-today", day.today);
+        if (!live) {
+          cell.tabIndex = -1;
+          return;
+        }
         cell.toggleClass("kalendae-day-focused", sameDay(day, focused));
         cell.addEventListener("click", () => options.onPick(day));
         cell.addEventListener("mouseenter", () => preview(day));
-      }
+      });
     }
 
     // The exact text that will replace the date, in the note's own format. The
     // one place the format-preserving promise is visible before it is kept.
-    preview(focused);
+    if (live) preview(focused);
   }
 
   dom.tabIndex = -1;

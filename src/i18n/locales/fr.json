@@ -100,6 +100,13 @@
     "weekStart": {
       "name": "Premier jour de la semaine"
     },
+    "weekend": {
+      "name": "Week-end",
+      "none": "Aucun",
+      "days": "Jours du week-end",
+      "daysDesc": "Le calendrier grise les jours que vous sélectionnez.",
+      "preview": "Aperçu du calendrier"
+    },
     "writesPreview": {
       "name": "Aperçu de la nouvelle date"
     },
@@ -124,7 +131,7 @@
       "description": "Elles s'affichent sous le calendrier, après Aujourd'hui.",
       "shortcuts": "Boutons",
       "shortcutsDesc": "Gardez les noms courts. Le calendrier coupe ce qui ne tient pas dans la ligne.",
-      "sample": "Aperçu",
+      "sample": "Aperçu du calendrier",
       "show": "Afficher les dates rapides",
       "none": "Aucune",
       "off": "Désactivé",

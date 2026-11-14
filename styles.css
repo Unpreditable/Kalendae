@@ -844,6 +844,31 @@
   background-color: var(--background-modifier-hover);
 }
 
+/* The weekend columns sit on one unbroken band, header to last week. A day's
+   own fill is rounded, so the band cannot be the day's background or every
+   hovered or picked weekend day would turn square. It is a square layer drawn
+   behind the button instead: `z-index: -1` against the row's stacking context
+   puts it under the button's background and over the row's. */
+.kalendae-panel .kalendae-panel-row {
+  isolation: isolate;
+}
+
+.kalendae-panel .kalendae-panel-weekday.kalendae-weekend {
+  background-color: var(--background-secondary);
+}
+
+.kalendae-panel .kalendae-panel-day.kalendae-weekend {
+  position: relative;
+}
+
+.kalendae-panel .kalendae-panel-day.kalendae-weekend::before {
+  background-color: var(--background-secondary);
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
 .kalendae-panel .kalendae-day-outside {
   color: var(--text-faint);
   opacity: 0.6;
@@ -858,6 +883,12 @@
 .kalendae-panel .kalendae-day-selected {
   background-color: var(--interactive-accent);
   color: var(--text-on-accent);
+}
+
+/* Hover takes the fill away, so the white text on accent has to go with it:
+   left alone it sits white on a pale hover in light themes. */
+.kalendae-panel .kalendae-day-selected:hover {
+  color: var(--text-normal);
 }
 
 .kalendae-panel .kalendae-day-selected.kalendae-day-outside {
@@ -1452,10 +1483,11 @@
 }
 
 /* The calendar as the page's own settings draw it, sitting at the foot of the
-   page. Left where the rows are, not centred: it is an example, not a feature
-   of the page. */
+   page. Centred, as the weekend page's preview is, so the two read the same. */
 .kalendae-quick-sample {
   display: flex;
+  justify-content: center;
+  padding: var(--size-4-2) 0;
 }
 
 /* A preset in the chooser: its name, and its rule in words pushed away to the
@@ -1748,4 +1780,45 @@
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
   margin-inline-start: var(--size-4-2);
+}
+
+/* ---------------------------------------------------------------------------
+ * The weekend page: seven day pills, and this month's calendar under them.
+ * ------------------------------------------------------------------------- */
+
+.kalendae-weekend-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-2-2);
+}
+
+/* Two classes, for the reason the panel's rules are scoped: Obsidian's
+   `button` rules outrank a single class. */
+.kalendae-weekend-pills .kalendae-weekend-pill {
+  border-radius: var(--radius-l);
+  font-size: var(--font-ui-small);
+  min-width: 2.6em;
+  padding: var(--size-2-2) var(--size-4-2);
+}
+
+.kalendae-weekend-pills .kalendae-weekend-pill.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.kalendae-weekend-pills .kalendae-weekend-pill.is-active:hover {
+  background-color: var(--interactive-accent-hover);
+}
+
+.kalendae-weekend-preview {
+  display: flex;
+  justify-content: center;
+  padding: var(--size-4-2) 0;
+}
+
+/* For looking at: a day under the pointer does nothing, so it does not light
+   up as if it would. */
+.kalendae-panel.kalendae-panel-preview .kalendae-panel-day {
+  cursor: default;
+  pointer-events: none;
 }

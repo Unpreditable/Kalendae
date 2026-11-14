@@ -3,7 +3,7 @@ import { FormatKind, setDetectionLocales } from "./detect/formats";
 import { KalendaeDateSuggest } from "./editor/date-suggest";
 import { datePickerExtension, editorViewIn } from "./editor/DatePickerExtension";
 import { showPicker, targetAt } from "./editor/picker-tooltip";
-import { defaultWeekStart } from "./picker/month";
+import { defaultWeekStart, defaultWeekend } from "./picker/month";
 import { closePopup } from "./picker/popup";
 import {
   BASE_LOCALE,
@@ -16,6 +16,7 @@ import {
   migrateTriggers,
   normaliseStoredFormats,
   normaliseStoredQuickDates,
+  normaliseStoredWeekend,
   readClockCommit,
   readHoverHint,
   readStepKeys,
@@ -133,6 +134,9 @@ export default class KalendaePlugin extends Plugin {
       // Never guessed twice: whichever day the reader's region starts weeks on is
       // resolved once, on the first run, and is an ordinary setting after that.
       weekStart: stored?.weekStart ?? defaultWeekStart(),
+      // The same, for the weekend: the region answers once, and an emptied
+      // list afterwards means no shading rather than a second guess.
+      weekend: normaliseStoredWeekend(stored?.weekend) ?? defaultWeekend(),
       // Seeded once, like weekStart, and an ordinary setting afterwards. A
       // vault reading Russian types `@ноя 3` today; upgrading must not take
       // that away and then wait to be asked for it back.
