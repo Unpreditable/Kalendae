@@ -1,6 +1,7 @@
 import { setDetectionLocales } from "../../src/detect/formats";
 import { WEEK_STARTS } from "../../src/settings";
 import {
+  allowedDays,
   buildMonth,
   clampDay,
   dayFor,
@@ -8,8 +9,11 @@ import {
   defaultWeekend,
   firstDayOf,
   isWeekend,
+  openingDay,
+  pageTo,
   sameDay,
   shiftMonths,
+  stepTo,
   todayKey,
 } from "../../src/picker/month";
 
@@ -267,5 +271,174 @@ describe("dayFor", () => {
     } finally {
       setDetectionLocales(["en"]);
     }
+  });
+});
+
+/**
+ * The days a caller of `pickDate` allows. November 2026 is the worked example:
+ * the 16th is a Monday, so 16–22 is one whole week, and 1 December sits past a
+ * gap to exercise a list of more than one entry.
+ */
+const d = (month: number, day: number) => ({ year: 2026, month, day });
+const week = allowedDays([{ from: "2026-11-16", to: "2026-11-22" }])!;
+const weekAndDec1 = allowedDays([{ from: "2026-11-16", to: "2026-11-22" }, "2026-12-01"])!;
+
+describe("allowedDays", () => {
+  it("is no limit when nothing is given or nothing can be read", () => {
+    expect(allowedDays(undefined)).toBeNull();
+    expect(allowedDays([])).toBeNull();
+    expect(allowedDays(["nonsense", { from: "x", to: "y" }])).toBeNull();
+  });
+
+  it("allows a range with both ends included", () => {
+    expect(week.test(d(10, 16))).toBe(true);
+    expect(week.test(d(10, 22))).toBe(true);
+    expect(week.test(d(10, 15))).toBe(false);
+    expect(week.test(d(10, 23))).toBe(false);
+  });
+
+  it("keeps the limit when only some entries can be read", () => {
+    const partly = allowedDays([{ from: "2026-11-16", to: "2026-11-22" }, "nonsense"])!;
+    expect(partly.test(d(10, 15))).toBe(false);
+    expect(partly.test(d(10, 16))).toBe(true);
+  });
+
+  it("skips a range written backwards", () => {
+    expect(allowedDays([{ from: "2026-11-22", to: "2026-11-16" }])).toBeNull();
+  });
+
+  it("reads days strictly", () => {
+    expect(allowedDays(["2026-11-31"])).toBeNull();
+  });
+
+  it("allows single days beside ranges", () => {
+    expect(weekAndDec1.test(d(11, 1))).toBe(true);
+    expect(weekAndDec1.test(d(11, 2))).toBe(false);
+  });
+
+  it("is no limit when what it is given is not a list", () => {
+    // Called from other plugins' JavaScript, where nothing checks the shape.
+    const loose = allowedDays as (entries: unknown) => ReturnType<typeof allowedDays>;
+    expect(loose({ from: "2026-11-16", to: "2026-11-22" })).toBeNull();
+    expect(loose("2026-11-16")).toBeNull();
+    expect(loose(null)).toBeNull();
+  });
+
+  it("skips entries of the wrong shape inside a list", () => {
+    const loose = allowedDays as (entries: unknown) => ReturnType<typeof allowedDays>;
+    const mixed = loose([null, 42, { from: 1, to: 2 }, "2026-11-16"])!;
+    expect(mixed.test(d(10, 16))).toBe(true);
+    expect(mixed.test(d(10, 17))).toBe(false);
+  });
+});
+
+describe("stepTo", () => {
+  it("goes to the target when it is allowed", () => {
+    expect(stepTo(d(10, 16), d(10, 17), week)).toEqual(d(10, 17));
+  });
+
+  it("stops at the allowed day nearest the target, short of it", () => {
+    expect(stepTo(d(10, 16), d(10, 23), week)).toEqual(d(10, 22));
+  });
+
+  it("stays put when nothing is allowed that way", () => {
+    expect(stepTo(d(10, 22), d(10, 23), week)).toEqual(d(10, 22));
+    expect(stepTo(d(10, 16), d(10, 15), week)).toEqual(d(10, 16));
+  });
+
+  it("jumps a gap to the next allowed day", () => {
+    expect(stepTo(d(10, 22), d(10, 23), weekAndDec1)).toEqual(d(11, 1));
+  });
+
+  it("jumps a gap backwards", () => {
+    expect(stepTo(d(11, 1), d(10, 24), weekAndDec1)).toEqual(d(10, 22));
+  });
+
+  it("pages a month into the nearest allowed day short of it", () => {
+    expect(stepTo(d(10, 16), d(11, 16), weekAndDec1)).toEqual(d(11, 1));
+  });
+
+  it("stays when the target is where it already is", () => {
+    expect(stepTo(d(10, 18), d(10, 18), week)).toEqual(d(10, 18));
+  });
+});
+
+describe("openingDay", () => {
+  it("keeps an allowed day", () => {
+    expect(openingDay(d(10, 18), week)).toEqual(d(10, 18));
+  });
+
+  it("moves a day before the range onto its first day", () => {
+    expect(openingDay(d(10, 14), week)).toEqual(d(10, 16));
+  });
+
+  it("takes the nearer side", () => {
+    expect(openingDay(d(10, 26), weekAndDec1)).toEqual(d(10, 22));
+  });
+
+  it("takes the later day on a tie", () => {
+    expect(openingDay(d(10, 15), allowedDays(["2026-11-10", "2026-11-20"])!)).toEqual(d(10, 20));
+  });
+});
+
+describe("the nearest-day searches with days far apart", () => {
+  // Years between entries: a day-by-day walk takes seconds here, so a bound on
+  // the time is what tells a direct search from one.
+  const far = allowedDays(["2026-11-16", "9999-12-31"])!;
+  const quickly = (run: () => void) => {
+    const start = Date.now();
+    run();
+    expect(Date.now() - start).toBeLessThan(200);
+  };
+
+  it("opens on the nearer of two far-apart days", () => {
+    const ends = allowedDays(["1000-01-01", "9999-12-31"])!;
+    quickly(() => expect(openingDay(d(10, 20), ends)).toEqual({ year: 1000, month: 0, day: 1 }));
+  });
+
+  it("jumps years to the next allowed day", () => {
+    quickly(() => expect(stepTo(d(10, 16), d(10, 17), far)).toEqual({ year: 9999, month: 11, day: 31 }));
+  });
+
+  it("stops short across years", () => {
+    quickly(() => expect(stepTo({ year: 9999, month: 11, day: 31 }, d(10, 1), far)).toEqual(d(10, 16)));
+  });
+});
+
+describe("pageTo", () => {
+  // January and March can be picked, February cannot.
+  const janMar = allowedDays([
+    { from: "2026-01-10", to: "2026-01-20" },
+    { from: "2026-03-05", to: "2026-03-15" },
+  ])!;
+  const jan = (day: number) => d(0, day);
+  const mar = (day: number) => d(2, day);
+
+  it("skips a month with nothing to pick, wherever the ring is", () => {
+    expect(pageTo(jan(15), d(1, 15), janMar)).toEqual(mar(5));
+    expect(pageTo(jan(20), d(1, 20), janMar)).toEqual(mar(5));
+  });
+
+  it("skips it going back too", () => {
+    expect(pageTo(mar(10), d(1, 10), janMar)).toEqual(jan(20));
+  });
+
+  it("goes to the target when it can be picked", () => {
+    expect(pageTo(jan(15), mar(10), janMar)).toEqual(mar(10));
+  });
+
+  it("goes nowhere when no other month that way has a day to pick", () => {
+    expect(pageTo(d(10, 16), d(11, 16), week)).toEqual(d(10, 16));
+    expect(pageTo(d(10, 16), d(9, 16), week)).toEqual(d(10, 16));
+  });
+
+  it("never lands back in the month on show", () => {
+    const november = allowedDays([{ from: "2026-11-01", to: "2026-11-30" }])!;
+    expect(pageTo(d(10, 15), d(9, 15), november)).toEqual(d(10, 15));
+  });
+
+  it("takes the day nearest the aim on a year step", () => {
+    const marches = allowedDays(["2026-03-10", "2027-03-10"])!;
+    expect(pageTo(jan(15), { year: 2027, month: 0, day: 15 }, marches)).toEqual({ year: 2027, month: 2, day: 10 });
   });
 });

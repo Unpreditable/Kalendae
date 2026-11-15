@@ -1,6 +1,6 @@
 import { App, Scope } from "obsidian";
 import { KalendaeSettings } from "../settings";
-import { dayFor } from "./month";
+import { AllowedEntry, allowedDays, dayFor } from "./month";
 import { createPanel } from "./panel";
 import { Box, placementFor } from "./popup-math";
 import { replacementFor } from "./write";
@@ -22,6 +22,8 @@ export interface PopupOptions {
   pattern: string;
   /** An element to sit beside, or the point of a click. */
   anchor: HTMLElement | MouseEvent;
+  /** The days that can be picked, `YYYY-MM-DD`; left out or empty, any day. */
+  allowed?: readonly AllowedEntry[];
   settings: KalendaeSettings;
 }
 
@@ -72,6 +74,7 @@ export function openPopup(app: App, options: PopupOptions): Promise<string | nul
       value: dayFor(options.value || "", options.pattern),
       pattern: options.pattern,
       settings: options.settings,
+      allowed: allowedDays(options.allowed) ?? undefined,
       onPick: (day) => finish(replacementFor(options.pattern, day)),
       onClose: close,
     });

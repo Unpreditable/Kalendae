@@ -207,6 +207,18 @@ if (kalendae?.api?.pickDate) {
 
 `pattern` sets the format of `value` and of the result (`YYYY-MM-DD` by default), and an empty `value` opens on today. Your plugin writes the date itself. Copy [docs/kalendae-api.d.ts](docs/kalendae-api.d.ts) for the types.
 
+`allowed` limits which days can be picked. It takes ranges and single days, always written as `YYYY-MM-DD`:
+
+```ts
+const day = await kalendae.api.pickDate({
+  value: "2026-11-14",
+  anchor: event,
+  allowed: [{ from: "2026-11-16", to: "2026-11-22" }, "2026-12-01"],
+});
+```
+
+The other days are shown struck through, and the calendar opens on the nearest allowed day. An entry Kalendae can't read is skipped. If `allowed` isn't a list, or nothing in it can be read, any day can be picked. Versions of Kalendae before this option ignore it too. In every case, check the day you get back.
+
 ---
 
 ## More plugins by the author

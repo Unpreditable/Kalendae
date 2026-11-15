@@ -1,5 +1,6 @@
 import { App } from "obsidian";
 import { openPopup } from "./picker/popup";
+import { AllowedEntry } from "./picker/month";
 import { KalendaeSettings } from "./settings";
 
 /**
@@ -22,6 +23,13 @@ export interface PickDateOptions {
   pattern?: string;
   /** Where the calendar appears: beside an element, or at a click. */
   anchor: HTMLElement | MouseEvent;
+  /**
+   * The days that can be picked, as `YYYY-MM-DD` ranges (both ends included) or
+   * single days, whatever `pattern` is. Other days are shown but cannot be
+   * picked. Left out or empty, any day can be. An older Kalendae ignores this,
+   * so check the day you get back.
+   */
+  allowed?: AllowedEntry[];
 }
 
 export interface KalendaeApi {
@@ -39,6 +47,7 @@ export function createApi(app: App, getSettings: () => KalendaeSettings): Kalend
         value: options.value,
         pattern: options.pattern ?? DEFAULT_PATTERN,
         anchor: options.anchor,
+        allowed: options.allowed,
         settings: getSettings(),
       }),
   };

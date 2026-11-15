@@ -94,6 +94,159 @@ export function shiftMonths(from: DayKey, months: number, meant: number = from.d
 }
 
 /**
+ * One entry of the days another plugin lets the reader pick: a range with both
+ * ends included, or a single day. Always `YYYY-MM-DD`, whatever format the
+ * caller reads and writes its own dates in.
+ */
+export type AllowedEntry = { from: string; to: string } | string;
+
+/** The days that can be picked, read once from the caller's entries. */
+export interface AllowedDays {
+  test(day: DayKey): boolean;
+  /**
+   * The allowed days as `[first, last]` pairs of whole-day numbers, both ends
+   * included, so the searches below compare against each range rather than
+   * walking a day at a time.
+   */
+  ranges: readonly (readonly [number, number])[];
+}
+
+const DAY_MS = 86_400_000;
+
+/** A day as a whole number, so ranges and steps are plain arithmetic. */
+function ordinal(day: DayKey): number {
+  return Math.round(moment.utc(day).valueOf() / DAY_MS);
+}
+
+function fromOrdinal(n: number): DayKey {
+  const at = moment.utc(n * DAY_MS);
+
+  return { year: at.year(), month: at.month(), day: at.date() };
+}
+
+function readDay(text: unknown): number | null {
+  if (typeof text !== "string") return null;
+  const at = moment.utc(text, "YYYY-MM-DD", true);
+
+  return at.isValid() ? ordinal({ year: at.year(), month: at.month(), day: at.date() }) : null;
+}
+
+/**
+ * The caller's entries as something the calendar can ask, or null for no limit.
+ *
+ * An entry that cannot be read is skipped, and so is a range written backwards,
+ * rather than either lifting the limit or being guessed at. Anything that is not
+ * a list, or a list where nothing at all can be read, is no limit: the caller
+ * checks the day it gets back, and a calendar where no day can be picked is one
+ * the reader can only close.
+ */
+export function allowedDays(entries: readonly AllowedEntry[] | undefined): AllowedDays | null {
+  if (!Array.isArray(entries)) return null;
+  const ranges: [number, number][] = [];
+
+  for (const entry of entries as readonly unknown[]) {
+    const [from, to] =
+      typeof entry === "string"
+        ? [readDay(entry), readDay(entry)]
+        : typeof entry === "object" && entry !== null
+          ? [readDay((entry as { from?: unknown }).from), readDay((entry as { to?: unknown }).to)]
+          : [null, null];
+    if (from !== null && to !== null && from <= to) ranges.push([from, to]);
+  }
+
+  if (ranges.length === 0) return null;
+
+  return {
+    test: (day) => {
+      const n = ordinal(day);
+      return ranges.some(([from, to]) => from <= n && n <= to);
+    },
+    ranges,
+  };
+}
+
+/** The earliest allowed day from `low` to `high`, both included, or null. */
+function earliestIn(allowed: AllowedDays, low: number, high: number): number | null {
+  let best: number | null = null;
+  for (const [from, to] of allowed.ranges) {
+    if (to < low || from > high) continue;
+    const n = Math.max(from, low);
+    if (best === null || n < best) best = n;
+  }
+
+  return best;
+}
+
+/** The latest allowed day from `low` to `high`, both included, or null. */
+function latestIn(allowed: AllowedDays, low: number, high: number): number | null {
+  let best: number | null = null;
+  for (const [from, to] of allowed.ranges) {
+    if (to < low || from > high) continue;
+    const n = Math.min(to, high);
+    if (best === null || n > best) best = n;
+  }
+
+  return best;
+}
+
+/**
+ * Where a key or a chevron aimed at `target` lands when only some days can be
+ * picked: the target itself when allowed; else the allowed day nearest it,
+ * short of it, without going back past `from`; else the next allowed day beyond
+ * it, across a gap; else nowhere, and the ring stays on `from`.
+ */
+export function stepTo(from: DayKey, target: DayKey, allowed: AllowedDays): DayKey {
+  const start = ordinal(from);
+  const aim = ordinal(target);
+  if (aim === start || allowed.test(target)) return target;
+
+  const landed =
+    aim > start
+      ? latestIn(allowed, start + 1, aim - 1) ?? earliestIn(allowed, aim + 1, Infinity)
+      : earliestIn(allowed, aim + 1, start - 1) ?? latestIn(allowed, -Infinity, aim - 1);
+
+  return landed === null ? from : fromOrdinal(landed);
+}
+
+/**
+ * Where a month or year step aimed at `target` lands when only some days can be
+ * picked: the allowed day nearest the target, among the months past the one on
+ * show in the step's direction, the later one on a tie. A month with nothing to
+ * pick is skipped, and a step that would land back in the month on show goes
+ * nowhere: the ring stays on `from`.
+ */
+export function pageTo(from: DayKey, target: DayKey, allowed: AllowedDays): DayKey {
+  const aim = ordinal(target);
+  const shown = ordinal({ ...from, day: 1 });
+  const forward = aim > ordinal(from);
+  const low = forward ? ordinal(shiftMonths(from, 1, 1)) : -Infinity;
+  const high = forward ? Infinity : shown - 1;
+
+  const after = earliestIn(allowed, Math.max(aim, low), high);
+  const before = latestIn(allowed, low, Math.min(aim, high));
+  if (after !== null && (before === null || after - aim <= aim - before)) return fromOrdinal(after);
+
+  return before === null ? from : fromOrdinal(before);
+}
+
+/**
+ * The day the calendar opens on: `value` when it can be picked, otherwise the
+ * nearest day that can, the later one on a tie — a reader rescheduling is more
+ * often pushing a date on than pulling it back.
+ */
+export function openingDay(value: DayKey, allowed: AllowedDays): DayKey {
+  if (allowed.test(value)) return value;
+
+  const at = ordinal(value);
+  const after = earliestIn(allowed, at + 1, Infinity);
+  const before = latestIn(allowed, -Infinity, at - 1);
+  if (after === null) return fromOrdinal(before ?? at);
+  if (before === null || after - at <= at - before) return fromOrdinal(after);
+
+  return fromOrdinal(before);
+}
+
+/**
  * The day a date reads back as, or today when there is no date to read.
  *
  * Both of the picker's cases in one: it opens on the date the note holds, and on

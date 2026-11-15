@@ -16,6 +16,13 @@ export interface KalendaePickDateOptions {
   pattern?: string;
   /** Where the calendar appears: beside an element, or at a click. */
   anchor: HTMLElement | MouseEvent;
+  /**
+   * The days that can be picked, as `YYYY-MM-DD` ranges (both ends included) or
+   * single days, whatever `pattern` is. Other days are shown but cannot be
+   * picked. Left out or empty, any day can be. An older Kalendae ignores this,
+   * so check the day you get back.
+   */
+  allowed?: Array<{ from: string; to: string } | string>;
 }
 
 export interface KalendaeApi {

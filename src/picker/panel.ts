@@ -2,12 +2,16 @@ import { moment, setIcon } from "obsidian";
 import { KalendaeSettings } from "../settings";
 import { t } from "../i18n/i18n";
 import {
+  AllowedDays,
   DayKey,
   buildMonth,
   firstDayOf,
   isWeekend,
+  openingDay,
+  pageTo,
   sameDay,
   shiftMonths,
+  stepTo,
   todayKey,
 } from "./month";
 import { resolveRule } from "./quick";
@@ -36,6 +40,12 @@ export interface PanelOptions {
   onPick: (day: DayKey) => void;
   onClose: () => void;
   /**
+   * The days that can be picked, when another plugin limits them. The rest are
+   * drawn struck through and answer neither a click nor the keyboard. Absent,
+   * every day can be picked.
+   */
+  allowed?: AllowedDays;
+  /**
    * A calendar to look at, not to use: the settings page draws one to show
    * what its choices do. No chevrons, no footer, no date filled in, and
    * nothing answers a click or a key. Drawn by this same function rather than
@@ -57,7 +67,17 @@ export function createPanel(options: PanelOptions): Panel {
 
   // Where the keyboard is, which is not the same as what the note holds: paging
   // moves this, and only Enter or a click turns it into a date in the note.
-  let focused = options.value;
+  const allowed = options.allowed;
+  const canPick = (day: DayKey): boolean => allowed === undefined || allowed.test(day);
+  // Where a move aimed at `target` lands: a day outside is never landed on.
+  const land = (target: DayKey): DayKey => (allowed ? stepTo(focused, target, allowed) : target);
+  // A month or year step skips months with nothing to pick, and goes nowhere
+  // rather than landing back in the month on show.
+  const page = (target: DayKey): DayKey => (allowed ? pageTo(focused, target, allowed) : target);
+
+  // Opened on a day that cannot be picked, the ring starts on the nearest one
+  // that can; the fill stays on the date the caller had.
+  let focused = allowed ? openingDay(options.value, allowed) : options.value;
   // The day of the month paging aims for, so 31 January pages through February
   // and back to the 31st. A day arrow is a new choice of day and resets it.
   let meant = focused.day;
@@ -77,22 +97,34 @@ export function createPanel(options: PanelOptions): Panel {
 
   const footer = dom.createDiv({ cls: "kalendae-panel-footer" });
 
+  const steps: { button: HTMLElement; months: number }[] = [];
+
   const step = (months: number) => {
-    focused = shiftMonths(focused, months, meant);
+    focused = page(shiftMonths(focused, months, meant));
     render();
   };
 
-  navButton(header, "chevrons-left", t("picker.prevYear"), () => step(-12));
-  navButton(header, "chevron-left", t("picker.prevMonth"), () => step(-1));
+  const stepButton = (icon: string, text: string, months: number) => {
+    const button = navButton(header, icon, text, () => {
+      if (!button.hasClass("kalendae-day-blocked")) step(months);
+    });
+    steps.push({ button, months });
+  };
+
+  stepButton("chevrons-left", t("picker.prevYear"), -12);
+  stepButton("chevron-left", t("picker.prevMonth"), -1);
   header.append(label);
-  navButton(header, "chevron-right", t("picker.nextMonth"), () => step(1));
-  navButton(header, "chevrons-right", t("picker.nextYear"), () => step(12));
+  stepButton("chevron-right", t("picker.nextMonth"), 1);
+  stepButton("chevrons-right", t("picker.nextYear"), 12);
 
   const todayButton = footer.createEl("button", {
     cls: "kalendae-panel-today",
     text: t("picker.today"),
   });
-  todayButton.addEventListener("click", () => options.onPick(today));
+  block(todayButton, !canPick(today));
+  todayButton.addEventListener("click", () => {
+    if (canPick(today)) options.onPick(today);
+  });
 
   const writes = options.settings.showWritesPreview
     ? footer.createDiv({ cls: "kalendae-panel-writes" })
@@ -109,10 +141,15 @@ export function createPanel(options: PanelOptions): Panel {
    * is where Enter would land.
    */
   const preview = (day: DayKey) => {
+    if (writes === null) return;
+    writes.empty();
+    // A day that cannot be picked still shows its date, readable, behind a
+    // lock: the reader learns which day it is and that it is not on offer.
+    if (!canPick(day)) setIcon(writes.createSpan({ cls: "kalendae-lock" }), "lock");
     // The date and nothing else. A label in front of it doubles the width of
     // the footer for a format like "Wednesday, 9 September 2026", and the line
     // sits under a calendar where nothing else could be about to be written.
-    writes?.setText(replacementFor(options.pattern, day));
+    writes.appendText(replacementFor(options.pattern, day));
   };
 
   todayButton.addEventListener("mouseenter", () => preview(today));
@@ -153,7 +190,10 @@ export function createPanel(options: PanelOptions): Panel {
       // The date it lands on, for a screen reader, which would otherwise hear
       // only a name somebody made up.
       button.setAttribute("aria-label", `${label} — ${replacementFor(options.pattern, day)}`);
-      button.addEventListener("click", () => options.onPick(day));
+      block(button, !canPick(day));
+      button.addEventListener("click", () => {
+        if (canPick(day)) options.onPick(day);
+      });
       button.addEventListener("mouseenter", () => preview(day));
     }
 
@@ -208,9 +248,27 @@ export function createPanel(options: PanelOptions): Panel {
           return;
         }
         cell.toggleClass("kalendae-day-focused", sameDay(day, focused));
-        cell.addEventListener("click", () => options.onPick(day));
         cell.addEventListener("mouseenter", () => preview(day));
+        if (!canPick(day)) {
+          block(cell, true);
+          // The number in a span of its own, so the fade dims the number alone:
+          // opacity on the button would take its weekend band and today's
+          // outline down with it.
+          cell.empty();
+          cell.createSpan({ cls: "kalendae-day-number", text: String(day.day) });
+          // Kept from taking focus: a click here picks nothing, so the button
+          // would keep focus, and the next key's redraw would remove it and
+          // leave the keyboard with nowhere to go.
+          cell.addEventListener("mousedown", (event) => event.preventDefault());
+          return;
+        }
+        cell.addEventListener("click", () => options.onPick(day));
       });
+    }
+
+    // A chevron that would not change the month has nowhere to go.
+    for (const { button, months } of steps) {
+      block(button, sameDay(page(shiftMonths(focused, months, meant)), focused));
     }
 
     // The exact text that will replace the date, in the note's own format. The
@@ -224,15 +282,17 @@ export function createPanel(options: PanelOptions): Panel {
 
     if (moved !== null) {
       event.preventDefault();
-      focused = moved.day;
-      meant = moved.meant;
+      const day = moved.byDay ? land(moved.day) : page(moved.day);
+      // A day arrow is a new choice of day; a page keeps the one paging aims for.
+      meant = moved.byDay ? day.day : moved.meant;
+      focused = day;
       render();
       return;
     }
 
     if (event.key === "Enter") {
       event.preventDefault();
-      options.onPick(focused);
+      if (canPick(focused)) options.onPick(focused);
       return;
     }
 
@@ -249,13 +309,14 @@ export function createPanel(options: PanelOptions): Panel {
 
 /**
  * Where a key takes the keyboard, and the day of the month paging should aim
- * for next, or null when the key is not ours.
+ * for next, or null when the key is not ours. `byDay` marks a day arrow, whose
+ * landing day becomes the new aim even when limited days moved it elsewhere.
  */
 function movedBy(
   event: KeyboardEvent,
   from: DayKey,
   meant: number,
-): { day: DayKey; meant: number } | null {
+): { day: DayKey; meant: number; byDay: boolean } | null {
   const days: Record<string, number> = {
     ArrowLeft: -1,
     ArrowRight: 1,
@@ -266,14 +327,14 @@ function movedBy(
   const offset = days[event.key];
   if (offset !== undefined) {
     const day = shiftDays(from, offset);
-    return { day, meant: day.day };
+    return { day, meant: day.day, byDay: true };
   }
 
   // Shift turns a month step into a year, which is the same pairing the header
   // buttons make: one chevron a month, two a year.
   const months = { PageUp: -1, PageDown: 1 }[event.key];
   if (months !== undefined) {
-    return { day: shiftMonths(from, event.shiftKey ? 12 * months : months, meant), meant };
+    return { day: shiftMonths(from, event.shiftKey ? 12 * months : months, meant), meant, byDay: false };
   }
 
   return null;
@@ -283,6 +344,13 @@ function shiftDays(from: DayKey, days: number): DayKey {
   const at = moment.utc(from).add(days, "days");
 
   return { year: at.year(), month: at.month(), day: at.date() };
+}
+
+/** Marks a control as not usable here, without `disabled`, which would also silence its hover. */
+function block(element: HTMLElement, blocked: boolean): void {
+  element.toggleClass("kalendae-day-blocked", blocked);
+  if (blocked) element.setAttribute("aria-disabled", "true");
+  else element.removeAttribute("aria-disabled");
 }
 
 function navButton(

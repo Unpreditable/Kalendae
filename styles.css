@@ -900,6 +900,68 @@
   outline-offset: -2px;
 }
 
+/* A day another plugin does not let the reader pick: struck through and nearly
+   gone, with no background of its own so the weekend band still shows. After
+   `.kalendae-day-outside`, so a blocked day from the next month looks blocked
+   rather than merely from the next month. */
+.kalendae-panel .kalendae-panel-day.kalendae-day-blocked {
+  color: var(--text-faint);
+  cursor: default;
+  opacity: 1;
+}
+
+.kalendae-panel .kalendae-panel-day.kalendae-day-blocked:hover {
+  background-color: transparent;
+}
+
+/* The fade is on the number alone: opacity on the button would dim its weekend
+   band and today's outline with it. */
+.kalendae-panel .kalendae-day-blocked .kalendae-day-number {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+/* The caller's own date, when it lies outside: still filled, so the reader sees
+   what the task had, and struck through like the days around it. */
+.kalendae-panel .kalendae-panel-day.kalendae-day-selected.kalendae-day-blocked,
+.kalendae-panel .kalendae-panel-day.kalendae-day-selected.kalendae-day-blocked:hover {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.kalendae-panel .kalendae-day-selected.kalendae-day-blocked .kalendae-day-number {
+  opacity: 0.6;
+}
+
+.kalendae-panel .kalendae-panel-step.kalendae-day-blocked {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.kalendae-panel .kalendae-panel-step.kalendae-day-blocked:hover {
+  background-color: transparent;
+  color: var(--text-muted);
+}
+
+.kalendae-panel .kalendae-panel-today.kalendae-day-blocked,
+.kalendae-panel .kalendae-panel-today.kalendae-day-blocked:hover,
+.kalendae-panel .kalendae-panel-quick-date.kalendae-day-blocked,
+.kalendae-panel .kalendae-panel-quick-date.kalendae-day-blocked:hover {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.kalendae-panel .kalendae-panel-writes .kalendae-lock {
+  display: inline-flex;
+  margin-inline-end: var(--size-2-1);
+  vertical-align: -0.1em;
+}
+
+.kalendae-panel .kalendae-panel-writes .kalendae-lock svg {
+  height: 1em;
+  width: 1em;
+}
+
 /* `width: 0` with `min-width: 100%` is what stops the footer widening the
    panel. The calendar's width is the month grid's, and a shortcut named
    "asdf23423424" was making the panel as wide as the name. Zero width keeps
