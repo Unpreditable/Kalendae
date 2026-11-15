@@ -31,7 +31,8 @@ pick the likelier reading and proceed. Guessing wrong wastes more of the user's 
 
 ```bash
 npm run dev                    # esbuild watch mode (rebuilds on save — use with Hot Reload plugin)
-npm run build                  # TypeScript check + eslint + production bundle → main.js
+npm run build                  # TypeScript check + lint + production bundle → main.js
+npm run lint                   # eslint and stylelint as Obsidian's review runs them; any warning fails
 npm test                       # Jest unit tests (pure logic only, no Obsidian API)
 npm run validate-translations  # every locale has exactly en.json's keys, none blank
 npm run release-check          # all three, in the order the Release workflow runs them
@@ -280,6 +281,9 @@ above. All 13 other locales must have exactly en's key set with no blank values 
 adding a language and is exempt from the check.
 
 ## CSS rules
+
+`stylelint.config.mjs` is the review's own CSS config, and `npm run lint` fails on any finding.
+The rules below go further than it does.
 
 - **No `!important`** — increase selector specificity or use CSS variables instead.
 - **No inline styles** — style through `styles.css` and class names, never `style=""`.
